@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Innkeeper at Maren's Ford</title>
+    <style>
+        :root {
+            --bg-color: #ccc8b5;
+            --page-bg: linear-gradient(to right, #e2dbc8 0%, #ece5d2 5%, #eee7d4 50%, #ece5d2 95%, #e2dbc8 100%);
+            --text-color: #18140f;
+            --link-color: #7A2020;
+            --shadow-color: rgba(0,0,0,0.35);
+            --button-bg: #ece5d2;
+            --button-border: #7A2020;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d47474;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d47474;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.65;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 50px auto 50px auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+        .control-group { display: flex; align-items: center; gap: 5px; }
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center; font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+        .page-indicator { font-size: 14px; color: var(--text-color); min-width: 80px; text-align: center; }
+        .breadcrumb {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-color); padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color); max-width: 90%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; transition: opacity 0.2s, background-color 0.3s;
+        }
+        .breadcrumb:hover { opacity: 1; }
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        .game-section { display: none !important; }
+        .game-section.active { display: block !important; animation: pageFlip 0.3s ease-out; }
+        #cover-section.cover-visible { display: block !important; animation: none !important; }
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .page-number { font-size: 24px; font-weight: normal; margin-bottom: 25px; color: var(--text-color); }
+        .section-content { text-align: justify; }
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p.choice {
+            margin: 0.5em 0 0.3em 1.5em;
+            text-indent: 0;
+        }
+        .ending {
+            text-align: center !important; font-size: 1.3em;
+            margin: 40px 0 !important; text-indent: 0 !important; font-weight: bold;
+        }
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color); background: none; border: none;
+            border-bottom: 2px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+        .page-link strong { font-weight: bold; }
+        .turn-instruction { text-align: center; margin-top: 2em; }
+        .bookmark-link {
+            position: absolute; bottom: 20px; left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+        .bookmark-btn {
+            font-family: inherit; font-size: inherit; color: #888;
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+        .bookmark-btn:hover { color: #4a2020; }
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+        #home-section h1 {
+            font-size: 1.6em; text-align: center; margin: 0 0 6px 0;
+            font-weight: bold; letter-spacing: 2px; line-height: 1.3;
+        }
+        #home-section .subtitle { text-align: center; font-style: italic; margin-bottom: 28px; font-size: 0.9em; }
+        .start-button {
+            display: block; margin: 36px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+        .start-button:hover { background-color: var(--text-color); color: var(--button-bg); }
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; }
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+        .option-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+        .option-row:last-of-type { border-bottom: none; }
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px; background: var(--button-bg);
+            border-radius: 50%; transition: transform 0.3s;
+        }
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: #4A9EFF; cursor: pointer;
+            border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+        .font-preview { display: none; }
+        .narration-controls {
+            display: none; position: fixed; bottom: 50px; left: 50%;
+            transform: translateX(-50%); padding: 10px 20px;
+            background: var(--button-bg); border-radius: 25px;
+            justify-content: center; gap: 15px; z-index: 150;
+            box-shadow: 0 2px 15px var(--shadow-color);
+            border: 1px solid var(--nav-color);
+        }
+        .narration-controls.visible { display: flex; }
+        .narration-btn {
+            width: 40px; height: 40px; border: 1px solid var(--button-border);
+            background: var(--button-bg); color: var(--text-color);
+            border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s;
+        }
+        .narration-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .narration-btn.active { background: var(--link-color); color: var(--button-bg); }
+        .begin-button {
+            display: block; margin: 40px auto 20px; padding: 15px 40px;
+            font-family: inherit; font-size: 1.1em; background: var(--link-color);
+            border: 2px solid var(--link-color); cursor: pointer; color: var(--button-bg);
+            border-radius: 8px; transition: all 0.2s;
+        }
+        .begin-button:hover { background: var(--text-color); border-color: var(--text-color); }
+        .options-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
+        .restart-button {
+            padding: 10px 25px; font-family: inherit; font-size: 0.95em;
+            background: transparent; border: 1px solid var(--nav-color);
+            cursor: pointer; color: var(--nav-hover); border-radius: 6px; transition: all 0.2s;
+        }
+        .restart-button:hover { background: var(--nav-color); color: var(--button-bg); }
+        .options-summary {
+            margin-top: 20px; padding: 15px; background: var(--button-bg);
+            border-radius: 8px; font-size: 0.85em; color: var(--nav-hover);
+            border: 1px dashed var(--nav-color);
+        }
+        .settings-btn { font-size: 18px; padding: 5px 8px; }
+        .qa-only { display: none !important; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body.qa-mode .breadcrumb { display: block; }
+        body:not(.qa-mode) .breadcrumb { display: none; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav { display: none !important; }
+        #cover-section { text-align: center; }
+        #cover-section .section-content {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 60vh;
+        }
+        .cover-title {
+            font-size: 2em; font-weight: bold; letter-spacing: 3px;
+            line-height: 1.25; margin-bottom: 0.15em; color: var(--text-color);
+        }
+        .cover-subtitle {
+            font-size: 1em; font-style: italic; letter-spacing: 1px;
+            color: var(--nav-hover); margin-bottom: 0.5em;
+        }
+        .cover-rule {
+            width: 160px; border: none; border-top: 1px solid var(--link-color);
+            margin: 1.2em auto;
+        }
+        .cover-byline { font-size: 0.85em; color: var(--nav-color); margin-bottom: 0; font-style: italic; }
+        .cover-buttons { margin-top: 2.5em; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .cover-begin-btn {
+            padding: 14px 40px; font-size: 1.1em; font-family: inherit;
+            background: var(--link-color); color: var(--button-bg);
+            border: 2px solid var(--link-color); border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .cover-begin-btn:hover { background: var(--text-color); border-color: var(--text-color); }
+        .cover-customize-link {
+            font-size: 0.88em; color: var(--nav-hover); cursor: pointer;
+            text-decoration: underline; background: none; border: none;
+            font-family: inherit; transition: color 0.2s;
+        }
+        .cover-customize-link:hover { color: var(--link-color); }
+        .cover-resume-hint { margin-top: 8px; font-size: 0.82em; color: var(--nav-color); font-style: italic; }
+        .page-nav {
+            position: fixed; top: 50vh; transform: translateY(-50%);
+            font-size: 24px; color: var(--nav-color); cursor: pointer;
+            padding: 20px 8px; user-select: none; transition: color 0.2s; z-index: 100;
+        }
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.3; cursor: default; }
+        .page-nav-left { left: calc(50% - 270px); }
+        .page-nav-right { right: calc(50% - 270px); }
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 17px; }
+            .page { padding: 30px 25px 50px 25px; min-height: auto; }
+            .page-number { font-size: 20px; }
+        }
+        .choice-text { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="goToCover()" title="Cover">&#x2302; Cover</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn" onclick="restartAdventure()" title="Start over">&#x1F504; Restart</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn settings-btn" onclick="goToOptions()" title="Options">&#x2699;&#xFE0F;</button>
+        </div>
+        <div class="control-group">
+            <span class="page-indicator" id="page-indicator">Cover</span>
+        </div>
+        <div class="control-group qa-only">
+            <label for="page-jump">Go to:</label>
+            <input type="number" id="page-jump" class="page-input" min="1" max="50" placeholder="#">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div class="narration-controls" id="narration-controls">
+        <button class="narration-btn" onclick="narrationPlay()" title="Play" id="narration-play">&#x25B6;</button>
+        <button class="narration-btn" onclick="narrationPause()" title="Pause" id="narration-pause">&#x23F8;</button>
+        <button class="narration-btn" onclick="narrationStop()" title="Stop" id="narration-stop">&#x23F9;</button>
+    </div>
+
+    <div class="breadcrumb" id="breadcrumb">
+        Path: <span id="breadcrumb-trail">Start</span>
+    </div>
+
+    <div class="page">
+
+        <!-- Options Page -->
+        <section id="options-section" class="game-section">
+            <h2>&#x2699;&#xFE0F; Options</h2>
+            <div class="options-container">
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F313; Dark Mode</span>
+                        <span class="option-desc">Easier on the eyes in low light</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F4CF; Font Size</span>
+                        <span class="option-desc">Adjust text size for comfort</span>
+                    </div>
+                    <div class="font-size-slider-container">
+                        <label class="size-label">A&#x207B;</label>
+                        <input type="range" id="font-size-slider" min="0" max="4" value="2" step="1"
+                               onchange="setFontSizeFromSlider(this.value)"
+                               oninput="updateFontSizePreview(this.value)"
+                               class="font-slider">
+                        <label class="size-label">A&#x207A;</label>
+                        <span id="font-size-preview" class="font-preview">Medium</span>
+                    </div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F50A; Narration</span>
+                        <span class="option-desc">Read the story aloud (browser TTS)</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-narration" onclick="toggleOption('narration')"></div>
+                </div>
+            </div>
+            <div class="options-buttons">
+                <button class="begin-button" id="options-primary-btn" onclick="beginAdventure()">&#x2756; Begin Adventure</button>
+                <button class="restart-button" id="options-restart-btn" onclick="restartFromOptions()" style="display:none">Start Over</button>
+            </div>
+            <div class="options-summary" id="options-summary"></div>
+        </section>
+
+        <!-- Cover Page -->
+        <section id="cover-section" class="game-section">
+            <div class="section-content">
+                <div class="cover-title">THE INNKEEPER<br>AT MAREN'S FORD</div>
+                <hr class="cover-rule">
+                <div class="cover-subtitle">An Adventure of Choice</div>
+                <div class="cover-byline">You run the inn at the crossing. On a night of heavy rain,<br>trouble arrives at both doors.</div>
+                <div class="cover-buttons">
+                    <button class="cover-begin-btn" onclick="startFreshAdventure()">Begin Adventure</button>
+                    <button class="cover-customize-link" onclick="goToOptions()">Options &amp; Settings</button>
+                    <div class="cover-resume-hint" id="resume-hint" style="display:none">Progress saved — click Begin to resume.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home / Intro Page -->
+        <section id="home-section" class="game-section">
+            <div class="section-content">
+                <h1>THE INNKEEPER AT MAREN'S FORD</h1>
+                <p class="subtitle">An Adventure of Choice</p>
+
+                <p>You are Pala — innkeeper at Maren's Ford, a waystation where the east road meets the river crossing. You have run this inn for eight years. Before that, you were a clerk to a district magistrate in the city of Brenval, and you left that position when you were asked to falsify a record that sent an innocent man to the work gangs. You went north instead. You chose a crossing point because crossing points need inns, and you had enough money for a modest one, and it seemed like honest work that no one would ask you to do dishonestly.</p>
+
+                <p>The ford at Maren's is tricky in flood — two channels, shifting sandbars, a current that has drowned confident riders who didn't know it. You know every inch of it. You've pulled five people out of it over the years. You grew up on a river; water doesn't frighten you.</p>
+
+                <p>The region has been unsettled since Lord Karev absorbed his neighbor's lands three years ago. The neighbor, Lord Farren, died of an illness that came on suddenly and progressed quickly. There is talk sometimes, in the way that there is always talk, but Karev is powerful and the people who do the talking are not. It is not your concern. You run the inn. You mind the ford.</p>
+
+                <p>It has been raining for two days. The ford is running high. Late on a Tuesday in autumn, with the rain still coming, the first travelers arrive.</p>
+
+                <button class="start-button" onclick="goToSection(3)">Turn to page <strong>3</strong></button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STORY SECTIONS                          -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <section id="section-3" class="game-section" data-section="3">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">3</div>
+            <div class="section-content">
+                <p>The wagon comes in from the west at dusk: six people, one horse, the wagon loaded with what looks like household goods wrapped in oilcloth. They are worn out and mud-spattered and they move with the particular care of people who have been on the road too long and learned not to draw attention. Three men — one old, two younger — two women, and a teenage boy who looks like he hasn't slept.</p>
+                <p>They ask for rooms and supper and a place to stable the horse. One of the women does the asking. She is perhaps forty, dark-haired, with a composed stillness that takes a moment to read — not absence, but the kind of presence that has learned to be quiet. She gives you names for the registry. Her own name she gives as Ossa. Just the one.</p>
+                <p>You put them upstairs. The rooms that face the road, not the ford side — on a night like this, the ford makes a noise that will keep people up who aren't used to it.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-5" class="game-section" data-section="5">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">5</div>
+            <div class="section-content">
+                <p>An hour later, five men. They arrive on horseback, two with a packhorse between them. They give a company name you don't recognize and say they're merchants traveling to the river market at Dren. They order beer and a hot meal and speak among themselves quietly, and their wagon, such as it is, holds two barrels and a chest and a bolt of cloth — all the props of merchants.</p>
+                <p>They sit at their table like men who have spent a long time learning how to sit at tables in a way that doesn't give them away, and who have not quite finished learning it. Their eyes move. They face the doors. The one at the near end — the leader, you decide; the one the others keep their posture slightly oriented toward — has the kind of professional courtesy about him that isn't natural warmth but a skill developed on top of something harder. He paid in advance. He asked how many other guests you had tonight.</p>
+                <p>They are not merchants.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-7" class="game-section" data-section="7">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">7</div>
+            <div class="section-content">
+                <p>You have run this inn for eight years. You know the difference between tired travelers and people in a situation, and this common room tonight is a situation. Two groups that arrived separately and haven't looked directly at each other, though the air between them has the quality of two magnets held apart by careful hands.</p>
+                <p>The ford is running high outside. The rain won't stop before morning. Nobody is crossing tonight. Whatever this is, it's going to be here until dawn.</p>
+                <p class="choice">1. If you ask the five men directly what they're looking for — friendly, casual, the innkeeper making conversation — turn to page <a href="#" onclick="goToSection(10); return false;" class="page-link"><strong>10</strong></a>.</p>
+                <p class="choice">2. If you stay quiet and keep your eyes open, turn to page <a href="#" onclick="goToSection(13); return false;" class="page-link"><strong>13</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-10" class="game-section" data-section="10">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">10</div>
+            <div class="section-content">
+                <p>The leader's name, he says, is Cord. He has a story ready — a woman who left her employer under difficult circumstances and took documents that belong to the company. They're not looking for trouble. They just want the papers. The woman can go her own way. He says this pleasantly and with the practiced sincerity of someone who has said it before.</p>
+                <p>"What does she look like?" you ask.</p>
+                <p>He describes someone who could be half the women in the region, including Ossa and not including Ossa.</p>
+                <p>"Haven't seen anyone like that," you say.</p>
+                <p>"Of course." He smiles. It doesn't reach his eyes but it doesn't have to. "If you do, we'd appreciate a word."</p>
+                <p>He turns back to his table. The conversation is over.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-13" class="game-section" data-section="13">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">13</div>
+            <div class="section-content">
+                <p>You clear dishes from the far table and don't hurry about it. Two of the five men are speaking low — not quietly enough, which is a professional failure.</p>
+                <p>One says: "—can't have gone far with them. The ford's flooded."</p>
+                <p>The other: "Cord wants it done before the road clears. Lord Karev's man will be at Dren on Thursday."</p>
+                <p>A pause. Then: "The woman. The documents. That's all we need."</p>
+                <p>You carry the dishes to the kitchen and set them in the basin and stand there for a moment with your hands in cold water. Lord Karev's men. The woman with the documents. You've been deliberately not knowing about Lord Farren for three years, and now Lord Karev's agents are in your common room and a woman named Ossa is upstairs. Crossing points attract trouble. You knew that when you bought the place.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-16" class="game-section" data-section="16">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">16</div>
+            <div class="section-content">
+                <p>By the next morning you've identified Ossa as the one they want, though you'd suspected since the night before. She's been watching the five men without appearing to since they arrived. Her stillness has a slightly different quality now — the alertness of someone who has identified a threat and is deciding what to do about it.</p>
+                <p>She meets your eyes across the common room at breakfast. Holds them for a moment. She is not asking for help — not yet. She is assessing you the way you've been assessing her, and she is very good at it.</p>
+                <p class="choice">1. If you find a private moment to speak with her, turn to page <a href="#" onclick="goToSection(19); return false;" class="page-link"><strong>19</strong></a>.</p>
+                <p class="choice">2. If you wait to see what she does, turn to page <a href="#" onclick="goToSection(21); return false;" class="page-link"><strong>21</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-19" class="game-section" data-section="19">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">19</div>
+            <div class="section-content">
+                <p>You find her at the window of the upstairs landing, watching the ford in the rain. You close the stair door behind you and she turns around and waits.</p>
+                <p>She speaks quietly and efficiently, the speech of someone who has refined it down to what's necessary. Lord Farren was not sick. He was poisoned. She has a written statement from Karev's steward — the man who arranged it, who died six months later of his own sudden illness — and a letter from Karev to an agent in the city that makes the arrangement explicit. She was Farren's keeper of records. She kept copies when she understood what had happened. She's been trying to get them to a High Court advocate for three years.</p>
+                <p>"If Karev's men take me tonight," she says, "it will be the last opportunity." She pauses. "I'm not asking you for anything. I'm telling you what the situation is, because you already know most of it and you deserve to know the rest."</p>
+                <p>This is, you note, a very effective way of asking you for something.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(24); return false;" class="page-link"><strong>24</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-21" class="game-section" data-section="21">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">21</div>
+            <div class="section-content">
+                <p>That evening, while you're banking the common room fire, she appears in the kitchen doorway. She says, "Do you have a moment?" in a tone that has already accounted for the answer being no and has decided to proceed regardless.</p>
+                <p>In your kitchen, with the door closed, she tells you quickly: Lord Farren didn't die of illness. She has documentation. She was Farren's record-keeper; she made copies before Karev's people could find the originals. She's been three years trying to reach someone with the standing and will to act on it. The ford is flooded. Karev's men are downstairs. She will not ask you to help her — but she wanted you to understand what the choice was, if there was a choice.</p>
+                <p>She stands there and lets you think. She is very still when she waits. It's the quality that made you notice her when she arrived.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(24); return false;" class="page-link"><strong>24</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-24" class="game-section" data-section="24">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">24</div>
+            <div class="section-content">
+                <p>Midnight. The inn is quiet. The rain continues. The ford runs loud enough that you can hear it through the walls.</p>
+                <p>Two of Cord's men are still up, playing cards at the near table by the dying fire. One is near the door. The others are in their rooms. The rest of the refugees have been told only that trouble has followed them and that they should be ready to move quickly — the details are Ossa's to give, not yours.</p>
+                <p>You have until the ford drops. That may be dawn, may be midday. When the crossing is passable, Cord's men will not let her leave with the rest. They have been very patient. Patient people, in your experience, have plans.</p>
+                <p class="choice">1. When Cord wakes, tell him where Ossa is. It's not your fight and it was never your fight. Turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+                <p class="choice">2. Move Ossa to the cellar before dawn, and hold your nerve through the search. Turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a>.</p>
+                <p class="choice">3. Take Ossa across the ford tonight — you know the safe path through the flood. Turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a>.</p>
+                <p class="choice">4. Wake Cord now and speak to him directly, on your own terms. Turn to page <a href="#" onclick="goToSection(36); return false;" class="page-link"><strong>36</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-27" class="game-section" data-section="27">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">27</div>
+            <div class="section-content">
+                <p>You light a lamp before dawn and go to Cord's door. He is not surprised. He thanks you with the same professional courtesy he would have used for a meal recommendation and sends two of his men upstairs. You hear it from the kitchen, where you have gone to start the morning fire, because that is a thing you do in the morning and routine is a kind of distance.</p>
+                <p>The other refugees come down to breakfast an hour later, one at a time. None of them look at you. The old man in the first group does — once, when he passes through on his way to the door — and what is in his face is something you spend a long time trying not to think about, without a great deal of success.</p>
+                <p>Cord pays the full bill before they leave. Professional to the last. The ford has dropped enough to cross; they cross it. You watch from the door until they're gone.</p>
+                <p>The inn at Maren's Ford is quiet in the morning. It will be busy again by evening; it always is. You are good at this work and you have been doing it for eight years and you will keep doing it. That is not nothing. You are clear-eyed enough to know that it is also not everything.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-30" class="game-section" data-section="30">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">30</div>
+            <div class="section-content">
+                <p>The cellar is accessible through a trapdoor in the pantry floor, behind the wine rack and a false shelf that has always looked like a false shelf to you and, in eight years, has never looked like one to anyone else. You put Ossa there before the second hour of the morning — a lamp, a blanket, a water jug, enough bread and cold meat for a day. She goes without complaint and without particular fear, which you find reassuring in a way you don't have time to examine.</p>
+                <p>At first light, Cord finds you in the common room. He is very pleasant. He says there has been a misunderstanding — the woman they were looking for is apparently not here — but would you mind if they had a look around? Just the rooms guests have access to, of course. Just to set their minds at ease.</p>
+                <p>He says this as if it's a request. It isn't a request.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(37); return false;" class="page-link"><strong>37</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-33" class="game-section" data-section="33">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">33</div>
+            <div class="section-content">
+                <p>The ford in flood, at night, in the rain, is serious work. You grew up on this river. You know where the safe stones are, the underwater path, the two places where the current makes a sound that sounds safe and isn't. You've guided nervous travelers across in worse conditions than this.</p>
+                <p>You wake Ossa at the second hour of the night. She is immediately, completely alert — the waking of someone who has learned not to come up slowly. She looks at you and doesn't ask questions. She pulls on her boots and her pack and follows you down the back stairs and out through the kitchen garden into the rain.</p>
+                <p>You go first across the ford, showing the path by feel and by landmarks she can see in the dark — the leaning willow, the pale stone that marks the turn. The water is thigh-high at the crossing, fast and cold and loud enough that speech is useless. She follows your line exactly. She moves like someone who has done harder things than this.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(44); return false;" class="page-link"><strong>44</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-36" class="game-section" data-section="36">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">36</div>
+            <div class="section-content">
+                <p>You wake Cord at the second hour of the night. He is disoriented for about four seconds and then completely present. He follows you to the common room, where you've left one lamp burning. He sits across from you and waits.</p>
+                <p>You tell him you've read the documents. This isn't precisely true, but it's close enough — Ossa told you what's in them, which amounts to the same thing for your purposes. You tell him you've sent a copy ahead by rider to an advocate in the capital, which is not true at all but is the sort of thing that would have been true if you'd had more warning. You tell him the woman's name is known to three other people you trust, and what she's carrying is known to them.</p>
+                <p>He watches you across the table. He is very good at measuring people. You have run a crossroads inn for eight years and negotiated room rates and resolved disputes and talked a man out of a fight he was wrong about. You can hold a position.</p>
+                <p>"The woman is not here," you say. "We've established that. She was never here."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(47); return false;" class="page-link"><strong>47</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-37" class="game-section" data-section="37">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">37</div>
+            <div class="section-content">
+                <p>They search the common room, the stables, the upstairs. You follow at a professional distance — watching, not helping, the kind of cooperation that keeps things from escalating without conceding anything. They are thorough. They open wardrobes. They check under beds, which finds them only dust and lost coins.</p>
+                <p>Then they reach the kitchen. Cord's eyes move to the pantry door.</p>
+                <p class="choice">1. If you hold your nerve — the pantry is yours, not guest space — turn to page <a href="#" onclick="goToSection(41); return false;" class="page-link"><strong>41</strong></a>.</p>
+                <p class="choice">2. If the weight of it breaks — if you open the pantry door yourself — turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-41" class="game-section" data-section="41">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">41</div>
+            <div class="section-content">
+                <p>"That's my pantry," you say. "Guests don't go in there."</p>
+                <p>Cord looks at you for a moment. You look back at him. The lamp makes shadows of both of you on the kitchen wall.</p>
+                <p>"Thank you for your time," he says.</p>
+                <p>They leave an hour later, when the ford is passable. You watch from the doorway. Cord turns once at the crossing and looks back at the inn, and there's nothing in his face that you can read at this distance.</p>
+                <p>Ossa stays two more days, helping with the kitchen work in the manner of someone who is used to useful labor and finds it easier than sitting still. She doesn't say much. When she leaves, she puts a sealed envelope in your hands and asks you to give it to anyone who comes asking for it by a name she writes on the outside. You put it in the box under the bar where you keep documents worth keeping.</p>
+                <p>Three months later, someone comes and says the name, and you give it to them, and you hear, the following spring, that there is a case before the High Court concerning certain matters of inheritance in the eastern holdings. You don't hear the outcome for a long time after that. But the case exists. Someone brought it. The documents got where they were going.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-44" class="game-section" data-section="44">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">44</div>
+            <div class="section-content">
+                <p>On the far bank she wrings out her clothes in the dark and looks back across the ford at you — you're still waist-deep, holding the guide-rope you strung last winter for exactly this kind of crossing.</p>
+                <p>"Will there be trouble for you?" she asks. Her voice carries over the water.</p>
+                <p>"Some," you say. "Nothing I can't manage." That's not entirely true, but it's what the situation calls for.</p>
+                <p>She nods. She understands that kind of answer. She pulls her pack onto her back and walks east into the dark without looking back, and you watch her go until you can't, and then you go back to the inn.</p>
+                <p>In the morning, Cord finds the upstairs room empty. He comes to you in the common room and his face is very professional and you tell him she must have slipped out before you were up. He doesn't believe you. He doesn't have evidence that he doesn't believe you. He pays his bill and leaves, and the ford is passable by midday, and the road east is empty.</p>
+                <p>You never hear from Ossa directly. You hear, eventually, in the way that news from the capital eventually reaches crossing points: a case before the High Court, certain allegations, certain documentation. Whether it amounts to anything, you don't know for a long time. But she made the crossing. She had the chance.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-47" class="game-section" data-section="47">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">47</div>
+            <div class="section-content">
+                <p>Cord looks at you for a long time. The lamp burns between you. The rain runs on the roof and the ford runs outside and the inn is quiet around you both.</p>
+                <p>"Let's say I believe you," he says.</p>
+                <p>"Let's say you do," you agree.</p>
+                <p>He looks at the lamp. He is a professional calculating whether the risk of pushing further outweighs the cost of leaving without the objective, and you are a person who has spent eight years watching professionals make that calculation at this inn. You do not move. You do not add anything. The calculation takes about forty seconds.</p>
+                <p>"The woman was never here," he says. "We've established that."</p>
+                <p>"You have," you say.</p>
+                <p>He goes back to his room. You get Ossa out via the ford before first light — dangerous in the flood, but you know every stone of it, and she crosses without incident. By the time Cord's men wake, she is an hour east with the other refugees and the ford is running too high to follow quickly.</p>
+                <p>Cord pays his bill before they leave. No incident. No violence. The professional courtesy of a man who has learned not to lose things visibly.</p>
+                <p>The ford is quiet after they go. The rain stops by midday. By evening you have new guests, ordinary travelers, no situation in them at all. You show them to their rooms and start the fire and mind the crossing. That is the work. You are good at it.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+    </div><!-- end .page -->
+
+    <script>
+        // === STATE ===
+        let history = [];
+        let lastChoiceSection = null;
+        let currentView = 'home';
+        let options = {
+            darkMode: false,
+            fontSize: 2,
+            narration: false,
+            qaMode: false
+        };
+        const fontSizes = [
+            { name: 'X-Small', size: '15px' },
+            { name: 'Small',   size: '17px' },
+            { name: 'Medium',  size: '19px' },
+            { name: 'Large',   size: '21px' },
+            { name: 'X-Large', size: '23px' }
+        ];
+
+        let sortedSections = [];
+        let totalSections = 0;
+
+        function buildSortedSectionsFromDOM() {
+            const sections = document.querySelectorAll('.game-section[data-section]');
+            const nums = [];
+            sections.forEach(function(s) {
+                const n = parseInt(s.dataset.section);
+                if (!isNaN(n)) nums.push(n);
+            });
+            nums.sort(function(a, b) { return a - b; });
+            return nums;
+        }
+
+        function refreshSectionIndex() {
+            sortedSections = buildSortedSectionsFromDOM();
+            totalSections = sortedSections.length;
+        }
+
+        function sectionHasChoices(n) {
+            const el = document.getElementById('section-' + n);
+            if (!el) return false;
+            return el.querySelectorAll('p.choice').length > 0;
+        }
+
+        function saveProgress() {
+            try {
+                const state = { history: history, currentView: currentView, options: options };
+                localStorage.setItem('innkeeperMarensFord_progress', JSON.stringify(state));
+            } catch(e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('innkeeperMarensFord_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.options) options = Object.assign(options, state.options);
+                    history = state.history || [];
+                    return state.currentView || null;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function hasProgress() {
+            try {
+                const saved = localStorage.getItem('innkeeperMarensFord_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    return state.history && state.history.length > 0;
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function clearProgress() {
+            try { localStorage.removeItem('innkeeperMarensFord_progress'); } catch(e) {}
+        }
+
+        function applyOptions() {
+            if (options.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            document.documentElement.style.setProperty('--font-size', fs.size);
+            updateToggleVisuals();
+            updateOptionsSummary();
+            const narrationControls = document.getElementById('narration-controls');
+            if (narrationControls) narrationControls.classList.toggle('visible', options.narration);
+            if (!options.narration) narrationStop();
+        }
+
+        function updateToggleVisuals() {
+            const darkToggle = document.getElementById('toggle-dark');
+            if (darkToggle) darkToggle.classList.toggle('active', options.darkMode);
+            const narToggle = document.getElementById('toggle-narration');
+            if (narToggle) narToggle.classList.toggle('active', options.narration);
+        }
+
+        function updateFontSizeDisplay() {
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateOptionsSummary() {
+            const summary = document.getElementById('options-summary');
+            if (!summary) return;
+            const parts = [];
+            parts.push('Theme: ' + (options.darkMode ? 'Dark' : 'Light'));
+            parts.push('Font: ' + (fontSizes[options.fontSize] || fontSizes[2]).name);
+            if (options.narration) parts.push('Narration: On');
+            summary.textContent = parts.join(' · ');
+        }
+
+        function toggleOption(option) {
+            if (option === 'dark') options.darkMode = !options.darkMode;
+            else if (option === 'narration') options.narration = !options.narration;
+            applyOptions();
+            saveProgress();
+        }
+
+        function setFontSizeFromSlider(value) {
+            options.fontSize = parseInt(value);
+            applyOptions();
+            saveProgress();
+        }
+
+        function updateFontSizePreview(value) {
+            const fs = fontSizes[parseInt(value)] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateFontSizeSlider() {
+            const slider = document.getElementById('font-size-slider');
+            if (slider) slider.value = options.fontSize;
+            updateFontSizeDisplay();
+        }
+
+        let speechSynth = null;
+        let isPaused = false;
+
+        function prepareTextForNarration(text) {
+            return text.replace(/\s+/g, ' ').trim();
+        }
+
+        function narrate(text) {
+            if (!window.speechSynthesis || !options.narration) return;
+            if (!speechSynth) speechSynth = window.speechSynthesis;
+            speechSynth.cancel();
+            isPaused = false;
+            const utterance = new SpeechSynthesisUtterance(prepareTextForNarration(text));
+            utterance.rate = 0.95;
+            utterance.onend = function() { updateNarrationButtons(); };
+            speechSynth.speak(utterance);
+            updateNarrationButtons();
+        }
+
+        function narrationPlay() {
+            if (!speechSynth) return;
+            if (isPaused) { speechSynth.resume(); isPaused = false; }
+            else {
+                const active = document.querySelector('.game-section.active');
+                if (active) {
+                    const content = active.querySelector('.section-content');
+                    if (content) narrate(content.innerText || content.textContent);
+                }
+            }
+            updateNarrationButtons();
+        }
+
+        function narrationPause() {
+            if (speechSynth && speechSynth.speaking) {
+                speechSynth.pause(); isPaused = true; updateNarrationButtons();
+            }
+        }
+
+        function narrationStop() {
+            if (speechSynth) { speechSynth.cancel(); isPaused = false; updateNarrationButtons(); }
+        }
+
+        function updateNarrationButtons() {
+            const playBtn = document.getElementById('narration-play');
+            const pauseBtn = document.getElementById('narration-pause');
+            if (playBtn) playBtn.classList.toggle('active', speechSynth && speechSynth.speaking && !isPaused);
+            if (pauseBtn) pauseBtn.classList.toggle('active', isPaused);
+        }
+
+        function updatePageIndicator() {
+            const indicator = document.getElementById('page-indicator');
+            if (!indicator) return;
+            const current = getCurrentSection();
+            if (currentView === 'cover') indicator.textContent = 'Cover';
+            else if (currentView === 'options') indicator.textContent = 'Options';
+            else if (currentView === 'home') indicator.textContent = 'Intro';
+            else if (current !== null) {
+                const idx = sortedSections.indexOf(current) + 1;
+                indicator.textContent = 'Page ' + current + ' (' + idx + '/' + totalSections + ')';
+            }
+        }
+
+        function updateBreadcrumb() {
+            const trail = document.getElementById('breadcrumb-trail');
+            if (!trail) return;
+            if (history.length === 0) {
+                trail.innerHTML = '<span class="breadcrumb-link" onclick="goToCover()">Cover</span>';
+            } else {
+                const display = history.slice(-8);
+                const prefix = history.length > 8 ? '... &rarr; ' : '';
+                const links = display.map(function(p) {
+                    return '<span class="breadcrumb-link" onclick="goToSection(' + p + ', true)">' + p + '</span>';
+                }).join(' &rarr; ');
+                trail.innerHTML = prefix + links;
+            }
+        }
+
+        function hideAllSections() {
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+        }
+
+        function showSection(section, direction) {
+            section.classList.add('active');
+            if (direction === 'left') section.classList.add('flip-left');
+            section.style.display = 'block';
+        }
+
+        function getCurrentSection() {
+            const active = document.querySelector('.game-section.active');
+            if (active && active.dataset.section) return parseInt(active.dataset.section);
+            return null;
+        }
+
+        function goToSection(n, isBack, direction) {
+            const el = document.getElementById('section-' + n);
+            if (!el) { console.warn('Section not found:', n); return; }
+            if (!isBack) history.push(n);
+            hideAllSections();
+            showSection(el, direction);
+            currentView = 'section';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            updateBreadcrumb();
+            saveProgress();
+            if (options.narration) {
+                const content = el.querySelector('.section-content');
+                if (content) narrate(content.innerText || content.textContent);
+            }
+        }
+
+        function goToNextPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            const idx = sortedSections.indexOf(current);
+            if (idx >= 0 && idx < sortedSections.length - 1) goToSection(sortedSections[idx + 1], false, 'right');
+        }
+
+        function goToPrevPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            if (current === sortedSections[0]) { goToIntro(); return; }
+            const idx = sortedSections.indexOf(current);
+            if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+        }
+
+        function goToCover() {
+            hideAllSections();
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            narrationStop();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+        }
+
+        function goToIntro() {
+            hideAllSections();
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+                showSection(homeSection);
+                currentView = 'home';
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                updatePageIndicator();
+                narrationStop();
+            }
+        }
+
+        let cameFromGameplay = false;
+
+        function goToOptions() {
+            cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+            hideAllSections();
+            const optionsSection = document.getElementById('options-section');
+            showSection(optionsSection);
+            currentView = 'options';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            applyOptions();
+            updateFontSizeSlider();
+            narrationStop();
+            updateOptionsButtons();
+        }
+
+        function updateOptionsButtons() {
+            const primaryBtn = document.getElementById('options-primary-btn');
+            const restartBtn = document.getElementById('options-restart-btn');
+            if (cameFromGameplay) {
+                primaryBtn.innerHTML = '&larr; Back to Story';
+                primaryBtn.onclick = function() { goBack(); };
+                restartBtn.style.display = 'block';
+            } else {
+                primaryBtn.innerHTML = '&#x2756; Begin Adventure';
+                primaryBtn.onclick = function() { beginAdventure(); };
+                restartBtn.style.display = hasProgress() ? 'block' : 'none';
+            }
+        }
+
+        function goBack() {
+            if (history.length > 0) goToSection(history[history.length - 1], true);
+            else goToIntro();
+        }
+
+        function openBook() {
+            if (hasProgress()) {
+                const savedView = loadProgress();
+                if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                    if (savedView === 'home') { goToIntro(); return; }
+                    if (history.length > 0) { goToSection(history[history.length - 1], true); return; }
+                }
+            }
+        }
+
+        function startFreshAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+        function beginAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+
+        function restartFromOptions() {
+            if (confirm('Start over from the beginning? Your progress will be cleared.')) {
+                history = []; lastChoiceSection = null; narrationStop(); saveProgress(); goToIntro();
+            }
+        }
+
+        function restartAdventure() {
+            if (confirm('Start over from the beginning?')) {
+                history = []; lastChoiceSection = null; narrationStop(); clearProgress(); goToCover();
+            }
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('page-jump');
+            if (!input) return;
+            const n = parseInt(input.value);
+            if (!isNaN(n)) { goToSection(n, false); input.value = ''; }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' && currentView === 'section') goToNextPage();
+            if (e.key === 'ArrowLeft' && currentView === 'section') goToPrevPage();
+            if (e.shiftKey && e.key === 'Q') {
+                options.qaMode = !options.qaMode;
+                document.body.classList.toggle('qa-mode', options.qaMode);
+            }
+        });
+
+        window.addEventListener('load', function() {
+            refreshSectionIndex();
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            applyOptions();
+            updatePageIndicator();
+            updateBreadcrumb();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+            openBook();
+        });
+
+        window.toggleAdventurePanel ||= function(){};
+        window.showPanelTab ||= function(){};
+        window.updateMapDisplay ||= function(){};
+        window.updateInventoryDisplay ||= function(){};
+    </script>
+</body>
+</html>

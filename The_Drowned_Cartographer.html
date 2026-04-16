@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Drowned Cartographer</title>
+    <style>
+        :root {
+            --bg-color: #ccc8b5;
+            --page-bg: linear-gradient(to right, #e2dbc8 0%, #ece5d2 5%, #eee7d4 50%, #ece5d2 95%, #e2dbc8 100%);
+            --text-color: #18140f;
+            --link-color: #7A2020;
+            --shadow-color: rgba(0,0,0,0.35);
+            --button-bg: #ece5d2;
+            --button-border: #7A2020;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d47474;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d47474;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.65;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 50px auto 50px auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+        .control-group { display: flex; align-items: center; gap: 5px; }
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center; font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+        .page-indicator { font-size: 14px; color: var(--text-color); min-width: 80px; text-align: center; }
+        .breadcrumb {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-color); padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color); max-width: 90%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; transition: opacity 0.2s, background-color 0.3s;
+        }
+        .breadcrumb:hover { opacity: 1; }
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        .game-section { display: none !important; }
+        .game-section.active { display: block !important; animation: pageFlip 0.3s ease-out; }
+        #cover-section.cover-visible { display: block !important; animation: none !important; }
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .page-number { font-size: 24px; font-weight: normal; margin-bottom: 25px; color: var(--text-color); }
+        .section-content { text-align: justify; }
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p.choice {
+            margin: 0.5em 0 0.3em 1.5em;
+            text-indent: 0;
+        }
+        .ending {
+            text-align: center !important; font-size: 1.3em;
+            margin: 40px 0 !important; text-indent: 0 !important; font-weight: bold;
+        }
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color); background: none; border: none;
+            border-bottom: 2px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+        .page-link strong { font-weight: bold; }
+        .turn-instruction { text-align: center; margin-top: 2em; }
+        .bookmark-link {
+            position: absolute; bottom: 20px; left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+        .bookmark-btn {
+            font-family: inherit; font-size: inherit; color: #888;
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+        .bookmark-btn:hover { color: #4a2020; }
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+        #home-section h1 {
+            font-size: 1.6em; text-align: center; margin: 0 0 6px 0;
+            font-weight: bold; letter-spacing: 2px; line-height: 1.3;
+        }
+        #home-section .subtitle { text-align: center; font-style: italic; margin-bottom: 28px; font-size: 0.9em; }
+        .start-button {
+            display: block; margin: 36px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+        .start-button:hover { background-color: var(--text-color); color: var(--button-bg); }
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; }
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+        .option-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+        .option-row:last-of-type { border-bottom: none; }
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px; background: var(--button-bg);
+            border-radius: 50%; transition: transform 0.3s;
+        }
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: #4A9EFF; cursor: pointer;
+            border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+        .font-preview { display: none; }
+        .narration-controls {
+            display: none; position: fixed; bottom: 50px; left: 50%;
+            transform: translateX(-50%); padding: 10px 20px;
+            background: var(--button-bg); border-radius: 25px;
+            justify-content: center; gap: 15px; z-index: 150;
+            box-shadow: 0 2px 15px var(--shadow-color);
+            border: 1px solid var(--nav-color);
+        }
+        .narration-controls.visible { display: flex; }
+        .narration-btn {
+            width: 40px; height: 40px; border: 1px solid var(--button-border);
+            background: var(--button-bg); color: var(--text-color);
+            border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s;
+        }
+        .narration-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .narration-btn.active { background: var(--link-color); color: var(--button-bg); }
+        .begin-button {
+            display: block; margin: 40px auto 20px; padding: 15px 40px;
+            font-family: inherit; font-size: 1.1em; background: var(--link-color);
+            border: 2px solid var(--link-color); cursor: pointer; color: var(--button-bg);
+            border-radius: 8px; transition: all 0.2s;
+        }
+        .begin-button:hover { background: var(--text-color); border-color: var(--text-color); }
+        .options-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
+        .restart-button {
+            padding: 10px 25px; font-family: inherit; font-size: 0.95em;
+            background: transparent; border: 1px solid var(--nav-color);
+            cursor: pointer; color: var(--nav-hover); border-radius: 6px; transition: all 0.2s;
+        }
+        .restart-button:hover { background: var(--nav-color); color: var(--button-bg); }
+        .options-summary {
+            margin-top: 20px; padding: 15px; background: var(--button-bg);
+            border-radius: 8px; font-size: 0.85em; color: var(--nav-hover);
+            border: 1px dashed var(--nav-color);
+        }
+        .settings-btn { font-size: 18px; padding: 5px 8px; }
+        .qa-only { display: none !important; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body.qa-mode .breadcrumb { display: block; }
+        body:not(.qa-mode) .breadcrumb { display: none; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav { display: none !important; }
+        #cover-section { text-align: center; }
+        #cover-section .section-content {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 60vh;
+        }
+        .cover-title {
+            font-size: 2em; font-weight: bold; letter-spacing: 3px;
+            line-height: 1.25; margin-bottom: 0.15em; color: var(--text-color);
+        }
+        .cover-subtitle {
+            font-size: 1em; font-style: italic; letter-spacing: 1px;
+            color: var(--nav-hover); margin-bottom: 0.5em;
+        }
+        .cover-rule {
+            width: 160px; border: none; border-top: 1px solid var(--link-color);
+            margin: 1.2em auto;
+        }
+        .cover-byline { font-size: 0.85em; color: var(--nav-color); margin-bottom: 0; font-style: italic; }
+        .cover-buttons { margin-top: 2.5em; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .cover-begin-btn {
+            padding: 14px 40px; font-size: 1.1em; font-family: inherit;
+            background: var(--link-color); color: var(--button-bg);
+            border: 2px solid var(--link-color); border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .cover-begin-btn:hover { background: var(--text-color); border-color: var(--text-color); }
+        .cover-customize-link {
+            font-size: 0.88em; color: var(--nav-hover); cursor: pointer;
+            text-decoration: underline; background: none; border: none;
+            font-family: inherit; transition: color 0.2s;
+        }
+        .cover-customize-link:hover { color: var(--link-color); }
+        .cover-resume-hint { margin-top: 8px; font-size: 0.82em; color: var(--nav-color); font-style: italic; }
+        .page-nav {
+            position: fixed; top: 50vh; transform: translateY(-50%);
+            font-size: 24px; color: var(--nav-color); cursor: pointer;
+            padding: 20px 8px; user-select: none; transition: color 0.2s; z-index: 100;
+        }
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.3; cursor: default; }
+        .page-nav-left { left: calc(50% - 270px); }
+        .page-nav-right { right: calc(50% - 270px); }
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 17px; }
+            .page { padding: 30px 25px 50px 25px; min-height: auto; }
+            .page-number { font-size: 20px; }
+        }
+        .choice-text { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="goToCover()" title="Cover">&#x2302; Cover</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn" onclick="restartAdventure()" title="Start over">&#x1F504; Restart</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn settings-btn" onclick="goToOptions()" title="Options">&#x2699;&#xFE0F;</button>
+        </div>
+        <div class="control-group">
+            <span class="page-indicator" id="page-indicator">Cover</span>
+        </div>
+        <div class="control-group qa-only">
+            <label for="page-jump">Go to:</label>
+            <input type="number" id="page-jump" class="page-input" min="1" max="60" placeholder="#">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div class="narration-controls" id="narration-controls">
+        <button class="narration-btn" onclick="narrationPlay()" title="Play" id="narration-play">&#x25B6;</button>
+        <button class="narration-btn" onclick="narrationPause()" title="Pause" id="narration-pause">&#x23F8;</button>
+        <button class="narration-btn" onclick="narrationStop()" title="Stop" id="narration-stop">&#x23F9;</button>
+    </div>
+
+    <div class="breadcrumb" id="breadcrumb">
+        Path: <span id="breadcrumb-trail">Start</span>
+    </div>
+
+    <div class="page">
+
+        <!-- Options Page -->
+        <section id="options-section" class="game-section">
+            <h2>&#x2699;&#xFE0F; Options</h2>
+            <div class="options-container">
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F313; Dark Mode</span>
+                        <span class="option-desc">Easier on the eyes in low light</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F4CF; Font Size</span>
+                        <span class="option-desc">Adjust text size for comfort</span>
+                    </div>
+                    <div class="font-size-slider-container">
+                        <label class="size-label">A&#x207B;</label>
+                        <input type="range" id="font-size-slider" min="0" max="4" value="2" step="1"
+                               onchange="setFontSizeFromSlider(this.value)"
+                               oninput="updateFontSizePreview(this.value)"
+                               class="font-slider">
+                        <label class="size-label">A&#x207A;</label>
+                        <span id="font-size-preview" class="font-preview">Medium</span>
+                    </div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F50A; Narration</span>
+                        <span class="option-desc">Read the story aloud (browser TTS)</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-narration" onclick="toggleOption('narration')"></div>
+                </div>
+            </div>
+            <div class="options-buttons">
+                <button class="begin-button" id="options-primary-btn" onclick="beginAdventure()">&#x2756; Begin Adventure</button>
+                <button class="restart-button" id="options-restart-btn" onclick="restartFromOptions()" style="display:none">Start Over</button>
+            </div>
+            <div class="options-summary" id="options-summary"></div>
+        </section>
+
+        <!-- Cover Page -->
+        <section id="cover-section" class="game-section">
+            <div class="section-content">
+                <div class="cover-title">THE DROWNED<br>CARTOGRAPHER</div>
+                <hr class="cover-rule">
+                <div class="cover-subtitle">An Adventure of Choice</div>
+                <div class="cover-byline">You are Esken Dall. A dead man left you something to deliver.<br>What you do with it is your own concern.</div>
+                <div class="cover-buttons">
+                    <button class="cover-begin-btn" onclick="startFreshAdventure()">Begin Adventure</button>
+                    <button class="cover-customize-link" onclick="goToOptions()">Options &amp; Settings</button>
+                    <div class="cover-resume-hint" id="resume-hint" style="display:none">Progress saved — click Begin to resume.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home / Intro Page -->
+        <section id="home-section" class="game-section">
+            <div class="section-content">
+                <h1>THE DROWNED CARTOGRAPHER</h1>
+                <p class="subtitle">An Adventure of Choice</p>
+
+                <p>You are Esken Dall — formerly a ship's pilot on the Ardenne coastal run, now grounded in the port city of Varen.</p>
+
+                <p>Three years ago, navigating in a squall off the Shear Rocks, you put the brig <em>Constance</em> onto a reef you should have seen. Two sailors drowned before the rescue boats reached them. The inquiry cleared you — anyone could have made the same call in those conditions, the report said. The men who signed it didn't have to live in the same head as you.</p>
+
+                <p>You've been doing land work since: carrying papers, translating for merchants, guiding people through the city's more complicated districts. You speak two languages and read a third. You know enough about ships to be useful to people who need someone who knows about ships. It pays.</p>
+
+                <p>You are at the Harbourside Assay House, waiting on a fee, when a clerk named Pall finds you and says that a cartographer named Orven Haar has died. Haar knew you professionally — he would cross-check his coastal charts against pilot logs, and you had provided him with several. He left you something in his will. Not money. A task.</p>
+
+                <button class="start-button" onclick="goToSection(3)">Turn to page <strong>3</strong></button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STORY SECTIONS                          -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <section id="section-3" class="game-section" data-section="3">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">3</div>
+            <div class="section-content">
+                <p>Pall has a lawyer's tidiness about him — the organized discomfort of a man who handles other people's difficult situations all day. He explains while walking: Haar drowned four nights ago in the harbor. Ruled an accident, a man stumbling home late, a bad step on a wet quay. The estate is almost nothing — debts slightly larger than assets. He left no family. What he left you is specific and strange: a sealed map case and an obligation to deliver it to a buyer named Maeve Sorel in the city of Carrath, three days east. There's a letter of introduction. A stipend for expenses, which is modest.</p>
+                <p>"He named you specifically," Pall says, in a tone suggesting this strikes him as odd. "He was insistent about it in the codicil. You, by name."</p>
+                <p>You hadn't spoken to Haar in eight months. You weren't close. The specificity is puzzling.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-5" class="game-section" data-section="5">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">5</div>
+            <div class="section-content">
+                <p>Pall takes you to Haar's workshop to collect the case and sign the paperwork. The workshop is a narrow room above a chandler's shop, smelling of vellum and sizing compound and the particular ink Haar favored — dense and quick-drying, good for field work. His drafting table is still set up, a half-finished coastal survey pinned to it.</p>
+                <p>The workshop has been searched. Not ransacked — carefully, by someone who knew what they were looking for and didn't want to leave obvious signs. But books replaced in the wrong order. A stain on the floor, old oil from a lamp that was knocked and set upright again. A drawer that doesn't quite close because something was taken out and something else put back in its place.</p>
+                <p>Haar's body was found at the harbor. His workshop is four blocks from any reasonable path between his lodgings and the water. He didn't drink. The harbor at night, with wet quays, is dangerous — but you have to get there first.</p>
+                <p>Pall hands you the map case. It is sealed with red wax, Haar's cartographer's mark pressed into it. The case itself is long, leather-wrapped, older than the rest of his equipment.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-7" class="game-section" data-section="7">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">7</div>
+            <div class="section-content">
+                <p>Pall leaves you alone in the workshop while he handles the final papers. You are holding a sealed case that a man was likely killed for. The seal is intact. You were hired as a courier, not an investigator, and there's a reasonable argument that the contents aren't your business.</p>
+                <p>There is also the workshop, which tells its own story. And Haar, who named you specifically.</p>
+                <p class="choice">1. If you break the seal and look at what's inside, turn to page <a href="#" onclick="goToSection(10); return false;" class="page-link"><strong>10</strong></a>.</p>
+                <p class="choice">2. If you leave the seal intact and begin making preparations to depart, turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-10" class="game-section" data-section="10">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">10</div>
+            <div class="section-content">
+                <p>The seal breaks cleanly. Inside: six sheets of vellum, rolled and nested, each one annotated in Haar's small, exact hand.</p>
+                <p>You are a ship's pilot — were a ship's pilot — and you understand what you're looking at within a few minutes of study. These are charts of the Sliding Shore: a forty-mile stretch of the Ardenne coast that appears on no reliable chart because it doesn't stay still. Shifting sandbars, migrating reefs, a tidal pattern that has sunk thirty-odd ships in the last hundred years. Every cartographer who tried to map it found it different on the second visit.</p>
+                <p>Haar found the pattern. The Shore doesn't move randomly — it cycles. A three-year drift, consistent, predictable, governed by deep tidal mechanics that nobody had thought to look for because everyone assumed the chaos was real. His annotations track twelve years of observations. A ship with these charts, and a pilot who understood them, could navigate the Sliding Shore safely. Every ship without them would continue to route around, adding two days and some risk to every coastal passage — or sail in and take their chances, which several still did.</p>
+                <p>You sit with this for a moment. You have been thinking about charts and dangerous coastlines for three years. You understand precisely what it would have meant to have accurate information about the Shear Rocks on the night the <em>Constance</em> went down.</p>
+                <p class="choice">1. If you ask around about Haar's death before you leave the city, turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+                <p class="choice">2. If you reseal the case as best you can and depart, turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-12" class="game-section" data-section="12">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">12</div>
+            <div class="section-content">
+                <p>The woman who lives above the workshop heard the argument — she tells you this when you knock, already prepared to be unhelpful, then deciding against it. Two men, she says. Voices raised. This was three nights before Haar drowned. She heard Haar's voice and two others she didn't know. One said something about "the case" and "what he owed." Another said "the agreement was clear." Haar's voice, at the end: something she couldn't make out and then a door.</p>
+                <p>"He seemed frightened afterward," she says. "I passed him on the stairs the next morning. He didn't look right. I thought perhaps he'd had too much to drink."</p>
+                <p>He hadn't drunk too much. He had known, probably, that two days later he would be dead.</p>
+                <p class="choice">1. If you try to find out who the two men were, turn to page <a href="#" onclick="goToSection(14); return false;" class="page-link"><strong>14</strong></a>.</p>
+                <p class="choice">2. If you have enough information — you understand the shape of it now — turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-14" class="game-section" data-section="14">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">14</div>
+            <div class="section-content">
+                <p>It takes most of a day and costs you money you don't have spare. A factor at the Merchant's Registry confirms it eventually, in exchange for a certain amount of discretion on your part: two men registered as agents of the Ardenne Trading Consortium were in Varen last week. Their visit was logged as routine business. They departed the morning after Haar drowned.</p>
+                <p>The Ardenne Trading Consortium runs the major shipping routes on this coast. Their representative in Carrath is a woman named Maeve Sorel — the same name as the buyer Haar designated in his will.</p>
+                <p>The man who was killed for the maps named the killers' employer as his buyer. And then he named you to make the delivery.</p>
+                <p>You sit with this for a while before you understand what he was trying to do.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-16" class="game-section" data-section="16">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">16</div>
+            <div class="section-content">
+                <p>The road to Carrath runs east through flat agricultural country, then up into the low hills before the descent to the river valley. Three days at an easy pace. You have Haar's letter of introduction, his case, and the modest expense stipend. Whatever is in the case is sealed and will remain so. You were hired as a courier. That's what you'll be.</p>
+                <p>The first day passes without incident. Good road, light traffic, the kind of riding that leaves too much room for thinking. You stay the night at a waystation inn called the Millwheel, take a room, eat a meal that is better than expected, and sleep without difficulty.</p>
+                <p>The second evening, you are finishing that same meal when someone sits down across from you uninvited.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-18" class="game-section" data-section="18">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">18</div>
+            <div class="section-content">
+                <p>She is perhaps twenty-five, dressed for road travel, with the composed manner of someone who has been patient for a long time and is now ready to stop being patient. She says her name is Ren — Haar's former apprentice, dismissed a year ago after a disagreement about methods. She says she has been following the case since she heard Haar had died.</p>
+                <p>"Before you deliver those maps," she says, "you should know what they are and what will happen to them."</p>
+                <p class="choice">1. If you hear what she has to say, turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a>.</p>
+                <p class="choice">2. If you tell her this doesn't involve her and plan to leave at dawn before she's up, turn to page <a href="#" onclick="goToSection(24); return false;" class="page-link"><strong>24</strong></a>.</p>
+                <p class="choice">3. If you tell her nothing and leave the inn that night, turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-22" class="game-section" data-section="22">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">22</div>
+            <div class="section-content">
+                <p>Ren speaks for a long time. Her account is careful and detailed, the account of someone who has had days on the road to organize it.</p>
+                <p>Haar discovered the Sliding Shore pattern five years ago. He intended to publish — make the charts available through the pilots' guilds, the maritime authorities, every ship's captain who needed them. The Ardenne Trading Consortium made him an offer to buy them instead. He refused. They offered again, more money. He accepted — took the advance — and then changed his mind when he understood what they actually intended: to keep the maps private, route their own ships through safely, and let competitors continue to route around, losing time and occasionally ships. The commercial advantage would be indefinite.</p>
+                <p>"He gave the money back," Ren says. "They weren't interested in the money. They said he had breached the agreement. That there would be consequences." She pauses. "He tried to find a legal route. He tried to have the maps registered as a public document. They had friends in the registry." Her hands are flat on the table. "He'd been trying for eight months. Then he drowned."</p>
+                <p>"And me," you say. "Why me?"</p>
+                <p>Ren looks at you steadily. "Because you're an outsider. Because you have your own reasons to think about charts and what happens when people don't have them. Because he thought — I think he thought — that you might make a different choice than he did."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(36); return false;" class="page-link"><strong>36</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-24" class="game-section" data-section="24">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">24</div>
+            <div class="section-content">
+                <p>You tell her it's not her concern and retire early. You're gone at first light.</p>
+                <p>She is already at the next inn when you arrive that evening — she had been half a day ahead of you on the road the whole time, waiting. She sits down across from you at supper with the patience of someone who expected exactly this.</p>
+                <p>"I'll wait as many evenings as it takes," she says pleasantly. "We can keep doing this, or you can hear what I have to say."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-26" class="game-section" data-section="26">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">26</div>
+            <div class="section-content">
+                <p>You settle your bill quietly and slip out a back door. An hour later you're moving through the dark on the Carrath road. She doesn't follow — or if she does, she makes no sound.</p>
+                <p>You ride until the horse needs rest, then make camp off the road. Sleep in intervals, waking with your hand near the case. It's professional instinct, the kind you developed on ships where cargo had a way of walking off in the night.</p>
+                <p>In the small hours before dawn, two men enter your camp from the dark. Professional, quiet, unhurried. They have done this before.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(28); return false;" class="page-link"><strong>28</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-28" class="game-section" data-section="28">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">28</div>
+            <div class="section-content">
+                <p>They're after the case. One of them already has it. The other is between you and the road.</p>
+                <p class="choice">1. If you fight, turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a>.</p>
+                <p class="choice">2. If you go still and let them take it, following at a distance once they leave, turn to page <a href="#" onclick="goToSection(32); return false;" class="page-link"><strong>32</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-30" class="game-section" data-section="30">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">30</div>
+            <div class="section-content">
+                <p>You're better than they expected in close quarters. The one between you and the road goes down, not dead but not getting up quickly. The one with the case runs. You chase him long enough to see the direction he takes — east, along a cart track that parallels the main road — and then you stop, because he has a horse and you don't.</p>
+                <p>The case is gone. But you know roughly where they're headed, and you know now who sent them.</p>
+                <p>At dawn, Ren finds you on the road. She was tracking the consortium's men — she'd known they were following the courier and had been waiting for them to move. She says she knows where their staging post is.</p>
+                <p>Between the two of you, you recover the case before midday. The consortium men don't pursue; they've already failed once and they know it. The maps haven't been opened.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-32" class="game-section" data-section="32">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">32</div>
+            <div class="section-content">
+                <p>You stay still and let them take it. They're efficient, professional, gone in two minutes. You follow at a careful distance through the dark.</p>
+                <p>They lead you to a staging post — a farmhouse four miles east, a consortium waypoint. You'd be badly outnumbered there. But Ren is also following the consortium men. She'd known they were tracking the courier and she's been one step behind them since Varen. You meet on the road outside the farm, by accident, both watching the same lamplight in the same window.</p>
+                <p>She has a plan. It is a better plan than yours. Before dawn the case is back in your hands.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-36" class="game-section" data-section="36">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">36</div>
+            <div class="section-content">
+                <p>You arrive in Carrath in the afternoon of the third day. The city is larger than Varen and more prosperous — a river port, trade roads crossing here from three directions. The harbor is full. Ships with the Consortium's mark are moored at the best berths.</p>
+                <p>The Consortium's offices are in the merchants' quarter: a low stone building, clean windows, its mark above the door in polished bronze. The kind of building that says money and permanence in equal measure.</p>
+                <p>You stand in the street with the case in your pack and a decision that has been approaching since Varen finally arriving.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(38); return false;" class="page-link"><strong>38</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-38" class="game-section" data-section="38">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">38</div>
+            <div class="section-content">
+                <p>Maeve Sorel is perhaps fifty, precisely dressed, with the composed manner of someone who has been making difficult decisions for a long time and has made a professional peace with the process. She greets you by name — she knew you were coming, had known for some time. She is sorry about Haar, she says. It is the way people are sorry about weather.</p>
+                <p>She makes no mention of the men who followed you from Varen. She confirms the purchase. She produces the payment draft — the full amount Haar negotiated, which is substantial. She is waiting for the case.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(40); return false;" class="page-link"><strong>40</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-40" class="game-section" data-section="40">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">40</div>
+            <div class="section-content">
+                <p>The payment is on the desk between you. The case is in your pack. The room is quiet and professional and gives nothing away.</p>
+                <p class="choice">1. If you take the payment and hand over the case, turn to page <a href="#" onclick="goToSection(46); return false;" class="page-link"><strong>46</strong></a>.</p>
+                <p class="choice">2. If you ask what she intends to do with the maps before you decide anything, turn to page <a href="#" onclick="goToSection(42); return false;" class="page-link"><strong>42</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-42" class="game-section" data-section="42">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">42</div>
+            <div class="section-content">
+                <p>"What do you intend to do with them?" you ask.</p>
+                <p>Sorel considers you for a moment — deciding how honest to be, or deciding whether honesty is relevant. She settles on a version of it.</p>
+                <p>"We'll use them," she says. "Our ships will navigate the Shore safely. Our competitors will continue to route around it — or not, as they choose. That is a competitive advantage. It is how business works."</p>
+                <p>"Ships that don't know will keep dying there."</p>
+                <p>"Some," she agrees. "The Shore has always been dangerous. We're not making it more so." She pauses. "We're simply not making it less so for everyone."</p>
+                <p>She says this without apology. She seems to find it a clear position.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(46); return false;" class="page-link"><strong>46</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-46" class="game-section" data-section="46">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">46</div>
+            <div class="section-content">
+                <p>Sorel is waiting. Ren — if she is here — is waiting somewhere outside. The maps are in your pack. Haar named you specifically and put you on this road for a reason, and you are finally at the place where that reason requires an answer.</p>
+                <p class="choice">1. If you deliver the maps to Sorel as contracted, turn to page <a href="#" onclick="goToSection(50); return false;" class="page-link"><strong>50</strong></a>.</p>
+                <p class="choice">2. If you give the maps to Ren, who intends to publish them freely, turn to page <a href="#" onclick="goToSection(53); return false;" class="page-link"><strong>53</strong></a>.</p>
+                <p class="choice">3. If you destroy the maps — no one gets them — turn to page <a href="#" onclick="goToSection(56); return false;" class="page-link"><strong>56</strong></a>.</p>
+                <p class="choice">4. If you make copies tonight and publish them before the meeting, turning them into common knowledge, turn to page <a href="#" onclick="goToSection(59); return false;" class="page-link"><strong>59</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-50" class="game-section" data-section="50">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">50</div>
+            <div class="section-content">
+                <p>You hand the case across the desk. Sorel opens it with a cartographer's care — she knows vellum — and unrolls the first chart. Something moves across her face that isn't quite satisfaction: more like the confirmation of a very long calculation. She counts out the payment without hurrying.</p>
+                <p>You are four days out of Carrath before you stop thinking about it. Not constantly — not every hour — but when you pass a harbor, or see a mast above a roofline, or notice a wind shift that would matter to someone at sea. The Shore is out there. Haar's years on that coast, watching the pattern, mapping the drift. Ships that will continue to die there, not knowing what he knew. Sorel's ships, safe. The ledger that this belongs in isn't one you have access to.</p>
+                <p>The money is real. The contract was honored. You keep riding north and find, in time, that the payment spends like any other payment. That is either a mercy or an indictment. You've never been able to decide which.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-53" class="game-section" data-section="53">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">53</div>
+            <div class="section-content">
+                <p>You tell Sorel the maps weren't delivered to you in satisfactory condition and that you'll need to consult with the estate's lawyer before the transaction can be completed. It is a weak excuse and she knows it. She watches you leave with the stillness of a woman who has been surprised before and knows how to wait.</p>
+                <p>Ren is outside, as you expected. She had a printer ready — she anticipated one of several outcomes and prepared for each. The maps are in the press by evening. By the end of the week, copies have reached the pilots' guild, the maritime authority, the harbor masters at six coastal cities. The Sliding Shore is charted for anyone who wants the information.</p>
+                <p>Sorel does not pursue the matter publicly. The Consortium had wanted an exclusive advantage; the advantage is gone before it was ever used. You would be wise not to visit Carrath again.</p>
+                <p>You ride north without the payment. Ren pressed a purse on you, the remnants of a fund she'd been building since Haar died. It's less than Sorel's draft. It's enough.</p>
+                <p>Haar had chosen well, in the end — a courier with particular reasons to understand what he'd mapped and why it mattered. You hope he knew it would work out. You think he did.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-56" class="game-section" data-section="56">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">56</div>
+            <div class="section-content">
+                <p>You take the maps to the harbor that night and find an empty section of quay and a lamp borrowed from the dock keeper on some pretext. Vellum burns slowly if you don't know what you're doing. Haar's sizing compound makes it slower still. It takes a long time and attracts a couple of curious looks from night workers, which you deflect with the explanatory power of looking like you have every right to be there.</p>
+                <p>When the last sheet is ash and cooling in the water, you stand on the quay and think about what you've done. The Shore will keep its pattern and its dead. No one profits. No one's ships are safer because of Haar's decade of work. That work is gone.</p>
+                <p>But Haar is dead regardless. What was left of his labor was a thing that one organization could use to profit from the ignorance of everyone else, or a thing that could be freely published and save lives, or a thing that was destroyed so that neither happened. You chose the third. It is not obviously right. None of the choices were obviously right.</p>
+                <p>You ride north in the morning, short of the payment you were owed, carrying nothing from Carrath except your own judgment, which has been wrong before.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-59" class="game-section" data-section="59">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">59</div>
+            <div class="section-content">
+                <p>The night before the meeting, you find a printer who works late — a small operation, two blocks from the harbor, the kind of place that prints broadsides and guild notices. You pay him for four copies, quickly done. One goes to the pilots' guild office before dawn. One to the maritime authority. One to the city paper. One you keep.</p>
+                <p>By the time you sit down with Sorel, the information is already loose. You can tell from the quality of her stillness when you enter: she has had word that something has happened, and she has not yet determined what. You deliver the originals across her desk. She opens the case, looks at the charts, closes it again.</p>
+                <p>"The price will be honored," she says. Her voice is level. She is a professional, and professionals who refuse to honor prices lose the ability to make agreements. She counts out the payment. She does not thank you.</p>
+                <p>You ride north with Haar's fee and one printed copy of the Sliding Shore charts in your pack. In the following months you hear that the Shore is being navigated safely, by multiple operators, across multiple consortiums. The deaths stop. The routing detour stops. Haar's decade of work is out in the world, doing what he intended.</p>
+                <p>You keep the copy. Sometimes, in good harbor light, you unroll it and look at the pattern he found. The drift. The reset. The thing that was always there, waiting for someone to look long enough.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+    </div><!-- end .page -->
+
+    <script>
+        // === STATE ===
+        let history = [];
+        let lastChoiceSection = null;
+        let currentView = 'home';
+        let options = {
+            darkMode: false,
+            fontSize: 2,
+            narration: false,
+            qaMode: false
+        };
+        const fontSizes = [
+            { name: 'X-Small', size: '15px' },
+            { name: 'Small',   size: '17px' },
+            { name: 'Medium',  size: '19px' },
+            { name: 'Large',   size: '21px' },
+            { name: 'X-Large', size: '23px' }
+        ];
+
+        // === SECTION INDEX ===
+        let sortedSections = [];
+        let totalSections = 0;
+
+        function buildSortedSectionsFromDOM() {
+            const sections = document.querySelectorAll('.game-section[data-section]');
+            const nums = [];
+            sections.forEach(function(s) {
+                const n = parseInt(s.dataset.section);
+                if (!isNaN(n)) nums.push(n);
+            });
+            nums.sort(function(a, b) { return a - b; });
+            return nums;
+        }
+
+        function refreshSectionIndex() {
+            sortedSections = buildSortedSectionsFromDOM();
+            totalSections = sortedSections.length;
+        }
+
+        function sectionHasChoices(n) {
+            const el = document.getElementById('section-' + n);
+            if (!el) return false;
+            return el.querySelectorAll('p.choice').length > 0;
+        }
+
+        function getLastChoiceForCurrent() {
+            if (!Array.isArray(history) || history.length === 0) return null;
+            for (let i = history.length - 2; i >= 0; i--) {
+                const n = history[i];
+                if (sectionHasChoices(n)) return n;
+            }
+            return null;
+        }
+
+        // === SAVE / LOAD ===
+        function saveProgress() {
+            try {
+                const state = {
+                    history: history,
+                    currentView: currentView,
+                    options: options
+                };
+                localStorage.setItem('drownedCartographer_progress', JSON.stringify(state));
+            } catch(e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('drownedCartographer_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.options) options = Object.assign(options, state.options);
+                    history = state.history || [];
+                    return state.currentView || null;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function hasProgress() {
+            try {
+                const saved = localStorage.getItem('drownedCartographer_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    return state.history && state.history.length > 0;
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function clearProgress() {
+            try { localStorage.removeItem('drownedCartographer_progress'); } catch(e) {}
+        }
+
+        // === OPTIONS ===
+        function applyOptions() {
+            if (options.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            document.documentElement.style.setProperty('--font-size', fs.size);
+            updateToggleVisuals();
+            updateOptionsSummary();
+            const narrationControls = document.getElementById('narration-controls');
+            if (narrationControls) {
+                narrationControls.classList.toggle('visible', options.narration);
+            }
+            if (!options.narration) narrationStop();
+        }
+
+        function updateToggleVisuals() {
+            const darkToggle = document.getElementById('toggle-dark');
+            if (darkToggle) darkToggle.classList.toggle('active', options.darkMode);
+            const narToggle = document.getElementById('toggle-narration');
+            if (narToggle) narToggle.classList.toggle('active', options.narration);
+        }
+
+        function updateFontSizeDisplay() {
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateOptionsSummary() {
+            const summary = document.getElementById('options-summary');
+            if (!summary) return;
+            const parts = [];
+            parts.push('Theme: ' + (options.darkMode ? 'Dark' : 'Light'));
+            parts.push('Font: ' + (fontSizes[options.fontSize] || fontSizes[2]).name);
+            if (options.narration) parts.push('Narration: On');
+            summary.textContent = parts.join(' · ');
+        }
+
+        function toggleOption(option) {
+            if (option === 'dark') options.darkMode = !options.darkMode;
+            else if (option === 'narration') options.narration = !options.narration;
+            applyOptions();
+            saveProgress();
+        }
+
+        function setFontSizeFromSlider(value) {
+            options.fontSize = parseInt(value);
+            applyOptions();
+            saveProgress();
+        }
+
+        function updateFontSizePreview(value) {
+            const fs = fontSizes[parseInt(value)] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateFontSizeSlider() {
+            const slider = document.getElementById('font-size-slider');
+            if (slider) slider.value = options.fontSize;
+            updateFontSizeDisplay();
+        }
+
+        // === NARRATION ===
+        let speechSynth = null;
+        let isPaused = false;
+
+        function prepareTextForNarration(text) {
+            return text.replace(/\s+/g, ' ').trim();
+        }
+
+        function narrate(text) {
+            if (!window.speechSynthesis || !options.narration) return;
+            if (!speechSynth) speechSynth = window.speechSynthesis;
+            speechSynth.cancel();
+            isPaused = false;
+            const utterance = new SpeechSynthesisUtterance(prepareTextForNarration(text));
+            utterance.rate = 0.95;
+            utterance.onend = function() { updateNarrationButtons(); };
+            speechSynth.speak(utterance);
+            updateNarrationButtons();
+        }
+
+        function narrationPlay() {
+            if (!speechSynth) return;
+            if (isPaused) { speechSynth.resume(); isPaused = false; }
+            else {
+                const active = document.querySelector('.game-section.active');
+                if (active) {
+                    const content = active.querySelector('.section-content');
+                    if (content) narrate(content.innerText || content.textContent);
+                }
+            }
+            updateNarrationButtons();
+        }
+
+        function narrationPause() {
+            if (speechSynth && speechSynth.speaking) {
+                speechSynth.pause(); isPaused = true; updateNarrationButtons();
+            }
+        }
+
+        function narrationStop() {
+            if (speechSynth) { speechSynth.cancel(); isPaused = false; updateNarrationButtons(); }
+        }
+
+        function updateNarrationButtons() {
+            const playBtn = document.getElementById('narration-play');
+            const pauseBtn = document.getElementById('narration-pause');
+            if (playBtn) playBtn.classList.toggle('active', speechSynth && speechSynth.speaking && !isPaused);
+            if (pauseBtn) pauseBtn.classList.toggle('active', isPaused);
+        }
+
+        // === UI ===
+        function updatePageIndicator() {
+            const indicator = document.getElementById('page-indicator');
+            if (!indicator) return;
+            const current = getCurrentSection();
+            if (currentView === 'cover') indicator.textContent = 'Cover';
+            else if (currentView === 'options') indicator.textContent = 'Options';
+            else if (currentView === 'home') indicator.textContent = 'Intro';
+            else if (current !== null) {
+                const idx = sortedSections.indexOf(current) + 1;
+                indicator.textContent = 'Page ' + current + ' (' + idx + '/' + totalSections + ')';
+            }
+        }
+
+        function updateBreadcrumb() {
+            const trail = document.getElementById('breadcrumb-trail');
+            if (!trail) return;
+            if (history.length === 0) {
+                trail.innerHTML = '<span class="breadcrumb-link" onclick="goToCover()">Cover</span>';
+            } else {
+                const display = history.slice(-8);
+                const prefix = history.length > 8 ? '... &rarr; ' : '';
+                const links = display.map(function(p) {
+                    return '<span class="breadcrumb-link" onclick="goToSection(' + p + ', true)">' + p + '</span>';
+                }).join(' &rarr; ');
+                trail.innerHTML = prefix + links;
+            }
+        }
+
+        // === NAVIGATION ===
+        function hideAllSections(direction) {
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+        }
+
+        function showSection(section, direction) {
+            section.classList.add('active');
+            if (direction === 'left') section.classList.add('flip-left');
+            section.style.display = 'block';
+        }
+
+        function getCurrentSection() {
+            const active = document.querySelector('.game-section.active');
+            if (active && active.dataset.section) return parseInt(active.dataset.section);
+            return null;
+        }
+
+        function goToSection(n, isBack, direction) {
+            const el = document.getElementById('section-' + n);
+            if (!el) { console.warn('Section not found:', n); return; }
+            if (!isBack) history.push(n);
+            hideAllSections();
+            showSection(el, direction);
+            currentView = 'section';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            updateBreadcrumb();
+            saveProgress();
+            if (options.narration) {
+                const content = el.querySelector('.section-content');
+                if (content) narrate(content.innerText || content.textContent);
+            }
+        }
+
+        function goToNextPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            const idx = sortedSections.indexOf(current);
+            if (idx >= 0 && idx < sortedSections.length - 1) {
+                goToSection(sortedSections[idx + 1], false, 'right');
+            }
+        }
+
+        function goToPrevPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            if (current === sortedSections[0]) { goToIntro(); return; }
+            const idx = sortedSections.indexOf(current);
+            if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+        }
+
+        function goToCover() {
+            hideAllSections();
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            narrationStop();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+        }
+
+        function goToIntro() {
+            hideAllSections();
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+                showSection(homeSection);
+                currentView = 'home';
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                updatePageIndicator();
+                narrationStop();
+            }
+        }
+
+        let cameFromGameplay = false;
+
+        function goToOptions() {
+            cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+            hideAllSections();
+            const optionsSection = document.getElementById('options-section');
+            showSection(optionsSection);
+            currentView = 'options';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            applyOptions();
+            updateFontSizeSlider();
+            narrationStop();
+            updateOptionsButtons();
+        }
+
+        function updateOptionsButtons() {
+            const primaryBtn = document.getElementById('options-primary-btn');
+            const restartBtn = document.getElementById('options-restart-btn');
+            if (cameFromGameplay) {
+                primaryBtn.innerHTML = '&larr; Back to Story';
+                primaryBtn.onclick = function() { goBack(); };
+                restartBtn.style.display = 'block';
+            } else {
+                primaryBtn.innerHTML = '&#x2756; Begin Adventure';
+                primaryBtn.onclick = function() { beginAdventure(); };
+                restartBtn.style.display = hasProgress() ? 'block' : 'none';
+            }
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                const lastPage = history[history.length - 1];
+                goToSection(lastPage, true);
+            } else {
+                goToIntro();
+            }
+        }
+
+        function openBook() {
+            if (hasProgress()) {
+                const savedView = loadProgress();
+                if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                    if (savedView === 'home') { goToIntro(); return; }
+                    if (history.length > 0) {
+                        goToSection(history[history.length - 1], true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function startFreshAdventure() {
+            history = [];
+            lastChoiceSection = null;
+            saveProgress();
+            goToIntro();
+        }
+
+        function beginAdventure() {
+            history = [];
+            lastChoiceSection = null;
+            saveProgress();
+            goToIntro();
+        }
+
+        function restartFromOptions() {
+            if (confirm('Start over from the beginning? Your progress will be cleared.')) {
+                history = [];
+                lastChoiceSection = null;
+                narrationStop();
+                saveProgress();
+                goToIntro();
+            }
+        }
+
+        function restartAdventure() {
+            if (confirm('Start over from the beginning?')) {
+                history = [];
+                lastChoiceSection = null;
+                narrationStop();
+                clearProgress();
+                goToCover();
+            }
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('page-jump');
+            if (!input) return;
+            const n = parseInt(input.value);
+            if (!isNaN(n)) { goToSection(n, false); input.value = ''; }
+        }
+
+        // === KEYBOARD ===
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' && currentView === 'section') goToNextPage();
+            if (e.key === 'ArrowLeft' && currentView === 'section') goToPrevPage();
+            if (e.shiftKey && e.key === 'Q') {
+                options.qaMode = !options.qaMode;
+                document.body.classList.toggle('qa-mode', options.qaMode);
+            }
+        });
+
+        // === INITIALIZATION ===
+        window.addEventListener('load', function() {
+            refreshSectionIndex();
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            applyOptions();
+            updatePageIndicator();
+            updateBreadcrumb();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+            openBook();
+        });
+
+        window.toggleAdventurePanel ||= function(){};
+        window.showPanelTab ||= function(){};
+        window.updateMapDisplay ||= function(){};
+        window.updateInventoryDisplay ||= function(){};
+    </script>
+</body>
+</html>

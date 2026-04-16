@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bone Road</title>
+    <style>
+        :root {
+            --bg-color: #ccc8b5;
+            --page-bg: linear-gradient(to right, #e2dbc8 0%, #ece5d2 5%, #eee7d4 50%, #ece5d2 95%, #e2dbc8 100%);
+            --text-color: #18140f;
+            --link-color: #7A2020;
+            --shadow-color: rgba(0,0,0,0.35);
+            --button-bg: #ece5d2;
+            --button-border: #7A2020;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d47474;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d47474;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.65;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 50px auto 50px auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+        .control-group { display: flex; align-items: center; gap: 5px; }
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center; font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+        .page-indicator { font-size: 14px; color: var(--text-color); min-width: 80px; text-align: center; }
+        .breadcrumb {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-color); padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color); max-width: 90%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; transition: opacity 0.2s, background-color 0.3s;
+        }
+        .breadcrumb:hover { opacity: 1; }
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        .game-section { display: none !important; }
+        .game-section.active { display: block !important; animation: pageFlip 0.3s ease-out; }
+        #cover-section.cover-visible { display: block !important; animation: none !important; }
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .page-number { font-size: 24px; font-weight: normal; margin-bottom: 25px; color: var(--text-color); }
+        .section-content { text-align: justify; }
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p.choice { margin: 0.5em 0 0.3em 1.5em; text-indent: 0; }
+        .ending {
+            text-align: center !important; font-size: 1.3em;
+            margin: 40px 0 !important; text-indent: 0 !important; font-weight: bold;
+        }
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color); background: none; border: none;
+            border-bottom: 2px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+        .page-link strong { font-weight: bold; }
+        .turn-instruction { text-align: center; margin-top: 2em; }
+        .bookmark-link {
+            position: absolute; bottom: 20px; left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+        #home-section h1 {
+            font-size: 1.6em; text-align: center; margin: 0 0 6px 0;
+            font-weight: bold; letter-spacing: 2px; line-height: 1.3;
+        }
+        #home-section .subtitle { text-align: center; font-style: italic; margin-bottom: 28px; font-size: 0.9em; }
+        .start-button {
+            display: block; margin: 36px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+        .start-button:hover { background-color: var(--text-color); color: var(--button-bg); }
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; }
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+        .option-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+        .option-row:last-of-type { border-bottom: none; }
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px; background: var(--button-bg);
+            border-radius: 50%; transition: transform 0.3s;
+        }
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: #4A9EFF; cursor: pointer;
+            border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+        .font-preview { display: none; }
+        .narration-controls {
+            display: none; position: fixed; bottom: 50px; left: 50%;
+            transform: translateX(-50%); padding: 10px 20px;
+            background: var(--button-bg); border-radius: 25px;
+            justify-content: center; gap: 15px; z-index: 150;
+            box-shadow: 0 2px 15px var(--shadow-color);
+            border: 1px solid var(--nav-color);
+        }
+        .narration-controls.visible { display: flex; }
+        .narration-btn {
+            width: 40px; height: 40px; border: 1px solid var(--button-border);
+            background: var(--button-bg); color: var(--text-color);
+            border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s;
+        }
+        .narration-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .narration-btn.active { background: var(--link-color); color: var(--button-bg); }
+        .begin-button {
+            display: block; margin: 40px auto 20px; padding: 15px 40px;
+            font-family: inherit; font-size: 1.1em; background: var(--link-color);
+            border: 2px solid var(--link-color); cursor: pointer; color: var(--button-bg);
+            border-radius: 8px; transition: all 0.2s;
+        }
+        .begin-button:hover { background: var(--text-color); border-color: var(--text-color); }
+        .options-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
+        .restart-button {
+            padding: 10px 25px; font-family: inherit; font-size: 0.95em;
+            background: transparent; border: 1px solid var(--nav-color);
+            cursor: pointer; color: var(--nav-hover); border-radius: 6px; transition: all 0.2s;
+        }
+        .restart-button:hover { background: var(--nav-color); color: var(--button-bg); }
+        .options-summary {
+            margin-top: 20px; padding: 15px; background: var(--button-bg);
+            border-radius: 8px; font-size: 0.85em; color: var(--nav-hover);
+            border: 1px dashed var(--nav-color);
+        }
+        .settings-btn { font-size: 18px; padding: 5px 8px; }
+        .qa-only { display: none !important; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body.qa-mode .breadcrumb { display: block; }
+        body:not(.qa-mode) .breadcrumb { display: none; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav { display: none !important; }
+        #cover-section { text-align: center; }
+        #cover-section .section-content {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 60vh;
+        }
+        .cover-title {
+            font-size: 2em; font-weight: bold; letter-spacing: 3px;
+            line-height: 1.25; margin-bottom: 0.15em; color: var(--text-color);
+        }
+        .cover-subtitle {
+            font-size: 1em; font-style: italic; letter-spacing: 1px;
+            color: var(--nav-hover); margin-bottom: 0.5em;
+        }
+        .cover-rule {
+            width: 160px; border: none; border-top: 1px solid var(--link-color);
+            margin: 1.2em auto;
+        }
+        .cover-byline { font-size: 0.85em; color: var(--nav-color); margin-bottom: 0; font-style: italic; }
+        .cover-buttons { margin-top: 2.5em; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .cover-begin-btn {
+            padding: 14px 40px; font-size: 1.1em; font-family: inherit;
+            background: var(--link-color); color: var(--button-bg);
+            border: 2px solid var(--link-color); border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .cover-begin-btn:hover { background: var(--text-color); border-color: var(--text-color); }
+        .cover-customize-link {
+            font-size: 0.88em; color: var(--nav-hover); cursor: pointer;
+            text-decoration: underline; background: none; border: none;
+            font-family: inherit; transition: color 0.2s;
+        }
+        .cover-customize-link:hover { color: var(--link-color); }
+        .cover-resume-hint { margin-top: 8px; font-size: 0.82em; color: var(--nav-color); font-style: italic; }
+        .page-nav {
+            position: fixed; top: 50vh; transform: translateY(-50%);
+            font-size: 24px; color: var(--nav-color); cursor: pointer;
+            padding: 20px 8px; user-select: none; transition: color 0.2s; z-index: 100;
+        }
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.3; cursor: default; }
+        .page-nav-left { left: calc(50% - 270px); }
+        .page-nav-right { right: calc(50% - 270px); }
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 17px; }
+            .page { padding: 30px 25px 50px 25px; min-height: auto; }
+            .page-number { font-size: 20px; }
+        }
+        .choice-text { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="goToCover()" title="Cover">&#x2302; Cover</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn" onclick="restartAdventure()" title="Start over">&#x1F504; Restart</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn settings-btn" onclick="goToOptions()" title="Options">&#x2699;&#xFE0F;</button>
+        </div>
+        <div class="control-group">
+            <span class="page-indicator" id="page-indicator">Cover</span>
+        </div>
+        <div class="control-group qa-only">
+            <label for="page-jump">Go to:</label>
+            <input type="number" id="page-jump" class="page-input" min="1" max="60" placeholder="#">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div class="narration-controls" id="narration-controls">
+        <button class="narration-btn" onclick="narrationPlay()" title="Play" id="narration-play">&#x25B6;</button>
+        <button class="narration-btn" onclick="narrationPause()" title="Pause" id="narration-pause">&#x23F8;</button>
+        <button class="narration-btn" onclick="narrationStop()" title="Stop" id="narration-stop">&#x23F9;</button>
+    </div>
+
+    <div class="breadcrumb" id="breadcrumb">
+        Path: <span id="breadcrumb-trail">Start</span>
+    </div>
+
+    <div class="page">
+
+        <!-- Options Page -->
+        <section id="options-section" class="game-section">
+            <h2>&#x2699;&#xFE0F; Options</h2>
+            <div class="options-container">
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F313; Dark Mode</span>
+                        <span class="option-desc">Easier on the eyes in low light</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F4CF; Font Size</span>
+                        <span class="option-desc">Adjust text size for comfort</span>
+                    </div>
+                    <div class="font-size-slider-container">
+                        <label class="size-label">A&#x207B;</label>
+                        <input type="range" id="font-size-slider" min="0" max="4" value="2" step="1"
+                               onchange="setFontSizeFromSlider(this.value)"
+                               oninput="updateFontSizePreview(this.value)"
+                               class="font-slider">
+                        <label class="size-label">A&#x207A;</label>
+                        <span id="font-size-preview" class="font-preview">Medium</span>
+                    </div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F50A; Narration</span>
+                        <span class="option-desc">Read the story aloud (browser TTS)</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-narration" onclick="toggleOption('narration')"></div>
+                </div>
+            </div>
+            <div class="options-buttons">
+                <button class="begin-button" id="options-primary-btn" onclick="beginAdventure()">&#x2756; Begin Adventure</button>
+                <button class="restart-button" id="options-restart-btn" onclick="restartFromOptions()" style="display:none">Start Over</button>
+            </div>
+            <div class="options-summary" id="options-summary"></div>
+        </section>
+
+        <!-- Cover Page -->
+        <section id="cover-section" class="game-section">
+            <div class="section-content">
+                <div class="cover-title">THE BONE ROAD</div>
+                <hr class="cover-rule">
+                <div class="cover-subtitle">An Adventure of Choice</div>
+                <div class="cover-byline">You are Caeran, desert guide. You have crossed the Bone Road<br>forty times. You have never found anyone waiting.</div>
+                <div class="cover-buttons">
+                    <button class="cover-begin-btn" onclick="startFreshAdventure()">Begin Adventure</button>
+                    <button class="cover-customize-link" onclick="goToOptions()">Options &amp; Settings</button>
+                    <div class="cover-resume-hint" id="resume-hint" style="display:none">Progress saved — click Begin to resume.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home / Intro Page -->
+        <section id="home-section" class="game-section">
+            <div class="section-content">
+                <h1>THE BONE ROAD</h1>
+                <p class="subtitle">An Adventure of Choice</p>
+
+                <p>You are Caeran — desert guide, third generation. Your grandfather walked the Bone Road with a merchant's string of camels before the road was properly charted. Your mother surveyed it for the Trade Authority and built the waystation markers that are still used today. You have crossed it forty-one times.</p>
+
+                <p>The road is called the Bone Road because of the white limestone that surfaces through the sand, not because of casualties, though people assume casualties. The name predates the deaths. Most things about the desert predate the people who are afraid of it.</p>
+
+                <p>You have a rule about the ruins along the Bone Road: don't touch what isn't yours. The ruins are old. The people who built them were dead before your grandmother was born. What they left is their business. You guide people through the road. You don't guide them into what's at the sides of it.</p>
+
+                <p>This trip is a standard crossing: three merchants, two guards, six days of water and provisions, the usual contract. Day three, you are making camp at the old waystation when you see that the waystation is already occupied.</p>
+
+                <button class="start-button" onclick="goToSection(3)">Turn to page <strong>3</strong></button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STORY SECTIONS                          -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <section id="section-3" class="game-section" data-section="3">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">3</div>
+            <div class="section-content">
+                <p>The waystation is ruins — has been ruins for as long as anyone has been using the road. Three walls standing, one collapsed into rubble, a roof that is mostly intact over the northern corner. Your mother's marker is still here, a painted stone reading D3 in faded red. The place is useful because it holds heat poorly, which matters less than the fact that it holds wind out. Six days through the desert and every wind-break is worth something.</p>
+                <p>In the shade of the intact corner, where no one should be, a man is sitting with his back against the wall and his knees up and his eyes fixed on the middle distance. He is alive. Barely. Three weeks out here alone, by the look of him — thin in the way that has gone past lean into something hollow, the skin over his face tight and strange. His water is gone. His food is gone. His equipment is scattered around him like he dropped it when he sat down and couldn't be bothered to organize it.</p>
+                <p>His eyes find you when you approach. They are clear.</p>
+                <p>"I've been waiting," he says. His voice is hoarse from disuse. "I knew someone would come."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-5" class="game-section" data-section="5">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">5</div>
+            <div class="section-content">
+                <p>You give him water first, slowly. The merchants crowd around — Bray with his sharp commercial instincts already calculating, Sonn looking worried — and the two guards, Henk and young Tava, stay back with hands near their weapons before understanding that the threat here is starvation, not violence.</p>
+                <p>The man's name is Vos. He came with a scholarly expedition three weeks ago — six people in total, sent to survey the waystation ruins for a university in the capital. On day two, he says, they found a vault beneath the station's floor. A sealed chamber. Old, very old. They tried to open it without following the instructions cut into its lintel, because they were scholars and they thought the instructions were ceremonial rather than functional.</p>
+                <p>He says this flatly, the way you say things you have spent weeks reconstructing and accepted.</p>
+                <p>"Four of them died," he says. "The mechanism inside activated. The fifth ran. I stayed." He pauses. "I've tried to leave three times. Every time I get a hundred yards from the station, something pulls me back. I don't know how to describe it. It's not a feeling. It's more like forgetting where you're going. By the time I remember, I've walked back."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-7" class="game-section" data-section="7">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">7</div>
+            <div class="section-content">
+                <p>Bray — lead merchant, pragmatic, experienced, a man who has made a career of doing difficult calculations quickly — waits until Vos has eaten before he asks the obvious question. "What's in the vault?"</p>
+                <p>"Documents," Vos says. "Ceremonial objects. The personal effects of the original waystation keeper, who apparently lived here for forty years and kept meticulous records of every caravan that passed. Old money, probably worthless. Maps. A sealed letter with a name on it that I couldn't read."</p>
+                <p>Bray nods slowly. Maps and documents from a dead civilization — not nothing, to the right buyers. The sealed letter alone, depending on its contents, could be extraordinary.</p>
+                <p>"How do you open it without the mechanism?" you ask.</p>
+                <p>Vos looks at you. "You read the instructions," he says. "They're not complicated. You declare your purpose. You take what you genuinely need. You seal it again."</p>
+                <p class="choice">1. If you take Vos at his word and let him explain the full procedure, turn to page <a href="#" onclick="goToSection(11); return false;" class="page-link"><strong>11</strong></a>.</p>
+                <p class="choice">2. If you want to see the vault and judge for yourself before committing to anything, turn to page <a href="#" onclick="goToSection(14); return false;" class="page-link"><strong>14</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-11" class="game-section" data-section="11">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">11</div>
+            <div class="section-content">
+                <p>Vos has had three weeks to study the vault's lintel text. The script is an old form of the regional trade language — degraded, contracted, but readable. He translates it carefully, having clearly done this many times in his head already.</p>
+                <p>The instructions are three steps. The first: you must name the thing you need from what is inside. Not what you want — what you need, specifically, with the understanding that the vault is a waystation store, not a treasure house. The second: you enter and take that thing and nothing else unless Vos — as the keeper — agrees it can go. The third: you seal the vault in the same way it was opened, formally, with the same phrase.</p>
+                <p>"The mechanism that killed the others," Vos says, "activated when they began removing items without the declaration. It reads the action as theft, I think. Old engineering, not magic — but very old engineering, and whoever built it was serious about the protocol."</p>
+                <p>He pauses. "I am the keeper now, apparently, by default. I've spent three weeks understanding what that means." He looks at the vault entrance, half-visible in the rubble. "What I know is this: if you follow the instructions, it's safe. If you don't, it isn't."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-14" class="game-section" data-section="14">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">14</div>
+            <div class="section-content">
+                <p>The vault entrance is in the northwest corner, under a collapsed section of floor — stone flagging cracked and displaced by something pushing up from below, or more likely by the weight of three hundred years settling. The entrance is clear now; Vos has cleared it, working with no tools but time and patience.</p>
+                <p>The lintel is intact. The text is legible — three lines of old script, the trade language your mother taught you, contracted and formal. You can read most of it. The instructions are what Vos described, more or less: purpose, need, seal.</p>
+                <p>Around the entrance, on the floor: the scatter of the previous expedition. Three packs, abandoned. Notebooks. A broken lamp. Some dark staining on the stone that you don't look at longer than necessary. Whatever the mechanism did, it was quick.</p>
+                <p>The vault itself is dark. You can see the top of a stone staircase. Cold air comes up from it — the underground temperature of a sealed space that hasn't been opened in a long time. It smells like old paper and stone.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-18" class="game-section" data-section="18">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">18</div>
+            <div class="section-content">
+                <p>Bray wants the vault opened. He has been businesslike about this since the moment Vos finished his story — there are things of value down there, and Bray did not cross four hundred miles of desert to camp next to them and leave. He says the instructions are reasonable. He says the mechanism presumably worked on people who were rushing and greedy, not on people who approach it correctly.</p>
+                <p>Sonn says very little, which means he agrees with Bray, which is his usual position. Henk looks at you. Tava looks at the entrance with the expression of someone running calculations about danger pay.</p>
+                <p>Vos says nothing. He is sitting apart, watching. He has not pushed for or against. He has given you the information. The decision, apparently, is yours.</p>
+                <p class="choice">1. If you follow the instructions as Vos described — declare need, enter, take only what is named — turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a>.</p>
+                <p class="choice">2. If you attempt to open it without the ritual — the mechanism is old, the declaration may be unnecessary — turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+                <p class="choice">3. If you refuse to open the vault and move the group on, turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-22" class="game-section" data-section="22">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">22</div>
+            <div class="section-content">
+                <p>You go first, alone, because the instruction says one person and a declaration of need, and you have a rule against doing halfway what should be done fully. At the vault entrance you read the lintel phrase aloud — old formal language, probably mispronounced, but the intent is clear — and you name your need: information about the road, if there is any. Records of passage. Something useful for the living rather than valuable to collectors.</p>
+                <p>The vault is intact below: a low vaulted room, shelves cut into the stone, everything covered in the fine white dust that this desert produces. The smell of very old paper. Lamps set in iron brackets, cold, and beside them a fire-striker that still works after all this time.</p>
+                <p>The shelves hold what Vos described. Documents in sealed tubes. Bundled correspondence. A locked chest. An iron compass on a leather strap. A sealed letter whose exterior reads a name, in script so formal you can't quite parse it. And in the far corner, a series of large-format maps in a sealed case, the case's leather cracked but intact.</p>
+                <p>You stand in the cold vault room and look at what three hundred years of careful storage has preserved. Behind you, on the stair, you can hear the faint sounds of your group above. No mechanism has activated. The room is quiet and waiting.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(34); return false;" class="page-link"><strong>34</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-26" class="game-section" data-section="26">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">26</div>
+            <div class="section-content">
+                <p>Bray goes first, because it is his enterprise and he knows it. He takes a lamp and descends without the declaration. The mechanism activates before he reaches the bottom stair — not explosively, the way Vos described with the previous expedition, but steadily. A sound like grinding stone. A compression of air that is not pleasant. Bray comes back up fast and pale.</p>
+                <p>Tava, who was crowding too close behind him, takes a blow from something mechanical that he doesn't see: a beam or lever, activating in a direction it shouldn't have been able to reach. He goes down hard, clutching his shoulder. It is not a death wound. It is a serious wound and the desert is not a good place for one.</p>
+                <p>Vos is at the entrance immediately. He says the lintel phrase, formally, without rushing. The grinding stops. The compression releases. He says, without inflection: "I told you."</p>
+                <p>The vault will not open again today — or not to anyone who isn't prepared to follow the ritual exactly, and the group's appetite for it has evaporated. Tava needs care. The vault is intact below. What happens next is the question of Vos, and of whether you stay or go.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-30" class="game-section" data-section="30">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">30</div>
+            <div class="section-content">
+                <p>Whether the vault is closed because you chose not to open it or because the attempt went wrong, the position is the same: you are at the waystation, Vos is still here, and the road continues east. You have water and provisions for three more days. Bray is furious — loudly at first, then with the controlled quality of a man saving his arguments — but the desert doesn't care about commercial opportunity, and you are the guide.</p>
+                <p>The question is Vos. He has been here three weeks. You could leave him three more weeks of supplies and trust that another caravan will come — they usually do, in time. Or you could try to take him with you, which means dealing with whatever it is that pulls him back when he walks away from the ruins.</p>
+                <p>He hasn't asked for either. He is sitting against the wall with the patience of a man who has stopped being surprised by things. He says, when you ask him directly: "I would be grateful for whatever you decide. I've stopped having preferences."</p>
+                <p>That last sentence, delivered without self-pity, is the most unsettling thing you've heard in a long time.</p>
+                <p class="choice">1. If you try to take Vos with you when you leave — whatever the pull does, you'll deal with it — turn to page <a href="#" onclick="goToSection(38); return false;" class="page-link"><strong>38</strong></a>.</p>
+                <p class="choice">2. If you leave Vos with three weeks of supplies and a promise to send help from the next settlement, turn to page <a href="#" onclick="goToSection(42); return false;" class="page-link"><strong>42</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-34" class="game-section" data-section="34">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">34</div>
+            <div class="section-content">
+                <p>You call up to Vos, who descends to join you. He looks at the room with the expression of someone seeing it clearly for the first time — he'd been down here once, briefly, before the mechanism activated on his colleagues, and he has spent three weeks looking at the entrance from outside. His eyes move over the shelves with professional attention.</p>
+                <p>"The maps," he says quietly. "If they show the route your mother surveyed, they predate her survey by two hundred years. If they're different, they're more valuable still." He touches the sealed letter case with one finger, then withdraws it. "I'd like that one. I don't know why."</p>
+                <p>Bray's voice comes from the stair — he is listening from above, and he has opinions about the maps and the locked chest and what can be carried and what the declaration specified. Sonn is already calculating weights.</p>
+                <p>The mechanism is quiet. The vault is waiting. What you take and what you leave is the question.</p>
+                <p class="choice">1. If you take everything the group can carry, turn to page <a href="#" onclick="goToSection(46); return false;" class="page-link"><strong>46</strong></a>.</p>
+                <p class="choice">2. If you take one item each — Vos gets to choose what each person takes — turn to page <a href="#" onclick="goToSection(50); return false;" class="page-link"><strong>50</strong></a>.</p>
+                <p class="choice">3. If you seal the vault again without taking anything, turn to page <a href="#" onclick="goToSection(54); return false;" class="page-link"><strong>54</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-38" class="game-section" data-section="38">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">38</div>
+            <div class="section-content">
+                <p>You break camp at first light and Vos walks with you. You don't tell him where the pull is supposed to start — you just walk, and he walks, and everyone watches him without appearing to. He is thin and slow and uses a walking stick cut from the waystation's collapsed rafter beam.</p>
+                <p>A hundred yards out, you can see his face change. Something focusing. Something resisting. He slows without stopping. His jaw tightens. You keep walking at his pace and don't look back toward the ruins and don't give the pull anything to work with. If it's in the mind — and you think it probably is, the residue of three weeks of isolation and a traumatic event — then looking back is exactly what feeds it.</p>
+                <p>Two hundred yards. Three.</p>
+                <p>At five hundred yards, Vos exhales very slowly and looks up at the road ahead. "I think that's it," he says. He sounds surprised. He sounds as if he had not genuinely believed it would work until this moment.</p>
+                <p>He walks the rest of the way to the settlement at Dren without difficulty. The merchants find other things to argue about. He sleeps for fifteen hours when they arrive, and in the morning his eyes are clearer than they've been since you found him.</p>
+                <p>You don't know what holds people in places or what lets them go. You know the road. Sometimes that's enough.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-42" class="game-section" data-section="42">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">42</div>
+            <div class="section-content">
+                <p>You leave him three weeks of water and provisions, the most you can spare without endangering the crossing. You leave him your spare lamp. You leave him the note you've written for the next caravan: <em>Man stranded at D3, possible medical. Please assist.</em> You leave the next caravan to chance, which is not nothing on a road this traveled.</p>
+                <p>Vos receives all of this without thanks, not because he is ungrateful but because he seems beyond gratitude in the same way he seems beyond despair — as if he has come out the other side of wanting things. "I expected this," he says. He says it honestly, without accusation. He means it as information, not indictment: he had looked at all the possibilities and this was the most probable one, and he is at peace with probability.</p>
+                <p>You leave the waystation. You don't look back, because looking back on the desert is a habit you never developed. The road goes east. Behind you, in the shade of the three standing walls, a man sits with his back to the stone and his eyes fixed on something you can't see.</p>
+                <p>At Dren you hire a rider and pay for the message yourself. Whether the message reaches the right caravan and whether they can help is not something you can control. Some things you do and some things you have to leave to the road.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-46" class="game-section" data-section="46">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">46</div>
+            <div class="section-content">
+                <p>You take everything the group can carry. The maps. The locked chest. The sealed correspondence tubes. The compass. The sealed letter. The small ceremonial objects that Bray identifies as valuable to the right collectors. Vos watches each item go up the stairs with the expression of someone who had expected this and is reconciling himself to it.</p>
+                <p>When the vault is empty — or as empty as people in a hurry can make it — Vos says the sealing phrase. The vault closes. He walks up the stairs and out into the afternoon sun, and when he reaches the waystation wall he pauses. Then he keeps walking. He reaches a hundred yards without stopping. Two hundred. He turns around, looks at the ruins, and keeps going.</p>
+                <p>"It worked," Henk says, with some surprise.</p>
+                <p>The vault satisfied, the keeper released. That's the logic of it. You walk with Vos to Dren and say nothing about what you took, because what you took is the merchants' business and Vos, you notice, never asks. Either he genuinely doesn't care, or he has made the calculation that the vault is gone and Dren is ahead and what's behind him is behind him.</p>
+                <p>The maps are, in fact, different from your mother's survey. Older, more detailed in some sections, wrong in others. The university pays considerably for them. The sealed letter turns out to be a personal communication between two lovers separated by the desert road, three hundred years old, perfectly preserved. Bray sells it to an antiquarian. You don't ask how much he gets.</p>
+                <p>You get paid your guide's fee. That was always the arrangement.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-50" class="game-section" data-section="50">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">50</div>
+            <div class="section-content">
+                <p>Vos chooses. He takes it seriously — more seriously than Bray would like, working through what each person in the group actually needs rather than what they want. The compass goes to Henk, who lost his on the second day. A sealed document tube that Vos says contains passage records goes to you — the most useful thing for a guide who crosses this road. The sealed letter he keeps himself, still unread. A small carved seal he gives to Sonn without explaining why, and Sonn, to your surprise, doesn't argue. Tava gets a medical kit someone packed three hundred years ago that still holds usable bandages and sealed compounds; given his shoulder, this is exact.</p>
+                <p>Bray gets the maps. He had wanted more. He is very clear about having wanted more. He is also, you notice, careful with the maps in a way that suggests he understands what he has.</p>
+                <p>Vos says the sealing phrase. You go up the stairs into the heat. A hundred yards from the ruins, Vos slows, and then doesn't stop, and then his pace evens out. "Oh," he says, quietly. "It's gone."</p>
+                <p>He walks to Dren. He talks more than you expected — he was a scholar before all this and he is still one, and the desert, now that he can leave it, interests him in ways it didn't when he was trapped in it. The road home is the best company you've had on a crossing in years.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-54" class="game-section" data-section="54">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">54</div>
+            <div class="section-content">
+                <p>You stand in the vault for a long time. It is cool down here. The documents are intact. The compass still works — you test it; it finds north without hesitation. The sealed letter is sealed. The maps are probably extraordinary.</p>
+                <p>None of it is yours. None of it was lost. Someone put it here and told you the rules of taking it, and you found, when you stood in front of it, that you have a rule about the dead and what belongs to them, and the rule doesn't have an exception for things that are very old or very valuable.</p>
+                <p>You say the sealing phrase. The vault closes around you in a metaphorical sense — the air changes, or you think it does — and you go back up the stairs into the heat and the light.</p>
+                <p>Bray's anger is precise and professional and will be expressed in the fee negotiations when you reach Dren. You have known this since before you went down there.</p>
+                <p>Vos is at the entrance when you come up. He looks at you and doesn't ask what you took. Then he says: "I tried to leave last night, after you were all asleep. For the first time in three weeks I got further than a hundred yards." He pauses. "I think it was the opening. The declaration. Something in the formal acknowledgment of what's down there. I think that may have been what was needed."</p>
+                <p>He walks with you to Dren. Whether this is true or whether it was something else entirely — trauma releasing, simply having company — you don't know. You know the road. Some things on it you understand. Some you don't, and never will, and that is not a problem the desert requires you to solve.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+    </div><!-- end .page -->
+
+    <script>
+        let history = [];
+        let lastChoiceSection = null;
+        let currentView = 'home';
+        let options = {
+            darkMode: false,
+            fontSize: 2,
+            narration: false,
+            qaMode: false
+        };
+        const fontSizes = [
+            { name: 'X-Small', size: '15px' },
+            { name: 'Small',   size: '17px' },
+            { name: 'Medium',  size: '19px' },
+            { name: 'Large',   size: '21px' },
+            { name: 'X-Large', size: '23px' }
+        ];
+
+        let sortedSections = [];
+        let totalSections = 0;
+
+        function buildSortedSectionsFromDOM() {
+            const sections = document.querySelectorAll('.game-section[data-section]');
+            const nums = [];
+            sections.forEach(function(s) {
+                const n = parseInt(s.dataset.section);
+                if (!isNaN(n)) nums.push(n);
+            });
+            nums.sort(function(a, b) { return a - b; });
+            return nums;
+        }
+
+        function refreshSectionIndex() {
+            sortedSections = buildSortedSectionsFromDOM();
+            totalSections = sortedSections.length;
+        }
+
+        function sectionHasChoices(n) {
+            const el = document.getElementById('section-' + n);
+            if (!el) return false;
+            return el.querySelectorAll('p.choice').length > 0;
+        }
+
+        function saveProgress() {
+            try {
+                const state = { history: history, currentView: currentView, options: options };
+                localStorage.setItem('boneRoad_progress', JSON.stringify(state));
+            } catch(e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('boneRoad_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.options) options = Object.assign(options, state.options);
+                    history = state.history || [];
+                    return state.currentView || null;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function hasProgress() {
+            try {
+                const saved = localStorage.getItem('boneRoad_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    return state.history && state.history.length > 0;
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function clearProgress() {
+            try { localStorage.removeItem('boneRoad_progress'); } catch(e) {}
+        }
+
+        function applyOptions() {
+            if (options.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            document.documentElement.style.setProperty('--font-size', fs.size);
+            updateToggleVisuals();
+            updateOptionsSummary();
+            const narrationControls = document.getElementById('narration-controls');
+            if (narrationControls) narrationControls.classList.toggle('visible', options.narration);
+            if (!options.narration) narrationStop();
+        }
+
+        function updateToggleVisuals() {
+            const darkToggle = document.getElementById('toggle-dark');
+            if (darkToggle) darkToggle.classList.toggle('active', options.darkMode);
+            const narToggle = document.getElementById('toggle-narration');
+            if (narToggle) narToggle.classList.toggle('active', options.narration);
+        }
+
+        function updateFontSizeDisplay() {
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateOptionsSummary() {
+            const summary = document.getElementById('options-summary');
+            if (!summary) return;
+            const parts = [];
+            parts.push('Theme: ' + (options.darkMode ? 'Dark' : 'Light'));
+            parts.push('Font: ' + (fontSizes[options.fontSize] || fontSizes[2]).name);
+            if (options.narration) parts.push('Narration: On');
+            summary.textContent = parts.join(' · ');
+        }
+
+        function toggleOption(option) {
+            if (option === 'dark') options.darkMode = !options.darkMode;
+            else if (option === 'narration') options.narration = !options.narration;
+            applyOptions();
+            saveProgress();
+        }
+
+        function setFontSizeFromSlider(value) {
+            options.fontSize = parseInt(value);
+            applyOptions();
+            saveProgress();
+        }
+
+        function updateFontSizePreview(value) {
+            const fs = fontSizes[parseInt(value)] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateFontSizeSlider() {
+            const slider = document.getElementById('font-size-slider');
+            if (slider) slider.value = options.fontSize;
+            updateFontSizeDisplay();
+        }
+
+        let speechSynth = null;
+        let isPaused = false;
+
+        function prepareTextForNarration(text) { return text.replace(/\s+/g, ' ').trim(); }
+
+        function narrate(text) {
+            if (!window.speechSynthesis || !options.narration) return;
+            if (!speechSynth) speechSynth = window.speechSynthesis;
+            speechSynth.cancel();
+            isPaused = false;
+            const utterance = new SpeechSynthesisUtterance(prepareTextForNarration(text));
+            utterance.rate = 0.95;
+            utterance.onend = function() { updateNarrationButtons(); };
+            speechSynth.speak(utterance);
+            updateNarrationButtons();
+        }
+
+        function narrationPlay() {
+            if (!speechSynth) return;
+            if (isPaused) { speechSynth.resume(); isPaused = false; }
+            else {
+                const active = document.querySelector('.game-section.active');
+                if (active) {
+                    const content = active.querySelector('.section-content');
+                    if (content) narrate(content.innerText || content.textContent);
+                }
+            }
+            updateNarrationButtons();
+        }
+
+        function narrationPause() {
+            if (speechSynth && speechSynth.speaking) { speechSynth.pause(); isPaused = true; updateNarrationButtons(); }
+        }
+
+        function narrationStop() {
+            if (speechSynth) { speechSynth.cancel(); isPaused = false; updateNarrationButtons(); }
+        }
+
+        function updateNarrationButtons() {
+            const playBtn = document.getElementById('narration-play');
+            const pauseBtn = document.getElementById('narration-pause');
+            if (playBtn) playBtn.classList.toggle('active', speechSynth && speechSynth.speaking && !isPaused);
+            if (pauseBtn) pauseBtn.classList.toggle('active', isPaused);
+        }
+
+        function updatePageIndicator() {
+            const indicator = document.getElementById('page-indicator');
+            if (!indicator) return;
+            const current = getCurrentSection();
+            if (currentView === 'cover') indicator.textContent = 'Cover';
+            else if (currentView === 'options') indicator.textContent = 'Options';
+            else if (currentView === 'home') indicator.textContent = 'Intro';
+            else if (current !== null) {
+                const idx = sortedSections.indexOf(current) + 1;
+                indicator.textContent = 'Page ' + current + ' (' + idx + '/' + totalSections + ')';
+            }
+        }
+
+        function updateBreadcrumb() {
+            const trail = document.getElementById('breadcrumb-trail');
+            if (!trail) return;
+            if (history.length === 0) {
+                trail.innerHTML = '<span class="breadcrumb-link" onclick="goToCover()">Cover</span>';
+            } else {
+                const display = history.slice(-8);
+                const prefix = history.length > 8 ? '... &rarr; ' : '';
+                const links = display.map(function(p) {
+                    return '<span class="breadcrumb-link" onclick="goToSection(' + p + ', true)">' + p + '</span>';
+                }).join(' &rarr; ');
+                trail.innerHTML = prefix + links;
+            }
+        }
+
+        function hideAllSections() {
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+        }
+
+        function showSection(section, direction) {
+            section.classList.add('active');
+            if (direction === 'left') section.classList.add('flip-left');
+            section.style.display = 'block';
+        }
+
+        function getCurrentSection() {
+            const active = document.querySelector('.game-section.active');
+            if (active && active.dataset.section) return parseInt(active.dataset.section);
+            return null;
+        }
+
+        function goToSection(n, isBack, direction) {
+            const el = document.getElementById('section-' + n);
+            if (!el) { console.warn('Section not found:', n); return; }
+            if (!isBack) history.push(n);
+            hideAllSections();
+            showSection(el, direction);
+            currentView = 'section';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            updateBreadcrumb();
+            saveProgress();
+            if (options.narration) {
+                const content = el.querySelector('.section-content');
+                if (content) narrate(content.innerText || content.textContent);
+            }
+        }
+
+        function goToNextPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            const idx = sortedSections.indexOf(current);
+            if (idx >= 0 && idx < sortedSections.length - 1) goToSection(sortedSections[idx + 1], false, 'right');
+        }
+
+        function goToPrevPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            if (current === sortedSections[0]) { goToIntro(); return; }
+            const idx = sortedSections.indexOf(current);
+            if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+        }
+
+        function goToCover() {
+            hideAllSections();
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            narrationStop();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+        }
+
+        function goToIntro() {
+            hideAllSections();
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+                showSection(homeSection);
+                currentView = 'home';
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                updatePageIndicator();
+                narrationStop();
+            }
+        }
+
+        let cameFromGameplay = false;
+
+        function goToOptions() {
+            cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+            hideAllSections();
+            const optionsSection = document.getElementById('options-section');
+            showSection(optionsSection);
+            currentView = 'options';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            applyOptions();
+            updateFontSizeSlider();
+            narrationStop();
+            updateOptionsButtons();
+        }
+
+        function updateOptionsButtons() {
+            const primaryBtn = document.getElementById('options-primary-btn');
+            const restartBtn = document.getElementById('options-restart-btn');
+            if (cameFromGameplay) {
+                primaryBtn.innerHTML = '&larr; Back to Story';
+                primaryBtn.onclick = function() { goBack(); };
+                restartBtn.style.display = 'block';
+            } else {
+                primaryBtn.innerHTML = '&#x2756; Begin Adventure';
+                primaryBtn.onclick = function() { beginAdventure(); };
+                restartBtn.style.display = hasProgress() ? 'block' : 'none';
+            }
+        }
+
+        function goBack() {
+            if (history.length > 0) goToSection(history[history.length - 1], true);
+            else goToIntro();
+        }
+
+        function openBook() {
+            if (hasProgress()) {
+                const savedView = loadProgress();
+                if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                    if (savedView === 'home') { goToIntro(); return; }
+                    if (history.length > 0) { goToSection(history[history.length - 1], true); return; }
+                }
+            }
+        }
+
+        function startFreshAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+        function beginAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+
+        function restartFromOptions() {
+            if (confirm('Start over from the beginning? Your progress will be cleared.')) {
+                history = []; lastChoiceSection = null; narrationStop(); saveProgress(); goToIntro();
+            }
+        }
+
+        function restartAdventure() {
+            if (confirm('Start over from the beginning?')) {
+                history = []; lastChoiceSection = null; narrationStop(); clearProgress(); goToCover();
+            }
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('page-jump');
+            if (!input) return;
+            const n = parseInt(input.value);
+            if (!isNaN(n)) { goToSection(n, false); input.value = ''; }
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' && currentView === 'section') goToNextPage();
+            if (e.key === 'ArrowLeft' && currentView === 'section') goToPrevPage();
+            if (e.shiftKey && e.key === 'Q') {
+                options.qaMode = !options.qaMode;
+                document.body.classList.toggle('qa-mode', options.qaMode);
+            }
+        });
+
+        window.addEventListener('load', function() {
+            refreshSectionIndex();
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            applyOptions();
+            updatePageIndicator();
+            updateBreadcrumb();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+            openBook();
+        });
+
+        window.toggleAdventurePanel ||= function(){};
+        window.showPanelTab ||= function(){};
+        window.updateMapDisplay ||= function(){};
+        window.updateInventoryDisplay ||= function(){};
+    </script>
+</body>
+</html>
