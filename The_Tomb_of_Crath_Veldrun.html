@@ -1,0 +1,1554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Tomb of Crath Veldrun</title>
+    <style>
+        :root {
+            --bg-color: #ccc8b5;
+            --page-bg: linear-gradient(to right, #e2dbc8 0%, #ece5d2 5%, #eee7d4 50%, #ece5d2 95%, #e2dbc8 100%);
+            --text-color: #18140f;
+            --link-color: #7A2020;
+            --shadow-color: rgba(0,0,0,0.35);
+            --button-bg: #ece5d2;
+            --button-border: #7A2020;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d47474;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d47474;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.65;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 50px auto 50px auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+        .control-group { display: flex; align-items: center; gap: 5px; }
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center; font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+        .page-indicator { font-size: 14px; color: var(--text-color); min-width: 80px; text-align: center; }
+        .breadcrumb {
+            position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%);
+            background: var(--bg-color); padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color); max-width: 90%;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; transition: opacity 0.2s, background-color 0.3s;
+        }
+        .breadcrumb:hover { opacity: 1; }
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        .game-section { display: none !important; }
+        .game-section.active { display: block !important; animation: pageFlip 0.3s ease-out; }
+        #cover-section.cover-visible { display: block !important; animation: none !important; }
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+        .page-number { font-size: 24px; font-weight: normal; margin-bottom: 25px; color: var(--text-color); }
+        .section-content { text-align: justify; }
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p.choice {
+            margin: 0.5em 0 0.3em 1.5em;
+            text-indent: 0;
+        }
+        .ending {
+            text-align: center !important; font-size: 1.3em;
+            margin: 40px 0 !important; text-indent: 0 !important; font-weight: bold;
+        }
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color); background: none; border: none;
+            border-bottom: 2px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+        }
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+        .page-link strong { font-weight: bold; }
+        .turn-instruction { text-align: center; margin-top: 2em; }
+        .bookmark-link {
+            position: absolute; bottom: 20px; left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+        .bookmark-btn {
+            font-family: inherit; font-size: inherit; color: #888;
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+        .bookmark-btn:hover { color: #4a2020; }
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+        #home-section h1 {
+            font-size: 1.6em; text-align: center; margin: 0 0 6px 0;
+            font-weight: bold; letter-spacing: 2px; line-height: 1.3;
+        }
+        #home-section .subtitle { text-align: center; font-style: italic; margin-bottom: 28px; font-size: 0.9em; }
+        .start-button {
+            display: block; margin: 36px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+        .start-button:hover { background-color: var(--text-color); color: var(--button-bg); }
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; }
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+        .option-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+        .option-row:last-of-type { border-bottom: none; }
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+        .toggle-switch::after {
+            content: ''; position: absolute; top: 3px; left: 3px;
+            width: 20px; height: 20px; background: var(--button-bg);
+            border-radius: 50%; transition: transform 0.3s;
+        }
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            border-radius: 50%; background: #4A9EFF; cursor: pointer;
+            border: none; box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+        .font-preview { display: none; }
+        .narration-controls {
+            display: none; position: fixed; bottom: 50px; left: 50%;
+            transform: translateX(-50%); padding: 10px 20px;
+            background: var(--button-bg); border-radius: 25px;
+            justify-content: center; gap: 15px; z-index: 150;
+            box-shadow: 0 2px 15px var(--shadow-color);
+            border: 1px solid var(--nav-color);
+        }
+        .narration-controls.visible { display: flex; }
+        .narration-btn {
+            width: 40px; height: 40px; border: 1px solid var(--button-border);
+            background: var(--button-bg); color: var(--text-color);
+            border-radius: 50%; cursor: pointer; font-size: 16px; transition: all 0.2s;
+        }
+        .narration-btn:hover { background: var(--button-border); color: var(--button-bg); }
+        .narration-btn.active { background: var(--link-color); color: var(--button-bg); }
+        .begin-button {
+            display: block; margin: 40px auto 20px; padding: 15px 40px;
+            font-family: inherit; font-size: 1.1em; background: var(--link-color);
+            border: 2px solid var(--link-color); cursor: pointer; color: var(--button-bg);
+            border-radius: 8px; transition: all 0.2s;
+        }
+        .begin-button:hover { background: var(--text-color); border-color: var(--text-color); }
+        .options-buttons { display: flex; flex-direction: column; align-items: center; gap: 15px; margin-top: 30px; }
+        .restart-button {
+            padding: 10px 25px; font-family: inherit; font-size: 0.95em;
+            background: transparent; border: 1px solid var(--nav-color);
+            cursor: pointer; color: var(--nav-hover); border-radius: 6px; transition: all 0.2s;
+        }
+        .restart-button:hover { background: var(--nav-color); color: var(--button-bg); }
+        .options-summary {
+            margin-top: 20px; padding: 15px; background: var(--button-bg);
+            border-radius: 8px; font-size: 0.85em; color: var(--nav-hover);
+            border: 1px dashed var(--nav-color);
+        }
+        .settings-btn { font-size: 18px; padding: 5px 8px; }
+        .qa-only { display: none !important; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body.qa-mode .breadcrumb { display: block; }
+        body:not(.qa-mode) .breadcrumb { display: none; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav { display: none !important; }
+        #cover-section { text-align: center; }
+        #cover-section .section-content {
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center; min-height: 60vh;
+        }
+        .cover-title {
+            font-size: 2em; font-weight: bold; letter-spacing: 3px;
+            line-height: 1.25; margin-bottom: 0.15em; color: var(--text-color);
+        }
+        .cover-subtitle {
+            font-size: 1em; font-style: italic; letter-spacing: 1px;
+            color: var(--nav-hover); margin-bottom: 0.5em;
+        }
+        .cover-rule {
+            width: 160px; border: none; border-top: 1px solid var(--link-color);
+            margin: 1.2em auto;
+        }
+        .cover-byline { font-size: 0.85em; color: var(--nav-color); margin-bottom: 0; font-style: italic; }
+        .cover-buttons { margin-top: 2.5em; display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .cover-begin-btn {
+            padding: 14px 40px; font-size: 1.1em; font-family: inherit;
+            background: var(--link-color); color: var(--button-bg);
+            border: 2px solid var(--link-color); border-radius: 6px;
+            cursor: pointer; transition: all 0.2s;
+        }
+        .cover-begin-btn:hover { background: var(--text-color); border-color: var(--text-color); }
+        .cover-customize-link {
+            font-size: 0.88em; color: var(--nav-hover); cursor: pointer;
+            text-decoration: underline; background: none; border: none;
+            font-family: inherit; transition: color 0.2s;
+        }
+        .cover-customize-link:hover { color: var(--link-color); }
+        .cover-resume-hint { margin-top: 8px; font-size: 0.82em; color: var(--nav-color); font-style: italic; }
+        .page-nav {
+            position: fixed; top: 50vh; transform: translateY(-50%);
+            font-size: 24px; color: var(--nav-color); cursor: pointer;
+            padding: 20px 8px; user-select: none; transition: color 0.2s; z-index: 100;
+        }
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.3; cursor: default; }
+        .page-nav-left { left: calc(50% - 270px); }
+        .page-nav-right { right: calc(50% - 270px); }
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+        @media (max-width: 600px) {
+            body { padding: 10px; font-size: 17px; }
+            .page { padding: 30px 25px 50px 25px; min-height: auto; }
+            .page-number { font-size: 20px; }
+        }
+        .choice-text { display: inline; }
+    </style>
+</head>
+<body>
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="restartAdventure()" title="Start over">&#x1F504; Restart</button>
+        </div>
+        <div class="control-group">
+            <button class="control-btn settings-btn" onclick="goToOptions()" title="Options">&#x2699;&#xFE0F;</button>
+        </div>
+        <div class="control-group">
+            <span class="page-indicator" id="page-indicator">Cover</span>
+        </div>
+        <div class="control-group qa-only">
+            <label for="page-jump">Go to:</label>
+            <input type="number" id="page-jump" class="page-input" min="1" max="120" placeholder="#">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div class="narration-controls" id="narration-controls">
+        <button class="narration-btn" onclick="narrationPlay()" title="Play" id="narration-play">&#x25B6;</button>
+        <button class="narration-btn" onclick="narrationPause()" title="Pause" id="narration-pause">&#x23F8;</button>
+        <button class="narration-btn" onclick="narrationStop()" title="Stop" id="narration-stop">&#x23F9;</button>
+    </div>
+
+    <div class="breadcrumb" id="breadcrumb">
+        Path: <span id="breadcrumb-trail">Start</span>
+    </div>
+
+    <div class="page">
+
+        <!-- Options Page -->
+        <section id="options-section" class="game-section">
+            <h2>&#x2699;&#xFE0F; Options</h2>
+            <div class="options-container">
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F313; Dark Mode</span>
+                        <span class="option-desc">Easier on the eyes in low light</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F4CF; Font Size</span>
+                        <span class="option-desc">Adjust text size for comfort</span>
+                    </div>
+                    <div class="font-size-slider-container">
+                        <label class="size-label">A&#x207B;</label>
+                        <input type="range" id="font-size-slider" min="0" max="4" value="2" step="1"
+                               onchange="setFontSizeFromSlider(this.value)"
+                               oninput="updateFontSizePreview(this.value)"
+                               class="font-slider">
+                        <label class="size-label">A&#x207A;</label>
+                        <span id="font-size-preview" class="font-preview">Medium</span>
+                    </div>
+                </div>
+                <div class="option-row">
+                    <div class="option-label">
+                        <span class="option-name">&#x1F50A; Narration</span>
+                        <span class="option-desc">Read the story aloud (browser TTS)</span>
+                    </div>
+                    <div class="toggle-switch" id="toggle-narration" onclick="toggleOption('narration')"></div>
+                </div>
+            </div>
+            <div class="options-buttons">
+                <button class="begin-button" id="options-primary-btn" onclick="beginAdventure()">&#x2756; Begin Adventure</button>
+                <button class="restart-button" id="options-restart-btn" onclick="restartFromOptions()" style="display:none">Start Over</button>
+            </div>
+            <div class="options-summary" id="options-summary"></div>
+        </section>
+
+        <!-- Cover Page -->
+        <section id="cover-section" class="game-section">
+            <div class="section-content">
+                <div class="cover-title">THE TOMB<br>OF<br>CRATH VELDRUN</div>
+                <hr class="cover-rule">
+                <div class="cover-subtitle">An Adventure of Choice</div>
+                <div class="cover-byline">You are Maren Ashfall. What you find below the city<br>will change it — and you.</div>
+                <div class="cover-buttons">
+                    <button class="cover-begin-btn" onclick="startFreshAdventure()">Begin Adventure</button>
+                    <button class="cover-customize-link" onclick="goToOptions()">Options &amp; Settings</button>
+                    <div class="cover-resume-hint" id="resume-hint" style="display:none">Progress saved — click Begin to resume.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Home / Intro Page -->
+        <section id="home-section" class="game-section">
+            <div class="section-content">
+                <h1>THE TOMB OF CRATH VELDRUN</h1>
+                <p class="subtitle">An Adventure of Choice</p>
+
+                <p>You are Maren Ashfall — former sergeant of the Ironwall Company, sole survivor of the Ruin at Veth Bridge.</p>
+
+                <p>That engagement, three years past, has followed you the way bad weather follows certain ships. You gave the order to fall back when you should have held. Fourteen men died when the line broke. The inquiry cleared you; the men who signed the papers didn't have to live with the faces.</p>
+
+                <p>You have been moving since, taking work where it comes. You are moderately good with a sword, very good at reading danger, and useful in tight places. You speak two languages, read a third, and know enough about old locks to get through most of them. These qualities are worth money in most cities.</p>
+
+                <p>Dresh-Amul is a city of white stone and dry heat, built on the ruins of something older. The locals mention what lies beneath the city in the same voice they use for weather and misfortune. You arrived six days ago. Your purse has grown thin.</p>
+
+                <p>When a man named Orel finds you at the Carved Door tavern and says that Lord Casvan Dresh is looking for someone capable and discreet, you have little reason to refuse. Good luck — and good judgment.</p>
+
+                <button class="start-button" onclick="goToSection(3)">Turn to page <strong>3</strong></button>
+            </div>
+        </section>
+
+        <!-- ═══════════════════════════════════════ -->
+        <!-- STORY SECTIONS                          -->
+        <!-- ═══════════════════════════════════════ -->
+
+        <section id="section-3" class="game-section" data-section="3">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">3</div>
+            <div class="section-content">
+                <p>You are led through narrow streets to the Governor's Hall — a building of heavy black stone, incongruous among the pale limestone of the rest of the city. A woman meets you at the inner door: Selenne, aide to Lord Casvan, short and severe and clearly the one who actually runs things. She looks you over without warmth and says, "You're not what I expected. Come."</p>
+                <p>Lord Casvan is younger than his title suggests — late thirties, with the careful stillness of a man who has learned to hide what he feels. He pours wine he doesn't offer you and says, "You come recommended as someone who does what needs doing and asks few questions. I need something retrieved from the Old Tombs beneath the city. Something that belongs to my family. Something that others want very badly."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-5" class="game-section" data-section="5">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">5</div>
+            <div class="section-content">
+                <p>"The Tombs run beneath the Old Quarter," Casvan says. "They were sealed eighty years ago, after what the priests call an 'incident.' There are things down there — old things. Animated by the old magic. My men won't go. The city guard won't go. But what I need is on the second level, in the inner sanctum." He pauses. "It's called the Kingstone. About the size of your fist, black, carved with a face. It was placed there as a ceremonial seal. I need it for a legal matter — a question of inheritance."</p>
+                <p>He names a sum. It is more than you have earned in a year.</p>
+                <p>"Half now," he says. "Half on delivery."</p>
+                <p>Selenne sets a purse on the table.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-7" class="game-section" data-section="7">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">7</div>
+            <div class="section-content">
+                <p>Selenne spreads a map on the table. It is partial — large sections marked only with a crossed-circle symbol meaning "unknown." She traces the known route with a precise finger.</p>
+                <p>"The main entrance is in the Civic Quarter — a gated stair beneath the Magisters' Court. We have a key." She taps a section of the map. "Two chambers on the first level, old barracks for tomb guards. Second level begins here — a long corridor, several crypts. The inner sanctum is at the end." She looks up. "Don't open the crypts. Don't touch anything except the Kingstone. Don't speak to anything that speaks to you. Those are the rules."</p>
+                <p>You have questions.</p>
+                <p class="choice">1. If you want to ask what Casvan really wants the Kingstone for, turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+                <p class="choice">2. If you accept the contract and go immediately, turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-12" class="game-section" data-section="12">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">12</div>
+            <div class="section-content">
+                <p>"Why?" you say simply. "You're the Lord of this city. If you need a legal document authenticated, you have clerks for that. You're not sending me into a sealed tomb full of undead for a ceremonial paperweight."</p>
+                <p>Casvan and Selenne exchange a look. Something passes between them.</p>
+                <p>"The Kingstone," Selenne says carefully, "is a source of authority. In the old traditions of this city, the one who holds it has a legitimate claim to rule Dresh-Amul — not merely by inheritance, but by right of possession."</p>
+                <p>"There are people who want to use it against me," Casvan says. "The Temple of Crath. They've been agitating for months. If they get the Kingstone, they can challenge my rule. Possibly restore the old theocracy." He refills his cup. "I want it brought to me so I can nullify that threat."</p>
+                <p>You notice he doesn't say how he plans to nullify it.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-15" class="game-section" data-section="15">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">15</div>
+            <div class="section-content">
+                <p>You leave the Governor's Hall with Selenne's partial map, a key to the Civic Gate, a purse with half the payment, and a growing sense that you don't have all the information you need.</p>
+                <p>The streets of the Old Quarter are quiet in the afternoon heat. You are passing the shadow of the Temple of Crath — an old building, older than anything else in the city, its stones black and smooth as river-pebbles — when a young woman falls into step beside you.</p>
+                <p>"You're the one Casvan hired," she says. Not a question. She is perhaps twenty, dressed as a Temple acolyte, with the measured manner of someone who has spent years in controlled environments. "My name is Deva. I need you to hear something before you go into the Tombs."</p>
+                <p class="choice">1. If you stop and listen to what she has to say, turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a>.</p>
+                <p class="choice">2. If you tell her to stay out of your business and head for the Tombs, turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-18" class="game-section" data-section="18">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">18</div>
+            <div class="section-content">
+                <p>You lean against a wall in a narrow alley, arms crossed. "Talk."</p>
+                <p>Deva speaks quickly, glancing over her shoulder. "The Kingstone is not a ceremonial object. It is a focus — a phylactery, in the old language. Crath Veldrun, the Sorcerer-King who built the first city on this site, put a fragment of his soul into it three hundred years ago. He isn't dead. He is sealed in the inner sanctum, held in stasis. The Kingstone is what maintains the seal."</p>
+                <p>She watches your face.</p>
+                <p>"If Casvan takes the stone and destroys it, Crath dies permanently. If the Temple takes it, they intend to use it to bring him back." She pauses. "Our High Priest believes Crath was a just ruler whose death was arranged by his enemies. He wants to restore him. But I am not certain that is — wise."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(20); return false;" class="page-link"><strong>20</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-20" class="game-section" data-section="20">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">20</div>
+            <div class="section-content">
+                <p>"Why tell me?" you ask.</p>
+                <p>Deva's jaw tightens. "Because neither outcome is good. Casvan is not interested in justice — only in eliminating a rival claim. The Temple's motives are sincere, but Orveth is devoted. Devoted men do dangerous things." She meets your eyes. "You are an outsider. You have no stake in this city's politics. I thought perhaps you might make a different choice."</p>
+                <p>"You want me to destroy the Kingstone myself."</p>
+                <p>"I want you to consider it." She presses a small copper token into your hand — the Temple's mark. "If you want to speak with Orveth first, this will get you past the gate. If not — whatever you decide — I hope it is the right thing."</p>
+                <p class="choice">1. If you go to the Temple and speak with High Priest Orveth, turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+                <p class="choice">2. If you've heard enough and head for the Tombs on your own, turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-23" class="game-section" data-section="23">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">23</div>
+            <div class="section-content">
+                <p>The Temple of Crath is cool inside, smelling of old stone and incense unlike anything you know — not sweet, not unpleasant, but ancient, like a library left closed for decades. A young priest takes your copper token and leads you through a long hall into a private study.</p>
+                <p>High Priest Orveth is perhaps sixty, with the lean, careful face of a scholar. Old maps cover his walls. Illuminated texts. Drawings of the Tombs that are more detailed than anything Selenne showed you.</p>
+                <p>He gestures to a chair. "You've spoken to Deva," he says. "She is cautious. I am not." He folds his hands. "Crath Veldrun was this city's greatest ruler. He was a sorcerer, yes — but a good one. He was sealed away by a consortium of merchants and minor lords who feared his power. The seal was meant to be temporary. Three hundred years is rather longer than intended."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(25); return false;" class="page-link"><strong>25</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-25" class="game-section" data-section="25">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">25</div>
+            <div class="section-content">
+                <p>"What do you want from me?" you ask.</p>
+                <p>Orveth's eyes are steady. "Bring me the Kingstone. I will pay twice what Casvan offered. I will give you a ship, a letter of credit, and safe passage out of the city." He pauses. "If Crath is restored — if he walks free — he will not forget who helped him."</p>
+                <p>You consider this. A three-hundred-year-old sorcerer-king, restored to life, owing you a favor. That could be a remarkable thing. Or it could be the last mistake you ever make.</p>
+                <p class="choice">1. If you agree to bring the Kingstone to Orveth, turn to page <a href="#" onclick="goToSection(29); return false;" class="page-link"><strong>29</strong></a>.</p>
+                <p class="choice">2. If you decline and make your own plans, turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-27" class="game-section" data-section="27">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">27</div>
+            <div class="section-content">
+                <p>The Civic Gate is a heavy iron door set into the base of the Magisters' Court, fitted with a lock that takes both the key and the specific turning sequence Selenne described. It opens with a reluctant grinding sound, releasing air that is cold and still and smells of copper and old dust.</p>
+                <p>Stone steps descend into darkness.</p>
+                <p>You light your torch. The flame burns straight — no wind down here, no passage of air. The steps are good stone, well-made, the walls dressed and fitted. Whatever this place was, it was built with pride and maintained with care, once.</p>
+                <p>At the bottom, the stair opens into a large chamber. You hold the torch still and listen. Silence — and then, from somewhere ahead, a slow rhythmic sound.</p>
+                <p>Scrape. Pause. Scrape.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-29" class="game-section" data-section="29">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">29</div>
+            <div class="section-content">
+                <p>The Temple has its own entrance — a passage that runs beneath the temple foundations and joins the main Tombs from the east. Deva accompanies you to the entrance and no further. She hands you a small oil lamp with a sealed flame she says will not gutter in the underground air.</p>
+                <p>"Whatever you decide," she says quietly, "I hope it is the right thing."</p>
+                <p>The passage is low and narrow, smelling of incense and something beneath it — earth, old stone, something metallic. You stoop and move forward into the dark. After perhaps a hundred yards, the passage widens and opens at the eastern side of a large vaulted chamber.</p>
+                <p>You can see the main entrance stairwell across the room. You've come in from a different angle than a visitor through the Civic Gate would. In the chamber's center, stone benches face inward, as if for an audience. At the far end, a skeletal figure in ancient armor moves in a slow circuit around two archways.</p>
+                <p>It hasn't noticed you yet.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(36); return false;" class="page-link"><strong>36</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-33" class="game-section" data-section="33">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">33</div>
+            <div class="section-content">
+                <p>The first chamber is large — a vaulted ceiling thirty feet above, the stone so old it has lost its seams. Rows of stone benches face inward, as if for an audience. At the far end, two archways lead deeper. A third, smaller archway is to your left — from it comes the scraping sound.</p>
+                <p>You hold your torch still. Scrape. Pause. Scrape. Something moving on stone, methodical, patrol-like. Tomb guards. What's left of them.</p>
+                <p class="choice">1. If you wait and watch from the shadows before moving, turn to page <a href="#" onclick="goToSection(36); return false;" class="page-link"><strong>36</strong></a>.</p>
+                <p class="choice">2. If you move quickly and quietly toward one of the far archways, turn to page <a href="#" onclick="goToSection(40); return false;" class="page-link"><strong>40</strong></a>.</p>
+                <p class="choice">3. If you draw your sword and advance toward the sound, turn to page <a href="#" onclick="goToSection(38); return false;" class="page-link"><strong>38</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-36" class="game-section" data-section="36">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">36</div>
+            <div class="section-content">
+                <p>From the shadows, you watch the skeleton's circuit. A figure in ancient guardsman's armor — one of perhaps three in this chamber — moving in a slow, deliberate loop. The rhythm has the mechanical quality of old enchantment, not a thinking creature's alertness. Every forty seconds, roughly. At the far corner it pauses briefly, then turns.</p>
+                <p>That pause is your window.</p>
+                <p>But something else catches your eye first: scratched into the stone beneath one of the benches, recent enough to still show pale against the old surface — words.</p>
+                <p><em>MIDDLE ARCH LEADS DEEP. DON'T STOP AT THE VOICES.</em></p>
+                <p>Someone else has been here. Recently enough to leave a warning.</p>
+                <p class="choice">1. If you time the skeleton's circuit and slip through when its back is turned, turn to page <a href="#" onclick="goToSection(40); return false;" class="page-link"><strong>40</strong></a>.</p>
+                <p class="choice">2. If you step out and attempt to destroy it before it can raise an alarm, turn to page <a href="#" onclick="goToSection(38); return false;" class="page-link"><strong>38</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-38" class="game-section" data-section="38">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">38</div>
+            <div class="section-content">
+                <p>The skeleton moves faster than it has any right to. Its first blow catches your forearm — no force behind it, just bone on cloth, but the cold that radiates from the impact is extraordinary, a marrow-deep chill that doesn't fade quickly.</p>
+                <p>You back up, buying space, and find your angle. The thing fights without memory, without strategy. It attacks the space where you were a moment ago. You get behind it, and a solid blow takes its head. The body collapses.</p>
+                <p>But the noise — bone on stone, your boots scraping — carries in this place. From the left archway come more scraping sounds, quickening.</p>
+                <p>You have perhaps twenty seconds before more arrive. You run.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(40); return false;" class="page-link"><strong>40</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-40" class="game-section" data-section="40">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">40</div>
+            <div class="section-content">
+                <p>The middle archway opens to a corridor that slopes downward, the floor worn smooth by centuries of use. The partial map shows this leading to the second level after a junction.</p>
+                <p>At the junction, three passages diverge. A stone marker has been set here — old lettering carved into it. You clean the dust with your sleeve:</p>
+                <p style="text-align:center; margin: 1.2em 0; font-style: italic;">LEFT: CRYPTS OF THE GARRISON<br>CENTER: TREASURY AND RECORDS<br>RIGHT: THE HALL OF THE COMPACT</p>
+                <p>The map shows the inner sanctum somewhere beyond the junction, but the exact route is one of the sections marked with the crossed-circle — unknown, or do not enter, depending on who drew it.</p>
+                <p class="choice">1. If you take the left passage toward the Crypts of the Garrison, turn to page <a href="#" onclick="goToSection(47); return false;" class="page-link"><strong>47</strong></a>.</p>
+                <p class="choice">2. If you take the center passage toward the Treasury and Records, turn to page <a href="#" onclick="goToSection(51); return false;" class="page-link"><strong>51</strong></a>.</p>
+                <p class="choice">3. If you take the right passage into the Hall of the Compact, turn to page <a href="#" onclick="goToSection(55); return false;" class="page-link"><strong>55</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-47" class="game-section" data-section="47">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">47</div>
+            <div class="section-content">
+                <p>The Garrison crypts are cut into the rock on both sides of a long passage — niches, each one sealed with a stone slab. The seals have held. You can see this was a place of honor for soldiers who served the old city well.</p>
+                <p>At the end of the passage, you find what appears to be the kit of a guard who ducked in here centuries ago and never left — a body slumped in a corner, turned to dry dust. His pack, oilcloth-wrapped, has lasted better than he did. It holds a short iron sword with better balance than yours, three oil flasks, and — most valuably — a second map of the second level, more detailed, sketched in a dead man's careful hand.</p>
+                <p>You study it by torchlight. The inner sanctum is accessible from all three passages, but the right passage is the most direct. The center passage passes through a chamber labeled only <em>THE DROWNED ROOM.</em> The left continues deeper before rejoining the others at a large landing.</p>
+                <p>The map also notes, in a careful marginal hand: <em>The guardian speaks when addressed as "compact-keeper." The passphrase is three words: Veth, Amul, Dresh.</em></p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(58); return false;" class="page-link"><strong>58</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-51" class="game-section" data-section="51">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">51</div>
+            <div class="section-content">
+                <p>The treasury corridor is shorter than expected. What stops you cold is not what's in it — ransacked strongboxes, documents rotted to mulch, a few corroded coins — but who is in it.</p>
+                <p>A man, recently dead. He is dressed as a city official, and he has been killed carefully and professionally. A blade, from behind, in the dark. His hands are still stiff.</p>
+                <p>In one of those hands: a document bearing Selenne's seal.</p>
+                <p>Casvan sent another agent ahead of you. And someone in the Tombs was waiting for him.</p>
+                <p>You are not alone down here. Whatever killed this man is still somewhere below. You search the body quickly and find a note in the man's breast pocket, folded small: <em>Control word for the guardian is VELDRUN. Do not engage — use the word and proceed. Destroy what you find.</em></p>
+                <p>Your hand tightens on your sword hilt.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(58); return false;" class="page-link"><strong>58</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-55" class="game-section" data-section="55">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">55</div>
+            <div class="section-content">
+                <p>The Hall of the Compact is a long chamber with a high vaulted ceiling and, on both walls, carved reliefs that tell a story. You stop and look, because they are extraordinary and clearly very old.</p>
+                <p>The reliefs show a city being built. A ruler and his council. Trade and prosperity. Then: conflict. A group of figures driving a crowned man toward a spiraling door — the same spiral pattern you have seen on every sealed threshold in this place.</p>
+                <p>At the end of the hall: a stone table with an inlaid surface showing the city's old layout. The Tombs are marked in silver that hasn't tarnished. You can see, clearly, the route to the inner sanctum from where you stand.</p>
+                <p>You also notice, carved into the table's edge in the formal script of proclamation: <em>By compact and by name, the Keeper stands between the living and the sealed. The keeper's name: Veldrun.</em></p>
+                <p>You memorize the route.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(58); return false;" class="page-link"><strong>58</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-58" class="game-section" data-section="58">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">58</div>
+            <div class="section-content">
+                <p>The three passages converge at a wide landing before a second descent. Here, you encounter something unexpected.</p>
+                <p>Three people sit in the torchlight. They look up when you arrive — neither panicked nor aggressive. The careful stillness of people who have been in dangerous places before and learned to move slowly.</p>
+                <p>"Tomb-Delvers," says the eldest, a heavyset woman with a scarred chin, before you can ask. "Been working this place two years, one room at a time. The name's Brek. These are Tomas and Jena." A nod at her companions — one young and nervous, one quiet and precise. "You're the first solo entry we've seen. Who hired you?"</p>
+                <p class="choice">1. If you tell her the truth — Casvan, the Kingstone, all of it — turn to page <a href="#" onclick="goToSection(61); return false;" class="page-link"><strong>61</strong></a>.</p>
+                <p class="choice">2. If you say a private party hired you, nothing more — turn to page <a href="#" onclick="goToSection(63); return false;" class="page-link"><strong>63</strong></a>.</p>
+                <p class="choice">3. If you say nothing and ask about the passage ahead — turn to page <a href="#" onclick="goToSection(65); return false;" class="page-link"><strong>65</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-61" class="game-section" data-section="61">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">61</div>
+            <div class="section-content">
+                <p>Brek listens to your account with the focused attention of someone cataloguing information for later use. When you finish, she says: "Casvan. That explains the dead man in the treasury." She rubs her jaw. "We found him before you did. Left him. Didn't want trouble."</p>
+                <p>"You know about the Kingstone," you say.</p>
+                <p>"Know of it. Never gone for it. We have a rule: don't disturb anything that's still breathing. Even technically." She pauses. "The inner sanctum is off our map."</p>
+                <p>Tomas — young, nervous — says: "Tell her about the guardian."</p>
+                <p>Brek nods. "Iron construct. Twelve feet. Older than anything up there." She jerks her thumb at the ceiling. "It can be spoken to — there's a compact-of-passage phrase. We found it in the records room. Three old city names, spoken in order: <em>Veth, Amul, Dresh.</em>" She pauses. "Jena found the control sigil on its back too. You press your palm to it and speak the name <em>Veldrun.</em> That may work instead, if you can get close enough."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(68); return false;" class="page-link"><strong>68</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-63" class="game-section" data-section="63">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">63</div>
+            <div class="section-content">
+                <p>Brek looks at you for a long moment. "Private party," she repeats. "Fine. Discretion is professional." She nods at the passage ahead. "Then I'll tell you what I tell everyone who gets this far: there's a guardian on the second descent. Iron construct, twelve feet tall, older than the city above. It can be spoken to."</p>
+                <p>Jena, the quiet one, leans forward. "There's a compact-of-passage formula from the records room. Three old names: <em>Veth, Amul, Dresh,</em> spoken in order. The guardian was designed to honor that phrase." She glances at her companions. "There's also a control sigil between its shoulder blades. Press your palm to it, speak the name <em>Veldrun,</em> and it should stand down. We found both and used neither — we found a way around. You may not have that option."</p>
+                <p>"What's coming out of the sanctum?" you ask.</p>
+                <p>Brek and Jena exchange a look. "We don't know," Brek says. "But something in there is awake. We could hear it from here."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(68); return false;" class="page-link"><strong>68</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-65" class="game-section" data-section="65">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">65</div>
+            <div class="section-content">
+                <p>Brek shrugs at your silence. "Fair enough. We'll tell you what we tell everyone who comes this far regardless."</p>
+                <p>She describes the iron guardian in the passage below. Tomas goes into more detail than is comfortable; Brek cuts him off. "Twelve feet of animated iron. Hit it and it hits back harder. There's a parley phrase — three old city names spoken in order: <em>Veth, Amul, Dresh.</em> The guardian was built to honor that compact." She stands. "We're done here for the season. Packing out."</p>
+                <p>She hoists her pack. At the passage mouth she pauses without turning. "Whatever you're going for — be careful of the sanctum. Something in there has been waiting a long time. That kind of waiting changes a thing." She goes.</p>
+                <p>You are alone in the torchlight. The descent continues ahead.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(68); return false;" class="page-link"><strong>68</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-68" class="game-section" data-section="68">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">68</div>
+            <div class="section-content">
+                <p>The second descent is steeper than the first. The walls change here — no longer dressed stone but living rock, the kind that remembers being hewn. Torchlight catches crystal inclusions and makes them glitter.</p>
+                <p>At the base of the steps: a tall iron figure standing motionless in the center of the passage.</p>
+                <p>It is twelve feet tall. Made with great care — the proportions of a human soldier, but larger, permanent, terrible in its stillness. Its face is a blank plate of iron. Its hands are open, not raised in threat. It does not move as you approach.</p>
+                <p class="choice">1. If you speak the compact-of-passage phrase — <em>Veth, Amul, Dresh</em> — if you learned it, turn to page <a href="#" onclick="goToSection(72); return false;" class="page-link"><strong>72</strong></a>.</p>
+                <p class="choice">2. If you try to get behind it and press your palm to the control sigil, speaking <em>Veldrun,</em> turn to page <a href="#" onclick="goToSection(75); return false;" class="page-link"><strong>75</strong></a>.</p>
+                <p class="choice">3. If you draw your weapon and try to push past it quickly, turn to page <a href="#" onclick="goToSection(78); return false;" class="page-link"><strong>78</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-72" class="game-section" data-section="72">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">72</div>
+            <div class="section-content">
+                <p>The words feel strange in your mouth — a language older than this city, older than the Tombs. You give each syllable its weight and speak them carefully: <em>Veth. Amul. Dresh.</em></p>
+                <p>The iron figure's head turns toward you.</p>
+                <p>The sound of it — metal on metal, grinding slow — fills the passage. Your hand moves to your sword without your telling it to.</p>
+                <p>Then the guardian steps aside. One deliberate step to the left, clearing your path entirely. The movement has a formal quality — not a machine stepping clear of an obstacle, but a soldier standing down at a recognized authority.</p>
+                <p>You don't run. You walk slowly past it, head forward, maintaining the gravity the moment seems to call for. Behind you, you hear — or perhaps feel in your chest — the slow sound of it returning to its position.</p>
+                <p>The passage continues ahead. At its end, a faint warm light.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(83); return false;" class="page-link"><strong>83</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-75" class="game-section" data-section="75">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">75</div>
+            <div class="section-content">
+                <p>The iron figure stands still as a monument. You circle it slowly, keeping your distance, watching for any sign of activation. At its back, between the shoulder blades, you can make out a geometric shape worked into the iron surface — a sigil of some kind, different from the surrounding metal.</p>
+                <p>To reach it you need to get within arm's length of a twelve-foot construct that could crush you. You wait. It hasn't moved. You breathe slowly, and then you take the step.</p>
+                <p>Your palm goes flat against the cold iron. "Veldrun," you say.</p>
+                <p>The figure shudders — a deep vibration you feel in your teeth. Then it stills. But different: before, it held the stillness of a guard on duty. Now it holds the stillness of something at rest.</p>
+                <p>It does not move again as you pass.</p>
+                <p>The passage continues. At its end: a faint, sourceless warm light.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(83); return false;" class="page-link"><strong>83</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-78" class="game-section" data-section="78">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">78</div>
+            <div class="section-content">
+                <p>Your first blow rings off the iron figure's arm and numbs your hand to the elbow. The impact is like striking a wall.</p>
+                <p>The second — because the guardian is already moving — catches you in the ribs and drives you against the wall of the passage. You slide down it. Everything hurts. The guardian returns to its position and goes still again, as if nothing happened.</p>
+                <p>You sit with your back against the cold stone and breathe carefully through what is probably a cracked rib. After a long time — long enough to understand that attacking it again would be fatal — you look for another way.</p>
+                <p>There is a narrow alcove on the far side of the passage, tight against the wall, perhaps enough to squeeze past if you move very slowly. It takes twenty painful minutes. The guardian does not respond to movement, only aggression.</p>
+                <p>You emerge on the other side in worse condition than you entered. But you are through.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(83); return false;" class="page-link"><strong>83</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-83" class="game-section" data-section="83">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">83</div>
+            <div class="section-content">
+                <p>The inner sanctum is a circular chamber, high-ceilinged, dominated by a sarcophagus of black stone at its center. The sarcophagus is carved with spiral patterns identical to those you've seen throughout the Tombs. Around it, in a ring, stand thirteen iron lamps on iron stands — unlit, cold, but each one oriented inward, as if they were arranged to illuminate the sarcophagus from every angle.</p>
+                <p>On an altar behind the sarcophagus: the Kingstone.</p>
+                <p>You recognize it immediately. Black, fist-sized, carved with a face — a man's face, stern and archaic, with the careful symmetry of an idealized portrait. It sits in a shallow depression in the altar stone. The stone around it is faintly warm to the eye, though you haven't touched it.</p>
+                <p>You move toward it.</p>
+                <p>A voice speaks.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(87); return false;" class="page-link"><strong>87</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-87" class="game-section" data-section="87">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">87</div>
+            <div class="section-content">
+                <p>"Wait."</p>
+                <p>One word. It comes from inside the sarcophagus — resonant and old and so unexpected in this dead quiet that you take three steps back before you stop yourself.</p>
+                <p>The voice comes again, slower. "I have been waiting a very long time. Longer than usual. Please — wait."</p>
+                <p>There is nothing threatening in it. There is exhaustion, and something that sounds, improbably, like courtesy.</p>
+                <p class="choice">1. If you take the Kingstone now and deal with the voice from a safer distance, turn to page <a href="#" onclick="goToSection(90); return false;" class="page-link"><strong>90</strong></a>.</p>
+                <p class="choice">2. If you stop and speak with whatever is inside the sarcophagus, turn to page <a href="#" onclick="goToSection(92); return false;" class="page-link"><strong>92</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-90" class="game-section" data-section="90">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">90</div>
+            <div class="section-content">
+                <p>Your hand closes on the Kingstone.</p>
+                <p>The moment you lift it from the depression, the weight of it is wrong — heavier than stone, as if it contains more than its size. And something moves through you: a vision, quick and unwanted. Veth Bridge. The line breaking. Your voice giving the order to fall back. The fourteen faces you haven't been able to stop seeing for three years.</p>
+                <p>The vision ends. You are standing in the sanctum, the Kingstone in your hand, heart hammering.</p>
+                <p>"I understand," says the voice from the sarcophagus, quieter than before. "You carry your dead. So do I."</p>
+                <p>The words stop you where your own will couldn't.</p>
+                <p class="choice">1. If you pocket the Kingstone and move to leave immediately, turn to page <a href="#" onclick="goToSection(100); return false;" class="page-link"><strong>100</strong></a>.</p>
+                <p class="choice">2. If those words have stopped you — if you turn back — turn to page <a href="#" onclick="goToSection(92); return false;" class="page-link"><strong>92</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-92" class="game-section" data-section="92">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">92</div>
+            <div class="section-content">
+                <p>"Who are you?" you ask. Which is both the obvious question and the unnecessary one.</p>
+                <p>"Crath Veldrun." A pause. "Though I imagine you already suspected. The statue outside was rather a giveaway."</p>
+                <p>The voice is dry. Old and tired and somewhat sardonic. Not what you expected from a three-hundred-year-old sorcerer-king.</p>
+                <p>"Why are you sealed in there?" you ask.</p>
+                <p>"A coalition of merchants and minor lords decided that a ruler who could not be bribed, blackmailed, or died conveniently needed to be removed by other means. I was maneuvered. Brought here under false pretense. Sealed. My regent, whom I trusted, did not object as strenuously as I might have hoped." A pause. "It has been three hundred and seven years. I have had considerable time to think about that."</p>
+                <p>You note that he hasn't asked you to free him. Not yet.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(95); return false;" class="page-link"><strong>95</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-95" class="game-section" data-section="95">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">95</div>
+            <div class="section-content">
+                <p>"What do you want?" you ask.</p>
+                <p>A long pause.</p>
+                <p>"I would like to stop being in this box," Crath Veldrun says. "I have had three hundred years to determine whether that is a reasonable thing to want. I believe it is."</p>
+                <p>Another pause.</p>
+                <p>"I would also like whoever currently governs this city to face something resembling accountability. But I recognize that is the more complicated ask, and I won't pretend it should be your concern."</p>
+                <p>"The city is governed by Lord Casvan Dresh," you say. "He sent me here to get the Kingstone. Specifically so he could destroy it."</p>
+                <p>"Yes." No drama in his voice. Just the fact. "That would kill me permanently. I am aware."</p>
+                <p class="choice">1. If you attempt to break the seal on the sarcophagus and free him, turn to page <a href="#" onclick="goToSection(98); return false;" class="page-link"><strong>98</strong></a>.</p>
+                <p class="choice">2. If you take the Kingstone and leave without freeing him, turn to page <a href="#" onclick="goToSection(100); return false;" class="page-link"><strong>100</strong></a>.</p>
+                <p class="choice">3. If you tell him you've decided to destroy the Kingstone — the safest choice for everyone — turn to page <a href="#" onclick="goToSection(97); return false;" class="page-link"><strong>97</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-97" class="game-section" data-section="97">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">97</div>
+            <div class="section-content">
+                <p>Silence.</p>
+                <p>Then: "That is — not unreasonable. I have wondered, over three centuries, whether my continued existence makes things better or worse. I don't know the answer. I'm not sure I could be objective."</p>
+                <p>Another silence, longer.</p>
+                <p>"If you decide that is the right choice, I ask only one thing. Tell people that I was not a monster. That is all I ask. Tell whoever will listen that I was a man who tried to govern well, and that I was removed for it, and that I spent three hundred years in the dark thinking about the people I couldn't protect." A pause. "That's all."</p>
+                <p>You take the Kingstone from the altar. It is heavier than it looks.</p>
+                <p>What you do with it when you reach the surface is still your choice.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(100); return false;" class="page-link"><strong>100</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-98" class="game-section" data-section="98">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">98</div>
+            <div class="section-content">
+                <p>The seal on the sarcophagus is a ring of iron clamping mechanisms around the lid — old, corroded, but still holding. You work at them with your belt knife for what feels like a long time. The iron is cold enough to sting your hands. Three clamps give. Then a fourth. Then the fifth, the last, with a sound like a lock being thrown.</p>
+                <p>The lid shifts.</p>
+                <p>What emerges is not a monster. A man — tall, gray-haired, hollow-eyed from three centuries in the dark, wearing robes that fall apart when he moves. He stands unsteadily, one hand gripping the edge of the sarcophagus, and looks at you with the careful focus of someone recalibrating to light.</p>
+                <p>"Thank you," he says. His voice is exactly the same as it was through the stone. He sounds, if anything, slightly surprised that it worked.</p>
+                <p>He looks around the chamber, at the unlit lamps, the altar, the passage beyond. Then, with a practicality that you find oddly reassuring: "We should probably leave."</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(101); return false;" class="page-link"><strong>101</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-100" class="game-section" data-section="100">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">100</div>
+            <div class="section-content">
+                <p>The climb back is easier than the descent, as climbs out of bad places usually are. The guardian does not impede you. The skeletons in the first chamber are back at their circuits.</p>
+                <p>You emerge into afternoon light. The key grinds in the lock behind you.</p>
+                <p>You stand in the street with the Kingstone in your pack. The city goes about its business around you — carts, voices, pigeons, the smell of bread from somewhere. Entirely ordinary. The weight of the stone is not ordinary.</p>
+                <p>Somewhere in this city: Casvan, who paid you and will expect delivery. Orveth, who offered more and wants restoration. Deva, who asked you to consider destruction. And the voice you heard in the dark, which asked for nothing except that someone speak well of him.</p>
+                <p>Your own judgment, which has been wrong before.</p>
+                <p class="choice">1. If you go to Lord Casvan and deliver the Kingstone as contracted, turn to page <a href="#" onclick="goToSection(103); return false;" class="page-link"><strong>103</strong></a>.</p>
+                <p class="choice">2. If you go to High Priest Orveth and give it to the Temple, turn to page <a href="#" onclick="goToSection(106); return false;" class="page-link"><strong>106</strong></a>.</p>
+                <p class="choice">3. If you seek out Deva and ask her about destroying it, turn to page <a href="#" onclick="goToSection(109); return false;" class="page-link"><strong>109</strong></a>.</p>
+                <p class="choice">4. If you slip out of the city with the Kingstone before anyone knows you're back, turn to page <a href="#" onclick="goToSection(112); return false;" class="page-link"><strong>112</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-101" class="game-section" data-section="101">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">101</div>
+            <div class="section-content">
+                <p>Crath Veldrun is, it turns out, both stronger and more pragmatic than he looks. By the time you reach the iron guardian, he has found an old guard's sandals left in the passage and is moving on his own, one hand on the wall, steadying himself against three centuries of disuse.</p>
+                <p>The guardian, when Crath speaks to it, kneels.</p>
+                <p>The climb is long. He doesn't speak much — three hundred years of silence seems to have made him economical with words. Once, on the ascent toward the first chamber, he says: "What is the state of the city?"</p>
+                <p>"A lord named Casvan Dresh governs it," you say. "There's a Temple that worships you."</p>
+                <p>"Worships me." He repeats it with an expression that might be dismay. "That seems — inadvisable."</p>
+                <p>He stops at the entrance stair, looking up at the light coming down from the Civic Gate. Then he straightens — slowly, with some effort — and begins to climb.</p>
+            </div>
+            <div class="turn-instruction">
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(115); return false;" class="page-link"><strong>115</strong></a></span>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-103" class="game-section" data-section="103">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">103</div>
+            <div class="section-content">
+                <p>Casvan is in his hall when you arrive. His face doesn't show relief — more the careful neutrality of someone who was prepared for failure and hasn't recalibrated yet.</p>
+                <p>You set the Kingstone on his table. He stares at it.</p>
+                <p>"Selenne," he says. She comes forward, picks it up with a doubled cloth, and carries it to a locked box.</p>
+                <p>"The second half of the payment," you say.</p>
+                <p>"Of course." He meets your eyes. "Did anything in the Tombs — speak to you?"</p>
+                <p class="choice">1. If you tell him the truth — yes, Crath Veldrun spoke to you — turn to page <a href="#" onclick="goToSection(105); return false;" class="page-link"><strong>105</strong></a>.</p>
+                <p class="choice">2. If you say no, nothing you hadn't expected, turn to page <a href="#" onclick="goToSection(104); return false;" class="page-link"><strong>104</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-104" class="game-section" data-section="104">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">104</div>
+            <div class="section-content">
+                <p>"Nothing I hadn't expected," you say.</p>
+                <p>Casvan nods. He hands you the second half of the payment — honest weight, full amount. Selenne gives you a letter of safe conduct in the city's name.</p>
+                <p>"I'd advise leaving Dresh-Amul today," Selenne says quietly. "Before evening."</p>
+                <p>You understand. A loose end, neatly managed.</p>
+                <p>You are on the road north by midday. Behind you, you know, Casvan will destroy the Kingstone — and with it, Crath Veldrun, three hundred and seven years in the dark, will finally, permanently, end.</p>
+                <p>You had a contract. You honored it. That used to feel like enough.</p>
+                <p>The road is long. You ride with the payment, and with the memory of a voice through stone that asked for nothing except to be remembered. You find, in the miles that follow, that you keep telling the story — to innkeepers, to other travelers, to anyone who asks where you've been. A king who governed well, you say. Removed by the people who feared him. Three hundred years in the dark. You say it plainly and without embellishment, because that's the only way you know how to keep a promise.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-105" class="game-section" data-section="105">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">105</div>
+            <div class="section-content">
+                <p>Casvan goes very still.</p>
+                <p>"He spoke to you," he says. "And you still brought it here."</p>
+                <p>"I made a contract. I honored it."</p>
+                <p>Something moves across his face — not relief. Something closer to shame, quickly suppressed. "It is better this way," he says. "Whatever he told you — whatever he claimed — this city cannot have a three-hundred-year-old sorcerer-king returned to it. The instability alone—"</p>
+                <p>"You don't have to justify yourself to me," you say. "I'm a mercenary. I delivered what I was hired to deliver."</p>
+                <p>He pays you. Full amount, without being asked. Selenne escorts you to the door and, just before it closes behind you, says: "Leave before dark."</p>
+                <p>You are three miles north of Dresh-Amul when you hear, carried on the desert wind, a sound you cannot identify — deep, like a bell, but not a bell. One sustained tone. Then silence. Whatever it was, it does not repeat.</p>
+                <p>You tell yourself you made the only reasonable choice. You tell yourself this for a long time. Eventually, about a week later, you begin to believe it — mostly.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-106" class="game-section" data-section="106">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">106</div>
+            <div class="section-content">
+                <p>Orveth receives the Kingstone with shaking hands. His eyes are wet. He holds it with both palms as if it might shatter.</p>
+                <p>"You've given him back to us," he says. "After all this time."</p>
+                <p>"I want the ship," you say. "The letter of credit. And I want your word — whatever comes out of that Tomb — that you'll deal with it honestly if it isn't what you hoped."</p>
+                <p>He looks at you for a long moment. "I cannot promise what three centuries does to a man," he says. "I can only tell you what he was." He pauses. "And I can give you what I offered."</p>
+                <p>You take the ship. You take the letter. You are gone before Orveth takes the Kingstone below.</p>
+                <p>In the year that follows, you hear stories from merchants who pass through Dresh-Amul: that a man appeared in the city without explanation; that he walked into the Governor's Hall and Lord Casvan Dresh resigned his title the same afternoon; that the city is now governed with unusual competence by someone the records offices cannot seem to find a proper file for. Whether this is good or terrible, you cannot say with certainty. But the merchants who pass through seem healthy. The roads are maintained. The markets are fair.</p>
+                <p>That seems like something.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-109" class="game-section" data-section="109">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">109</div>
+            <div class="section-content">
+                <p>Deva is at the Temple gate when you arrive, as if she expected you. Perhaps she did.</p>
+                <p>You show her the Kingstone. She doesn't reach for it.</p>
+                <p>"He spoke to you," she says. Not a question.</p>
+                <p>"Yes."</p>
+                <p>"And you're asking me." She sits on the step and looks at the stone in your hands. "I don't know. I've never known. That's why I asked you to consider it, not to do it." A long pause. "Orveth believes completely. Casvan acts from fear. You and I are the only two people in this situation without a stake in the outcome." She looks up. "What did he ask for?"</p>
+                <p>You think about it. "He asked me to tell people he wasn't a monster," you say. "That's all."</p>
+                <p>Deva is quiet for a long time.</p>
+                <p>"That," she says at last, "doesn't sound like a monster."</p>
+                <p class="choice">1. If you decide to bring the Kingstone to Orveth after all, turn to page <a href="#" onclick="goToSection(106); return false;" class="page-link"><strong>106</strong></a>.</p>
+                <p class="choice">2. If you decide to destroy it yourself — you'll need a forge — turn to page <a href="#" onclick="goToSection(112); return false;" class="page-link"><strong>112</strong></a>.</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-112" class="game-section" data-section="112">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">112</div>
+            <div class="section-content">
+                <p>There is a blacksmith's forge in the Old Quarter whose owner, for sufficient coin, asks no questions. You feed the Kingstone into the fire.</p>
+                <p>It takes longer than stone should. The material resists in a way that ordinary rock doesn't, holding its shape as the heat builds. You add more fuel. You wait. After a long time, it softens — and then fractures — and then something that is not a sound, but which you hear anyway, moves through the forge like a breath long held finally released.</p>
+                <p>The carved face is gone. What remains is slag, cooling to nothing.</p>
+                <p>You stand there until the forge dies down.</p>
+                <p>You hope he was what he said he was. You hope the thing you did was the right thing. You have no way to know — that, you are beginning to understand, is usually how it goes with the decisions that matter. The ones that can't be undone.</p>
+                <p>You leave the city that evening. Casvan's men are not looking for you yet; they will be by morning, when the Kingstone doesn't arrive. You ride north on the coin from your advance payment and don't look back.</p>
+                <p>The road is long. You've had worse company than your own conscience.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-115" class="game-section" data-section="115">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">115</div>
+            <div class="section-content">
+                <p>You emerge from the Tombs in the long shadow of late afternoon, Crath Veldrun walking beside you. He is unsteady on the steps but does not ask for help, and you don't offer it.</p>
+                <p>He stops when he sees the city — the white buildings, the changed skyline, the Temple with his name on it. He stands there for a long time, very still, looking.</p>
+                <p>"Three hundred years," he says quietly. He says it the way you'd say the name of a bridge you once crossed and never thought you'd see again.</p>
+                <p>"Are you going to try to reclaim it?" you ask.</p>
+                <p>He looks at you. His eyes are gray, very old, very tired, and surprisingly alert. "I'm going to walk through it first," he says. "See what it has become. Decide whether what I would build is better than what exists, or merely different." He pauses. "That seems like the responsible approach."</p>
+                <p>He extends his hand. "You are free to go. You owe me nothing. I owe you considerably more than I can repay today — but I have some experience with the long game." A pause. "Go north. I will find you."</p>
+                <p>You shake his hand. His grip is cold from the stone but firm. Then he turns and walks down into the city, and you watch him go, and then you walk in the opposite direction, toward the gate.</p>
+                <p>Three weeks later, a letter finds you at an inn three hundred miles north. It contains a bank draft for a sum that makes you sit down abruptly. The signature is in archaic formal script that you have to have translated by the innkeeper's daughter, who studied letters.</p>
+                <p>It reads: <em>Crath Veldrun, First of That Name, in gratitude and in good faith.</em></p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+    </div><!-- end .page -->
+
+    <script>
+        // === STATE ===
+        let history = [];
+        let lastChoiceSection = null;
+        let currentView = 'home';
+        let options = {
+            darkMode: false,
+            fontSize: 2,
+            narration: false,
+            qaMode: false
+        };
+        const fontSizes = [
+            { name: 'X-Small', size: '15px' },
+            { name: 'Small',   size: '17px' },
+            { name: 'Medium',  size: '19px' },
+            { name: 'Large',   size: '21px' },
+            { name: 'X-Large', size: '23px' }
+        ];
+
+        // === SECTION INDEX ===
+        let sortedSections = [];
+        let totalSections = 0;
+
+        function buildSortedSectionsFromDOM() {
+            const sections = document.querySelectorAll('.game-section[data-section]');
+            const nums = [];
+            sections.forEach(function(s) {
+                const n = parseInt(s.dataset.section);
+                if (!isNaN(n)) nums.push(n);
+            });
+            nums.sort(function(a, b) { return a - b; });
+            return nums;
+        }
+
+        function refreshSectionIndex() {
+            sortedSections = buildSortedSectionsFromDOM();
+            totalSections = sortedSections.length;
+        }
+
+        function sectionHasChoices(n) {
+            const el = document.getElementById('section-' + n);
+            if (!el) return false;
+            return el.querySelectorAll('p.choice').length > 0;
+        }
+
+        function getLastChoiceForCurrent() {
+            if (!Array.isArray(history) || history.length === 0) return null;
+            for (let i = history.length - 2; i >= 0; i--) {
+                const n = history[i];
+                if (sectionHasChoices(n)) return n;
+            }
+            return null;
+        }
+
+        // === SAVE / LOAD ===
+        function saveProgress() {
+            try {
+                const state = {
+                    history: history,
+                    currentView: currentView,
+                    options: options
+                };
+                localStorage.setItem('tombOfCrathVeldrun_progress', JSON.stringify(state));
+            } catch(e) {}
+        }
+
+        function loadProgress() {
+            try {
+                const saved = localStorage.getItem('tombOfCrathVeldrun_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    if (state.options) options = Object.assign(options, state.options);
+                    history = state.history || [];
+                    return state.currentView || null;
+                }
+            } catch(e) {}
+            return null;
+        }
+
+        function hasProgress() {
+            try {
+                const saved = localStorage.getItem('tombOfCrathVeldrun_progress');
+                if (saved) {
+                    const state = JSON.parse(saved);
+                    return state.history && state.history.length > 0;
+                }
+            } catch(e) {}
+            return false;
+        }
+
+        function clearProgress() {
+            try { localStorage.removeItem('tombOfCrathVeldrun_progress'); } catch(e) {}
+        }
+
+        // === OPTIONS ===
+        function applyOptions() {
+            if (options.darkMode) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            document.documentElement.style.setProperty('--font-size', fs.size);
+            updateToggleVisuals();
+            updateOptionsSummary();
+            const narrationControls = document.getElementById('narration-controls');
+            if (narrationControls) {
+                narrationControls.classList.toggle('visible', options.narration);
+            }
+            if (!options.narration) narrationStop();
+        }
+
+        function updateToggleVisuals() {
+            const darkToggle = document.getElementById('toggle-dark');
+            if (darkToggle) darkToggle.classList.toggle('active', options.darkMode);
+            const narToggle = document.getElementById('toggle-narration');
+            if (narToggle) narToggle.classList.toggle('active', options.narration);
+        }
+
+        function updateFontSizeDisplay() {
+            const fs = fontSizes[options.fontSize] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateOptionsSummary() {
+            const summary = document.getElementById('options-summary');
+            if (!summary) return;
+            const parts = [];
+            parts.push('Theme: ' + (options.darkMode ? 'Dark' : 'Light'));
+            parts.push('Font: ' + (fontSizes[options.fontSize] || fontSizes[2]).name);
+            if (options.narration) parts.push('Narration: On');
+            summary.textContent = parts.join(' · ');
+        }
+
+        function toggleOption(option) {
+            if (option === 'dark') options.darkMode = !options.darkMode;
+            else if (option === 'narration') options.narration = !options.narration;
+            applyOptions();
+            saveProgress();
+        }
+
+        function setFontSizeFromSlider(value) {
+            options.fontSize = parseInt(value);
+            applyOptions();
+            saveProgress();
+        }
+
+        function updateFontSizePreview(value) {
+            const fs = fontSizes[parseInt(value)] || fontSizes[2];
+            const preview = document.getElementById('font-size-preview');
+            if (preview) preview.textContent = fs.name;
+        }
+
+        function updateFontSizeSlider() {
+            const slider = document.getElementById('font-size-slider');
+            if (slider) slider.value = options.fontSize;
+            updateFontSizeDisplay();
+        }
+
+        // === NARRATION ===
+        let speechSynth = null;
+        let isPaused = false;
+
+        function prepareTextForNarration(text) {
+            return text.replace(/\s+/g, ' ').trim();
+        }
+
+        function narrate(text) {
+            if (!window.speechSynthesis || !options.narration) return;
+            if (!speechSynth) speechSynth = window.speechSynthesis;
+            speechSynth.cancel();
+            isPaused = false;
+            const utterance = new SpeechSynthesisUtterance(prepareTextForNarration(text));
+            utterance.rate = 0.95;
+            utterance.onend = function() { updateNarrationButtons(); };
+            speechSynth.speak(utterance);
+            updateNarrationButtons();
+        }
+
+        function narrationPlay() {
+            if (!speechSynth) return;
+            if (isPaused) { speechSynth.resume(); isPaused = false; }
+            else {
+                const active = document.querySelector('.game-section.active');
+                if (active) {
+                    const content = active.querySelector('.section-content');
+                    if (content) narrate(content.innerText || content.textContent);
+                }
+            }
+            updateNarrationButtons();
+        }
+
+        function narrationPause() {
+            if (speechSynth && speechSynth.speaking) {
+                speechSynth.pause(); isPaused = true; updateNarrationButtons();
+            }
+        }
+
+        function narrationStop() {
+            if (speechSynth) { speechSynth.cancel(); isPaused = false; updateNarrationButtons(); }
+        }
+
+        function updateNarrationButtons() {
+            const playBtn = document.getElementById('narration-play');
+            const pauseBtn = document.getElementById('narration-pause');
+            if (playBtn) playBtn.classList.toggle('active', speechSynth && speechSynth.speaking && !isPaused);
+            if (pauseBtn) pauseBtn.classList.toggle('active', isPaused);
+        }
+
+        // === UI ===
+        function updatePageIndicator() {
+            const indicator = document.getElementById('page-indicator');
+            if (!indicator) return;
+            const current = getCurrentSection();
+            if (currentView === 'cover') indicator.textContent = 'Cover';
+            else if (currentView === 'options') indicator.textContent = 'Options';
+            else if (currentView === 'home') indicator.textContent = 'Intro';
+            else if (current !== null) {
+                const idx = sortedSections.indexOf(current) + 1;
+                indicator.textContent = 'Page ' + current + ' (' + idx + '/' + totalSections + ')';
+            }
+        }
+
+        function updateBreadcrumb() {
+            const trail = document.getElementById('breadcrumb-trail');
+            if (!trail) return;
+            if (history.length === 0) {
+                trail.innerHTML = '<span class="breadcrumb-link" onclick="goToCover()">Cover</span>';
+            } else {
+                const display = history.slice(-8);
+                const prefix = history.length > 8 ? '... &rarr; ' : '';
+                const links = display.map(function(p) {
+                    return '<span class="breadcrumb-link" onclick="goToSection(' + p + ', true)">' + p + '</span>';
+                }).join(' &rarr; ');
+                trail.innerHTML = prefix + links;
+            }
+        }
+
+        // === NAVIGATION ===
+        function hideAllSections(direction) {
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+        }
+
+        function showSection(section, direction) {
+            section.classList.add('active');
+            if (direction === 'left') section.classList.add('flip-left');
+            section.style.display = 'block';
+        }
+
+        function getCurrentSection() {
+            const active = document.querySelector('.game-section.active');
+            if (active && active.dataset.section) return parseInt(active.dataset.section);
+            return null;
+        }
+
+        function goToSection(n, isBack, direction) {
+            const el = document.getElementById('section-' + n);
+            if (!el) { console.warn('Section not found:', n); return; }
+            if (!isBack) history.push(n);
+            hideAllSections();
+            showSection(el, direction);
+            currentView = 'section';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            updateBreadcrumb();
+            saveProgress();
+            if (options.narration) {
+                const content = el.querySelector('.section-content');
+                if (content) narrate(content.innerText || content.textContent);
+            }
+        }
+
+        function goToNextPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            const idx = sortedSections.indexOf(current);
+            if (idx >= 0 && idx < sortedSections.length - 1) {
+                goToSection(sortedSections[idx + 1], false, 'right');
+            }
+        }
+
+        function goToPrevPage() {
+            const current = getCurrentSection();
+            if (current === null) return;
+            if (current === sortedSections[0]) { goToIntro(); return; }
+            const idx = sortedSections.indexOf(current);
+            if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+        }
+
+        function goToCover() {
+            hideAllSections();
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            narrationStop();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+        }
+
+        function goToIntro() {
+            hideAllSections();
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+                showSection(homeSection);
+                currentView = 'home';
+                window.scrollTo({ top: 0, behavior: 'auto' });
+                updatePageIndicator();
+                narrationStop();
+            }
+        }
+
+        let cameFromGameplay = false;
+
+        function goToOptions() {
+            cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+            hideAllSections();
+            const optionsSection = document.getElementById('options-section');
+            showSection(optionsSection);
+            currentView = 'options';
+            window.scrollTo({ top: 0, behavior: 'auto' });
+            updatePageIndicator();
+            applyOptions();
+            updateFontSizeSlider();
+            narrationStop();
+            updateOptionsButtons();
+        }
+
+        function updateOptionsButtons() {
+            const primaryBtn = document.getElementById('options-primary-btn');
+            const restartBtn = document.getElementById('options-restart-btn');
+            if (cameFromGameplay) {
+                primaryBtn.innerHTML = '&larr; Back to Story';
+                primaryBtn.onclick = function() { goBack(); };
+                restartBtn.style.display = 'block';
+            } else {
+                primaryBtn.innerHTML = '&#x2756; Begin Adventure';
+                primaryBtn.onclick = function() { beginAdventure(); };
+                restartBtn.style.display = hasProgress() ? 'block' : 'none';
+            }
+        }
+
+        function goBack() {
+            if (history.length > 0) {
+                const lastPage = history[history.length - 1];
+                goToSection(lastPage, true);
+            } else {
+                goToIntro();
+            }
+        }
+
+        function openBook() {
+            if (hasProgress()) {
+                const savedView = loadProgress();
+                if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                    if (savedView === 'home') { goToIntro(); return; }
+                    if (history.length > 0) {
+                        goToSection(history[history.length - 1], true);
+                        return;
+                    }
+                }
+            }
+        }
+
+        function startFreshAdventure() {
+            history = [];
+            lastChoiceSection = null;
+            saveProgress();
+            goToIntro();
+        }
+
+        function beginAdventure() {
+            history = [];
+            lastChoiceSection = null;
+            saveProgress();
+            goToIntro();
+        }
+
+        function restartFromOptions() {
+            if (confirm('Start over from the beginning? Your progress will be cleared.')) {
+                history = [];
+                lastChoiceSection = null;
+                narrationStop();
+                saveProgress();
+                goToIntro();
+            }
+        }
+
+        function restartAdventure() {
+            if (confirm('Start over from the beginning?')) {
+                history = [];
+                lastChoiceSection = null;
+                narrationStop();
+                clearProgress();
+                goToCover();
+            }
+        }
+
+        function jumpToPage() {
+            const input = document.getElementById('page-jump');
+            if (!input) return;
+            const n = parseInt(input.value);
+            if (!isNaN(n)) { goToSection(n, false); input.value = ''; }
+        }
+
+        // === KEYBOARD ===
+        document.addEventListener('keydown', function(e) {
+            if (e.target.tagName === 'INPUT') return;
+            if (e.key === 'ArrowRight' && currentView === 'section') goToNextPage();
+            if (e.key === 'ArrowLeft' && currentView === 'section') goToPrevPage();
+            if (e.shiftKey && e.key === 'Q') {
+                options.qaMode = !options.qaMode;
+                document.body.classList.toggle('qa-mode', options.qaMode);
+            }
+        });
+
+        // === INITIALIZATION ===
+        window.addEventListener('load', function() {
+            refreshSectionIndex();
+            document.querySelectorAll('.game-section').forEach(function(s) {
+                s.classList.remove('active', 'flip-left', 'cover-visible');
+                s.style.display = 'none';
+            });
+            const coverSection = document.getElementById('cover-section');
+            if (coverSection) {
+                coverSection.classList.add('cover-visible');
+                coverSection.style.display = 'block';
+                currentView = 'cover';
+            }
+            applyOptions();
+            updatePageIndicator();
+            updateBreadcrumb();
+            const hint = document.getElementById('resume-hint');
+            if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+            openBook();
+        });
+
+        // Stability guard
+        window.toggleAdventurePanel ||= function(){};
+        window.showPanelTab ||= function(){};
+        window.updateMapDisplay ||= function(){};
+        window.updateInventoryDisplay ||= function(){};
+    </script>
+</body>
+</html>
