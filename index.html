@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Stories</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, 'Times New Roman', serif;
+      background: #1a1612;
+      color: #d4c9b0;
+      min-height: 100vh;
+      padding: 3rem 1.5rem;
+    }
+
+    header {
+      max-width: 720px;
+      margin: 0 auto 3rem;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 2.4rem;
+      color: #e8dfc4;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.6rem;
+    }
+
+    header p {
+      color: #8a7f6a;
+      font-style: italic;
+      font-size: 1.05rem;
+    }
+
+    .section-label {
+      max-width: 720px;
+      margin: 0 auto 1rem;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #6b6050;
+      border-bottom: 1px solid #2e2a24;
+      padding-bottom: 0.4rem;
+    }
+
+    .story-grid {
+      max-width: 720px;
+      margin: 0 auto 3rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .story-card {
+      display: block;
+      background: #211e19;
+      border: 1px solid #2e2a24;
+      border-radius: 6px;
+      padding: 1.1rem 1.4rem;
+      text-decoration: none;
+      color: inherit;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .story-card:hover {
+      border-color: #5a4f3a;
+      background: #261f18;
+    }
+
+    .story-card h2 {
+      font-size: 1.15rem;
+      color: #e0d4b4;
+      margin-bottom: 0.3rem;
+    }
+
+    .story-card p {
+      font-size: 0.88rem;
+      color: #6b6050;
+      font-style: italic;
+    }
+
+    footer {
+      max-width: 720px;
+      margin: 3rem auto 0;
+      text-align: center;
+      font-size: 0.8rem;
+      color: #4a4438;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>Interactive Stories</h1>
+    <p>Choose-your-own-path gamebooks, playable in the browser.</p>
+  </header>
+
+  <div class="section-label">Classic Gamebooks</div>
+  <div class="story-grid">
+    <a class="story-card" href="Dungeon_of_Dread.html">
+      <h2>Dungeon of Dread</h2>
+      <p>Enter the dungeon — if you dare.</p>
+    </a>
+    <a class="story-card" href="Mountain_of_Mirrors.html">
+      <h2>Mountain of Mirrors</h2>
+      <p>Endless reflections hide endless dangers.</p>
+    </a>
+    <a class="story-card" href="Under_Dragons_Wing.html">
+      <h2>Under Dragon's Wing</h2>
+      <p>Seek the dragon's hoard — or become part of it.</p>
+    </a>
+  </div>
+
+  <div class="section-label">Original Stories</div>
+  <div class="story-grid">
+    <a class="story-card" href="The_Bone_Road.html">
+      <h2>The Bone Road</h2>
+      <p>A journey no traveller has finished alive.</p>
+    </a>
+    <a class="story-card" href="The_Drowned_Cartographer.html">
+      <h2>The Drowned Cartographer</h2>
+      <p>His last map led somewhere maps don't go.</p>
+    </a>
+    <a class="story-card" href="The_Innkeeper_at_Marens_Ford.html">
+      <h2>The Innkeeper at Maren's Ford</h2>
+      <p>Every guest checks in. Not all check out.</p>
+    </a>
+    <a class="story-card" href="The_Tomb_of_Crath_Veldrun.html">
+      <h2>The Tomb of Crath Veldrun</h2>
+      <p>Ancient seals were broken. Now something walks.</p>
+    </a>
+  </div>
+
+  <footer>
+    <p>Works best on desktop. Each story runs entirely in your browser — no server, no tracking.</p>
+  </footer>
+
+</body>
+</html>
