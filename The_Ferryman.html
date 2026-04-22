@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Night Surgeon</title>
+    <title>The Ferryman</title>
     <style>
         :root {
             --bg-color: #ccc8b5;
@@ -302,7 +302,7 @@
         </div>
         <div class="control-group qa-only">
             <label for="page-jump">Go to:</label>
-            <input type="number" id="page-jump" class="page-input" min="1" max="43" placeholder="#">
+            <input type="number" id="page-jump" class="page-input" min="1" max="33" placeholder="#">
             <button class="control-btn" onclick="jumpToPage()">Go</button>
         </div>
     </div>
@@ -363,10 +363,10 @@
         <!-- Cover Page -->
         <section id="cover-section" class="game-section">
             <div class="section-content">
-                <div class="cover-title">THE NIGHT SURGEON</div>
+                <div class="cover-title">THE FERRYMAN</div>
                 <hr class="cover-rule">
                 <div class="cover-subtitle">An Adventure of Choice</div>
-                <div class="cover-byline">You are Vance, surgeon. Your rule: treat what's in front of you,<br>ask nothing about how it got there.<br>The knock comes at the second hour past midnight.</div>
+                <div class="cover-byline">You are Aldric, ferryman on the Awen.<br>Your rule: carry anyone who pays, ask nothing.<br>Tonight the rule is being tested.</div>
                 <div class="cover-buttons">
                     <button class="cover-begin-btn" onclick="startFreshAdventure()">Begin Adventure</button>
                     <button class="cover-customize-link" onclick="goToOptions()">Options &amp; Settings</button>
@@ -378,16 +378,16 @@
         <!-- Home / Intro Page -->
         <section id="home-section" class="game-section">
             <div class="section-content">
-                <h1>THE NIGHT SURGEON</h1>
+                <h1>THE FERRYMAN</h1>
                 <p class="subtitle">An Adventure of Choice</p>
 
-                <p>You are Vance — surgeon, licensed, established. Your practice is in the Lamp District: respectable clients, regular hours, a reputation for clean work and discretion. The discretion is not accidental. Medicine in a city like this one runs on the understanding that people who come to you in difficult circumstances will not be made more difficult by your involvement. What happens on the table stays there. What people did before they reached it is not your business.</p>
+                <p>You are Aldric, ferryman on the Awen. The river is a border — the eastern bank is the Realm, the western bank is the Confederacy, and the two have been in a cold sort of war for eleven years that nobody officially acknowledges. The Confederacy has its own customs officers and its own patrol pattern. The Realm has its own officials. You are neither.</p>
 
-                <p>The rule has held for twelve years. It's why you're still here.</p>
+                <p>You run the ferry three times a day: dawn, midday, and dusk. You carry anyone who pays the fare. You don't ask what people are carrying or why they're crossing. You carry no weapons on the boat — a rule you made in your first year and have kept since, because a ferryman with a weapon becomes something else eventually, and you know what that something is.</p>
 
-                <p>The knock comes at the second hour past midnight. The man at the door is well-dressed, composed, and has a cloth pressed against his left side. In his other hand he holds coin.</p>
+                <p>In eleven years of operation, the three rules have been tested regularly and held every time.</p>
 
-                <p>"I need the wound closed," he says. "Tonight. No names."</p>
+                <p>Tonight there is a knock at your door at midnight. The woman on your step is young, well-dressed in clothes that have been slept in, and she has a leather bag over one shoulder. In her hand she holds gold — enough for a month's passage, pressed into her palm and offered before she has said a word. On the far bank, through the fog, you can see torches moving in a pattern you recognize.</p>
 
                 <button class="start-button" onclick="goToSection(3)">Turn to page <strong>3</strong></button>
             </div>
@@ -402,167 +402,147 @@
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
             <div class="page-number">3</div>
             <div class="section-content">
-                <p>You let him in. He sits on your table with his coat off and the cloth pressed against his side — calm in a way that tells you this is not his first wound. He lets you take the cloth away. The wound is a puncture, left side below the ribs: three inches deep by your probe, not into anything that matters, bleeding slowly but not alarmingly. The angle says someone came at him from below and slightly to the right while he was turned away.</p>
-                <p>He is in his forties, solid, steady hands. Well-dressed in clothes that have been handled tonight. His coat is on the chair beside the table. The inside pocket holds a cylinder — a document tube, oilskin-wrapped, the size of something you'd carry if you didn't want it bent.</p>
-                <p>The coin he put on your table is foreign. You know the currency. It's real.</p>
-                <p class="choice">1. Work in silence — close the wound, take the coin, say nothing. Turn to page <a href="#" onclick="goToSection(11); return false;" class="page-link"><strong>11</strong></a>.</p>
-                <p class="choice">2. Ask about the wound — how it happened. Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a>.</p>
-                <p class="choice">3. Tell him you need a name before you treat him. Turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a>.</p>
-            </div>
-            <div class="bookmark-link" style="display:none"></div>
-        </section>
-
-        <section id="section-7" class="game-section" data-section="7">
-            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
-            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">7</div>
-            <div class="section-content">
-                <p>He answers with the composure of someone who has thought carefully about which version of the truth to offer. "A disagreement," he says. "About money. It's resolved."</p>
-                <p>"The other party?"</p>
-                <p>"Fine." He says this in the specific way that means: verified personally, and recently.</p>
-                <p>The wound is consistent with a confrontation rather than an ambush — not someone who came at him in earnest with the intention of finishing it. Someone who grabbed a knife in a situation that escalated. The angle is wrong for an assassination. He was turned, surprised, moving away when it landed.</p>
-                <p>You are cleaning the wound and preparing to close it. Your eyes move to the coat on the chair.</p>
-                <p class="choice">1. It's not your business. Finish the wound. Turn to page <a href="#" onclick="goToSection(11); return false;" class="page-link"><strong>11</strong></a>.</p>
-                <p class="choice">2. Ask what's in the document tube. Turn to page <a href="#" onclick="goToSection(19); return false;" class="page-link"><strong>19</strong></a>.</p>
-            </div>
-            <div class="bookmark-link" style="display:none"></div>
-        </section>
-
-        <section id="section-11" class="game-section" data-section="11">
-            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
-            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">11</div>
-            <div class="section-content">
-                <p>You close the wound. Twelve stitches, tight and clean — the kind of closure that will hold as long as he doesn't do anything else tonight that he shouldn't. You tape the dressing. He stands, buttons his coat without looking at it, and puts two extra coins beside the first.</p>
-                <p>"You didn't see me," he says.</p>
-                <p>"Correct," you say.</p>
-                <p>He goes.</p>
-                <p>In the morning the city watch comes to your door. Two men found injured in the Merchants' Quarter, near the counting houses. One man missing. Documents reportedly absent from a trade authority lockbox that was secure when last checked. They are asking whether you treated anyone with a knife wound last night.</p>
+                <p>She comes in out of the doorway and stands at the edge of your lamplight, wet from the fog. The leather bag over one shoulder. The gold still in her hand — she hasn't put it away. Her name, she says, is Cael. She is a courier. She has been walking since yesterday morning.</p>
+                <p>The soldiers on the far bank are Confederacy border patrol. She says they've been moving south to north, sweep-pattern, since the second hour. Looking for someone. You know the sweep pattern: three hours to complete, and they don't double back.</p>
+                <p>"Who are you carrying for?" you ask.</p>
+                <p>She looks at you steadily. "Does it matter for the crossing?"</p>
+                <p>In eleven years of running this ferry, no one has answered a question of yours with a better question. You tell her the rule: you carry anyone who pays, you ask nothing. She's already paid. "I'm asking anyway," you say.</p>
+                <p>She sets the bag on your table. "Messages," she says. "I carry messages. I don't read them."</p>
             </div>
             <div class="turn-instruction">
-                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a></span>
+                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(6); return false;" class="page-link"><strong>6</strong></a></span>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-15" class="game-section" data-section="15">
+        <section id="section-6" class="game-section" data-section="6">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">15</div>
+            <div class="page-number">6</div>
             <div class="section-content">
-                <p>He considers you for a moment. Then: "Bren."</p>
-                <p>You know immediately it isn't his name — the slight formality of it, the fractional pause before it arrives, the way he holds your eyes while he says it. But it is a name, offered in good faith as a token of cooperation, and you asked for a token and received one.</p>
-                <p>"Bren," you say. "All right."</p>
-                <p>You close the wound. He pays, adds extra for the hour and the silence, says the thing about not having seen him, and goes.</p>
-                <p>In the morning the watch comes.</p>
-            </div>
-            <div class="turn-instruction">
-                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a></span>
+                <p>"It's midnight," you say.</p>
+                <p>"I know."</p>
+                <p>"I don't run at midnight. It's not a rule — it's engineering. The channel markers aren't lit. The river is a different thing in the dark." You pause. "I've done it before. Three times in eleven years."</p>
+                <p>"What were the circumstances?"</p>
+                <p>"A woman in labor. A flood warning. A fire."</p>
+                <p>She doesn't say: <em>and this</em>. She doesn't have to. The gold is on the table. The torches on the western bank are still moving, and you have, at most, two hours before the sweep pattern brings them to the crossing point.</p>
+                <p class="choice">1. Take her across now, in the dark. Turn to page <a href="#" onclick="goToSection(13); return false;" class="page-link"><strong>13</strong></a>.</p>
+                <p class="choice">2. Ask why the patrol is specifically looking for her before deciding. Turn to page <a href="#" onclick="goToSection(9); return false;" class="page-link"><strong>9</strong></a>.</p>
+                <p class="choice">3. The boathouse is open and warm — she can wait until dawn. Turn to page <a href="#" onclick="goToSection(17); return false;" class="page-link"><strong>17</strong></a>.</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-19" class="game-section" data-section="19">
+        <section id="section-9" class="game-section" data-section="9">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">19</div>
+            <div class="page-number">9</div>
             <div class="section-content">
-                <p>He looks at the coat. He makes a decision.</p>
-                <p>"A document," he says. "A debt instrument — a considerable sum, signed under duress. I'd rather not say whose name is on it, but it was taken from the person it was taken from. I took it back. That is the whole of it."</p>
-                <p>He says this without particular need for you to believe him. You believe him anyway: the wound's angle, his composure, the foreign coin, the way he has managed the entire evening with the care of someone who planned most of it and is improvising the rest. This has the shape of a personal grievance, not a criminal enterprise.</p>
-                <p>You close the wound. He pays, adds extra, and goes.</p>
-                <p>In the morning the watch comes to your door. They are looking for a man with a knife wound. In passing, as background detail, they mention a name — the registered holder of a debt instrument currently under inquiry — and you recognize it.</p>
-            </div>
-            <div class="turn-instruction">
-                <span class="choice-text">Turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a></span>
-            </div>
-            <div class="bookmark-link" style="display:none"></div>
-        </section>
-
-        <section id="section-23" class="game-section" data-section="23">
-            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
-            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">23</div>
-            <div class="section-content">
-                <p>Two men injured in the Merchants' Quarter. One man missing. Certain documents. The watch officer is thorough and polite and would like to know if you treated anyone with a knife wound last night.</p>
-                <p class="choice">1. You treated no one last night. Your rule: what happens on the table stays there. Turn to page <a href="#" onclick="goToSection(31); return false;" class="page-link"><strong>31</strong></a>.</p>
-                <p class="choice">2. Someone came. Wound, paid, gone. No name. Turn to page <a href="#" onclick="goToSection(35); return false;" class="page-link"><strong>35</strong></a>.</p>
-                <p class="choice">3. Tell them what you know — the wound, the coin, the document tube in the coat. Turn to page <a href="#" onclick="goToSection(39); return false;" class="page-link"><strong>39</strong></a>.</p>
+                <p>She answers without hesitation — which tells you she has already decided how much to say and that the calculation came out in your favor.</p>
+                <p>"The messages are for the Weavers," she says. "You know who they are."</p>
+                <p>You do. Everyone in the border towns does. The Weavers are a network of trade reformers on the Confederacy side who want to renegotiate the levies that have made crossing unprofitable for small merchants. They are not violent. They are, to certain people in certain offices, intensely threatening.</p>
+                <p>"The patrol isn't routine," she says. "Someone reported me. They know I'm crossing tonight. They don't know where."</p>
+                <p>The gold on your table is more than a courier makes in a month. Someone is paying for this crossing specifically.</p>
+                <p>"If they find you," you say.</p>
+                <p>"The messages name names. Yes."</p>
+                <p class="choice">1. Take her across. Turn to page <a href="#" onclick="goToSection(13); return false;" class="page-link"><strong>13</strong></a>.</p>
+                <p class="choice">2. She can stay the night, but the messages go in the fire first. Turn to page <a href="#" onclick="goToSection(21); return false;" class="page-link"><strong>21</strong></a>.</p>
+                <p class="choice">3. This is beyond a standard crossing. She needs to find another way. Turn to page <a href="#" onclick="goToSection(25); return false;" class="page-link"><strong>25</strong></a>.</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-27" class="game-section" data-section="27">
+        <section id="section-13" class="game-section" data-section="13">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">27</div>
+            <div class="page-number">13</div>
             <div class="section-content">
-                <p>The watch officer mentions the name as background — the document's registered holder, who is currently being located. The way he says it tells you there is more to this than one missing document. The man whose name is on it is someone the watch has been building toward for some time. This inquiry may be the pretext they have been waiting for.</p>
-                <p>You have more information coming into this conversation than you are supposed to have.</p>
-                <p class="choice">1. Say nothing. The rule is the rule: what happens on your table is not for the watch. Turn to page <a href="#" onclick="goToSection(31); return false;" class="page-link"><strong>31</strong></a>.</p>
-                <p class="choice">2. Tell them everything — the wound, the coin, the document, the name as you heard it. Turn to page <a href="#" onclick="goToSection(39); return false;" class="page-link"><strong>39</strong></a>.</p>
-                <p class="choice">3. Go to the offices of the person named before you speak to anyone else. Turn to page <a href="#" onclick="goToSection(43); return false;" class="page-link"><strong>43</strong></a>.</p>
+                <p>The river at midnight is cold and dark and loud. You're forty yards from the eastern bank when you lose sight of it. The western bank doesn't exist yet in the darkness ahead. The Awen runs faster after sunset, or seems to — something you've never verified but believe. The oars are loud.</p>
+                <p>Cael sits in the bow with the bag under her coat and says nothing. There is no moon. The torches on the western bank are east of your position — you left south of the standard crossing point deliberately — but one of them has stopped moving. A stopped torch is a watcher.</p>
+                <p>Midway across, it begins to turn in your direction.</p>
+                <p class="choice">1. Row hard. Get to the western bank before the watcher reaches the landing. Turn to page <a href="#" onclick="goToSection(29); return false;" class="page-link"><strong>29</strong></a>.</p>
+                <p class="choice">2. Ship the oars. Let the current take you south, into the dark stretch below the crossing point. Turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a>.</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-31" class="game-section" data-section="31">
+        <section id="section-17" class="game-section" data-section="17">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">31</div>
+            <div class="page-number">17</div>
             <div class="section-content">
-                <p>You treated no one last night.</p>
-                <p>The watch notes this, thanks you, leaves. They may come back when the story develops. They may not. You are a respectable practitioner in the Lamp District and there is no particular reason to doubt you.</p>
-                <p>That afternoon: nothing. The following morning: a brief item in the trade sheet about irregularities in the Merchants' Quarter, pending inquiry, no names. The following week: nothing further you can find.</p>
-                <p>Whether the man you stitched up made it to wherever he was going. Whether the document found its way back to the person who needed it. Whether the people who sent the knife will send someone more thorough next time.</p>
-                <p>These are questions outside your boundary. Your practice has a boundary because without one you become something else: useful to anyone who comes to your door with coin, for any purpose whatsoever. That is not the surgeon you are.</p>
-                <p>The wound healed clean. You know this. That part was done right.</p>
+                <p>She accepts without argument. She follows you to the boathouse and sits in the corner you point to — cold stone, river smell, old rope — and you give her the spare blanket and the small lamp turned low. Through the door you can see the torches on the western bank still moving. Methodical. Patient.</p>
+                <p>You go back to your house and don't sleep. At the fourth hour the torches go out. At the fifth hour dawn arrives, gray and cold and ordinary.</p>
+                <p>You run the morning crossing at first light. Standard fare. She sits in the bow with the bag under her coat and doesn't look at the western bank as it approaches. When the boat grounds she steps off and walks into the tree line without stopping, without looking back.</p>
+                <p>You don't know what's in the bag. You don't know whether it's the same bag she arrived with or whether she spent the night doing something with its contents. You didn't ask. That was the arrangement.</p>
+                <p>You row back east in the morning light. The Awen runs ordinary. The crossing was routine.</p>
                 <p class="ending">THE END</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-35" class="game-section" data-section="35">
+        <section id="section-21" class="game-section" data-section="21">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">35</div>
+            <div class="page-number">21</div>
             <div class="section-content">
-                <p>Someone came last night. Late. A knife wound, consistent with what they're describing. Paid and left. Gave no name. You describe what you remember of his appearance in general terms. You don't describe the coin. You don't describe the coat pocket.</p>
-                <p>This is the truth up to the line.</p>
-                <p>The watch notes it carefully. They thank you and leave.</p>
-                <p>Two weeks later there is a notice in the law sheets — a debt instrument returned to its registered holder by formal process, properly notarized, all parties satisfied. No details. No names beyond the standard legal parties.</p>
-                <p>Whether the man you treated arranged that, or had it arranged, or whether it would have happened anyway — you don't know. What you know is that you answered what you were asked, truthfully, up to the point where the truth would have served the knife rather than the man it found.</p>
-                <p>That is the line. You know where it is.</p>
+                <p>She looks at the fire for a long moment. Then she opens the bag, removes the oilskin, takes out the messages. There are seven of them — you count without meaning to.</p>
+                <p>She puts them in the fire herself. It takes a while. When it's done she folds the oilskin precisely and puts it back in the bag.</p>
+                <p>"Tomorrow?" she asks.</p>
+                <p>"Dawn," you say.</p>
+                <p>She sleeps in the boathouse. The torches on the western bank cycle through their pattern and extinguish. At dawn you take her across: standard crossing, standard fare. The western bank is quiet. She steps off the boat.</p>
+                <p>She says nothing. There is nothing to say. She had things to deliver and now she doesn't have them. Whether whoever was waiting for those messages has another way of receiving them is not something you know, and not something she offers you.</p>
+                <p>The crossing was safe. Something was exchanged for that safety. Whether it was worth it is not a calculation you were asked to make.</p>
                 <p class="ending">THE END</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-39" class="game-section" data-section="39">
+        <section id="section-25" class="game-section" data-section="25">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">39</div>
+            <div class="page-number">25</div>
             <div class="section-content">
-                <p>You tell them what you know. The wound. The coin — you put it on the table for them; the denomination identifies the currency of origin. The document tube you saw in the coat pocket. The name, as far as you recall it.</p>
-                <p>The watch listens with the focused attention of people who have been working a problem for a long time and are now receiving a piece they were waiting for.</p>
-                <p>The inquiry takes three months. You are called twice as a witness — not as a suspect but as a witness, and the questions are specific and fair. The person named in the document is removed from the trade council on financial grounds. Criminal proceedings are opened and then settled in a way the trade sheets describe as "resolved to all parties."</p>
-                <p>Whether the man you stitched up is satisfied by that resolution. Whether the wound healed correctly without follow-up care. Whether he is alive to find out.</p>
-                <p>You were a witness. You told the truth. The outcome is downstream, and the river moves where it moves.</p>
+                <p>She picks up the bag. She says nothing — not an accusation, not a goodbye. She walks out of your door and down to the riverbank, which is the only direction she can go.</p>
+                <p>In the morning there is no crossing. In the morning there is a woman's body at the waterline, south of your dock, where the river eddies against the reeds. The patrol found the crossing point.</p>
+                <p>You don't know what she was carrying or for whom or whether any of it mattered in the way she thought it did. You know: she came to your door. You know: she had gold in her hand. You know what you said.</p>
+                <p>The rule is the rule. The rule says you carry anyone who pays. She paid. You didn't carry her.</p>
+                <p>There will be other people at your door. You will carry them. The rule will apply. The thing you are carrying now — the specific weight of last night — is not the rule and not the ferry and not something the river can resolve. It's something else. You'll find out what it becomes.</p>
                 <p class="ending">THE END</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
         </section>
 
-        <section id="section-43" class="game-section" data-section="43">
+        <section id="section-29" class="game-section" data-section="29">
             <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
             <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
-            <div class="page-number">43</div>
+            <div class="page-number">29</div>
             <div class="section-content">
-                <p>You go to the offices before the watch does.</p>
-                <p>The clerk turns you away, which you expected. What matters is that you were seen: a licensed surgeon, at the offices of a person named in a debt dispute, on the morning a watch inquiry opened. This is information moving through the city before the watch moves it.</p>
-                <p>Whether that helped or harmed you can't know for two weeks. Then there is a legal notice, and an inquiry, and eventually a removal from the trade council. Whether what you set in motion contributed, or whether it would have happened anyway — the city is a machine, and pulling one lever doesn't mean the machine runs differently. Necessarily.</p>
-                <p>What you pulled was the lever you had. Whether it was the right one is a different question from whether it was yours to pull.</p>
-                <p>You see patients that afternoon. The work is the same as always: steady hands, clean closure, the careful inventory of what can be fixed and what can only be left to heal. You are good at this. You have been good at it for twelve years. Whatever else happened last night, that part remains true.</p>
+                <p>You row. The oars are too loud and your breathing is too loud and the darkness is the kind that comes from moving fast through something you can't see. The oars bite and pull and bite and pull.</p>
+                <p>The western bank arrives: reeds first, then mud, then the landing. She's out of the boat before it fully grounds, moving low and fast. You hear her feet on the bank and then nothing.</p>
+                <p>The torch reaches the landing as you push off.</p>
+                <p>"Ferryman." A young voice. "Who did you bring across?"</p>
+                <p>The current takes you east. You're already ten yards out, twenty. The dark between you and the western bank is solid.</p>
+                <p>"I carry anyone who pays," you say. "I ask nothing."</p>
+                <p>He says something else, but you're too far out to hear it clearly. You row home in the dark.</p>
+                <p>Whether she reached wherever she was going. Whether the messages reached whoever needed them. Whether the young soldier reported you and whether that will come back to you. These are the questions your rule was never built to answer. You know your side of the river. You know the water between.</p>
+                <p class="ending">THE END</p>
+            </div>
+            <div class="bookmark-link" style="display:none"></div>
+        </section>
+
+        <section id="section-33" class="game-section" data-section="33">
+            <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+            <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+            <div class="page-number">33</div>
+            <div class="section-content">
+                <p>You ship the oars and let the river take you. It runs south-southwest and in the dark you move fast — further than intended, past the crossing point, past the place where you can see the torchlight at all. The fog rises off the water. You are invisible in it.</p>
+                <p>The western bank arrives as reeds: sudden, solid. You ground the boat in mud and she climbs out without being told, wades to the bank with the bag held over her head, stands in ankle-deep water on the far shore.</p>
+                <p>She turns back once. You can see the pale of her face in the darkness.</p>
+                <p>"Keep south," you say. "There's a track behind the reeds. Three miles south is Ardwen village."</p>
+                <p>She nods. She's gone.</p>
+                <p>You pole back out into the current and work upstream to your dock. Your boots are wet. Your hands are cold. The Awen runs quiet.</p>
+                <p>She made it across. However she planned to use what was in that bag — whether the people she carried it for were worth the carrying — that was always going to be her side of the river. You know your side. You know the water between.</p>
                 <p class="ending">THE END</p>
             </div>
             <div class="bookmark-link" style="display:none"></div>
@@ -610,13 +590,13 @@
         function saveProgress() {
             try {
                 const state = { history: history, currentView: currentView, options: options };
-                localStorage.setItem('nightSurgeon_progress', JSON.stringify(state));
+                localStorage.setItem('ferryman_progress', JSON.stringify(state));
             } catch(e) {}
         }
 
         function loadProgress() {
             try {
-                const saved = localStorage.getItem('nightSurgeon_progress');
+                const saved = localStorage.getItem('ferryman_progress');
                 if (saved) {
                     const state = JSON.parse(saved);
                     if (state.options) options = Object.assign(options, state.options);
@@ -629,7 +609,7 @@
 
         function hasProgress() {
             try {
-                const saved = localStorage.getItem('nightSurgeon_progress');
+                const saved = localStorage.getItem('ferryman_progress');
                 if (saved) {
                     const state = JSON.parse(saved);
                     return state.history && state.history.length > 0;
@@ -639,7 +619,7 @@
         }
 
         function clearProgress() {
-            try { localStorage.removeItem('nightSurgeon_progress'); } catch(e) {}
+            try { localStorage.removeItem('ferryman_progress'); } catch(e) {}
         }
 
         function applyOptions() {

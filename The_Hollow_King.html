@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Hollow King</title>
+    <style>
+        :root {
+            --bg-color: #d4cbb3;
+            --page-bg: linear-gradient(to right, #e8e0cc 0%, #f0ead8 5%, #f2ecd9 50%, #f0ead8 95%, #e8e0cc 100%);
+            --text-color: #1a1612;
+            --link-color: #8B4513;
+            --shadow-color: rgba(0,0,0,0.3);
+            --button-bg: #f0ead8;
+            --button-border: #8B4513;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d4a574;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d4a574;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 0 auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+
+        .control-group { display: flex; align-items: center; gap: 5px; }
+
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center;
+            font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+
+        .page-indicator {
+            font-size: 14px; color: var(--text-color);
+            min-width: 80px; text-align: center;
+        }
+
+        #breadcrumb {
+            position: fixed; bottom: 10px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-color);
+            padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color);
+            max-width: 90%; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; display: none;
+        }
+
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+        body.qa-mode #breadcrumb { display: block; }
+
+        .page { margin-top: 50px; margin-bottom: 50px; }
+
+        .game-section { display: none !important; }
+
+        .game-section.active {
+            display: block !important;
+            animation: pageFlip 0.3s ease-out;
+        }
+
+        #cover-section.cover-visible {
+            display: block !important;
+            animation: none !important;
+        }
+
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .page-number {
+            font-size: 24px; font-weight: normal;
+            margin-bottom: 25px; color: var(--text-color);
+        }
+
+        .section-content { text-align: justify; }
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p:first-child { text-indent: 0; }
+
+        .section-content p.choice {
+            margin: 0.5em 0 0.3em 1.5em;
+            text-indent: 0;
+        }
+
+        .ending {
+            text-align: center !important;
+            font-size: 1.3em;
+            margin: 40px 0 !important;
+            text-indent: 0 !important;
+            font-weight: bold;
+        }
+
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color);
+            background: none; border: none;
+            border-bottom: 1px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            text-decoration: none;
+        }
+
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+
+        .turn-instruction { text-align: center; margin-top: 2em; }
+
+        .bookmark-link {
+            position: absolute; bottom: 20px;
+            left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+
+        .bookmark-btn {
+            font-family: inherit; font-size: inherit;
+            color: #888; background: none; border: none;
+            cursor: pointer; text-decoration: underline;
+        }
+
+        .bookmark-btn:hover { color: #4a3728; }
+
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+
+        #home-section h1 {
+            font-size: 1.8em; text-align: center;
+            margin: 0 0 10px 0; font-weight: bold; letter-spacing: 2px;
+        }
+
+        #home-section .subtitle {
+            text-align: center; font-style: italic;
+            margin-bottom: 30px; font-size: 0.95em;
+        }
+
+        .start-button {
+            display: block; margin: 40px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+
+        .start-button:hover { background-color: var(--text-color); color: var(--button-bg); }
+
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; color: var(--text-color); }
+
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+
+        .option-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+
+        .option-row:last-of-type { border-bottom: none; }
+
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: ''; position: absolute;
+            top: 3px; left: 3px; width: 20px; height: 20px;
+            background: var(--button-bg); border-radius: 50%; transition: transform 0.3s;
+        }
+
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+
+        .font-preview { font-size: 13px; color: var(--nav-color); min-width: 55px; text-align: right; }
+
+        .options-summary { margin-top: 20px; font-size: 0.85em; color: var(--nav-color); font-style: italic; }
+
+        .options-actions {
+            margin-top: 30px; display: flex;
+            flex-direction: column; gap: 12px; align-items: center;
+        }
+
+        .options-primary-btn {
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s; min-width: 200px;
+        }
+
+        .options-primary-btn:hover { background-color: var(--text-color); color: var(--button-bg); }
+
+        .options-restart-btn {
+            font-family: inherit; font-size: 0.85em; color: var(--nav-color);
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+
+        .options-restart-btn:hover { color: var(--link-color); }
+
+        .qa-only { display: none; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav, #cover-section .page-nav { display: none !important; }
+
+        .cover-image {
+            max-width: 100%; max-height: 600px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block; margin: 0 auto;
+        }
+
+        .cover-image:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+
+        .cover-buttons {
+            margin-top: 20px; display: flex;
+            flex-direction: column; align-items: center; gap: 12px;
+        }
+
+        .cover-begin-btn {
+            padding: 15px 40px; font-size: 1.2em; font-family: Georgia, serif;
+            background: linear-gradient(135deg, #4a1a6a 0%, #2a0a3a 100%);
+            color: #e8d8f0; border: 2px solid #3a1050; border-radius: 8px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.4); transition: all 0.2s;
+        }
+
+        .cover-begin-btn:hover {
+            background: linear-gradient(135deg, #2a0a3a 0%, #180620 100%);
+            transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.5);
+        }
+
+        #cover-resume-hint {
+            font-size: 0.85em; color: var(--nav-color); font-style: italic;
+            cursor: pointer; text-decoration: underline; display: none;
+        }
+
+        #cover-resume-hint:hover { color: var(--link-color); }
+
+        #cover-section, #home-section { text-align: center; padding: 20px; }
+
+        .page-nav {
+            position: absolute; top: 50vh; transform: translateY(-50%);
+            width: 40px; height: 40px; display: flex;
+            align-items: center; justify-content: center;
+            cursor: pointer; color: var(--nav-color); font-size: 20px;
+            transition: color 0.2s; user-select: none;
+        }
+
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.2; cursor: default; }
+        .page-nav-left { left: -50px; }
+        .page-nav-right { right: -50px; }
+
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="goToCover()" title="Cover">&#8962;</button>
+            <button class="control-btn" id="back-choice-btn" onclick="goToLastChoice()" disabled>&#8592; p.<span id="back-choice-num">?</span></button>
+        </div>
+        <span class="page-indicator" id="page-indicator">Cover</span>
+        <div class="control-group">
+            <button class="control-btn" onclick="goToOptions()">&#9881;</button>
+        </div>
+        <div class="control-group qa-only">
+            <input type="number" id="page-jump" class="page-input" placeholder="#" min="1">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div id="breadcrumb"><span id="breadcrumb-trail"></span></div>
+
+    <div class="page">
+
+    <section id="options-section" class="game-section">
+        <h2>Options</h2>
+        <div class="options-container">
+            <div class="option-row">
+                <div class="option-label">
+                    <span class="option-name">Dark Mode</span>
+                    <span class="option-desc">Easier on the eyes at night</span>
+                </div>
+                <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+            </div>
+            <div class="option-row">
+                <div class="font-size-slider-container">
+                    <span class="size-label">A</span>
+                    <input type="range" class="font-slider" id="font-size-slider" min="0" max="4" value="2"
+                           oninput="setFontSizeFromSlider(this.value)">
+                    <span class="size-label">A</span>
+                    <span class="font-preview" id="font-preview">Medium</span>
+                </div>
+            </div>
+        </div>
+        <div class="options-summary" id="options-summary"></div>
+        <div class="options-actions">
+            <button class="options-primary-btn" id="options-primary-btn" onclick="beginAdventure()">&#10086; Begin Adventure</button>
+            <button class="options-restart-btn" id="options-restart-btn" onclick="restartFromOptions()" style="display:none;">Start Over</button>
+        </div>
+    </section>
+
+    <!-- Cover Section -->
+    <section id="cover-section" class="game-section">
+        <div class="section-content">
+            <svg class="cover-image" viewBox="0 0 400 550" xmlns="http://www.w3.org/2000/svg" onclick="goToOptions()">
+                <defs>
+                    <radialGradient id="moonGlow2" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fffce8" stop-opacity="1"/>
+                        <stop offset="60%" stop-color="#d8c880" stop-opacity="0.5"/>
+                        <stop offset="100%" stop-color="#806040" stop-opacity="0"/>
+                    </radialGradient>
+                    <radialGradient id="sunstoneGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#ffe090" stop-opacity="1"/>
+                        <stop offset="100%" stop-color="#ff8020" stop-opacity="0"/>
+                    </radialGradient>
+                    <linearGradient id="skyDark" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#020408"/>
+                        <stop offset="50%" stop-color="#060c18"/>
+                        <stop offset="100%" stop-color="#0c1428"/>
+                    </linearGradient>
+                    <linearGradient id="groundDark" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#0a0812"/>
+                        <stop offset="100%" stop-color="#030206"/>
+                    </linearGradient>
+                    <filter id="lichBlur">
+                        <feGaussianBlur stdDeviation="1.5" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="eyeGlow">
+                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="stoneGlow">
+                        <feGaussianBlur stdDeviation="3" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Sky background -->
+                <rect width="400" height="550" fill="url(#skyDark)"/>
+
+                <!-- Stars -->
+                <circle cx="30" cy="20" r="0.8" fill="white" opacity="0.7"/>
+                <circle cx="55" cy="35" r="1" fill="white" opacity="0.9"/>
+                <circle cx="80" cy="15" r="0.7" fill="white" opacity="0.6"/>
+                <circle cx="110" cy="28" r="0.8" fill="white" opacity="0.8"/>
+                <circle cx="340" cy="18" r="1" fill="white" opacity="0.7"/>
+                <circle cx="370" cy="40" r="0.7" fill="white" opacity="0.6"/>
+                <circle cx="355" cy="60" r="0.8" fill="white" opacity="0.9"/>
+                <circle cx="25" cy="65" r="0.7" fill="white" opacity="0.5"/>
+                <circle cx="390" cy="25" r="1" fill="white" opacity="0.8"/>
+                <circle cx="165" cy="22" r="0.8" fill="white" opacity="0.6"/>
+
+                <!-- Moon glow halo -->
+                <circle cx="200" cy="90" r="70" fill="url(#moonGlow2)" opacity="0.5"/>
+                <!-- Moon -->
+                <circle cx="200" cy="90" r="45" fill="#f0e8c0"/>
+                <!-- Moon shadow crescent -->
+                <circle cx="218" cy="80" r="40" fill="#040810" opacity="0.9"/>
+
+                <!-- LICH: enormous skull-face dominating upper portion -->
+                <!-- Skull outer shape: very large, dark, shadowy -->
+                <ellipse cx="200" cy="200" rx="150" ry="165" fill="#0a0810" opacity="0.95" filter="url(#lichBlur)"/>
+                <!-- Skull cranium highlight (faint bone color along top) -->
+                <ellipse cx="200" cy="130" rx="120" ry="90" fill="none" stroke="#2a2020" stroke-width="2" opacity="0.4"/>
+                <ellipse cx="200" cy="128" rx="100" ry="72" fill="#1a1420" opacity="0.3"/>
+
+                <!-- Lich brow ridge -->
+                <path d="M 90 195 Q 150 170 200 175 Q 250 170 310 195" fill="none" stroke="#2a2030" stroke-width="4" opacity="0.7"/>
+
+                <!-- LEFT hollow eye socket -->
+                <ellipse cx="148" cy="220" rx="38" ry="32" fill="#030208" opacity="1"/>
+                <!-- Left eye inner void glow (very faint deep red) -->
+                <ellipse cx="148" cy="222" rx="22" ry="18" fill="#1a0808" opacity="0.8" filter="url(#eyeGlow)"/>
+                <ellipse cx="148" cy="222" rx="12" ry="10" fill="#300808" opacity="0.6" filter="url(#eyeGlow)"/>
+                <!-- The deeper darkness in the socket center -->
+                <ellipse cx="148" cy="222" rx="8" ry="7" fill="#050202" opacity="1"/>
+
+                <!-- RIGHT hollow eye socket -->
+                <ellipse cx="252" cy="220" rx="38" ry="32" fill="#030208" opacity="1"/>
+                <ellipse cx="252" cy="222" rx="22" ry="18" fill="#1a0808" opacity="0.8" filter="url(#eyeGlow)"/>
+                <ellipse cx="252" cy="222" rx="12" ry="10" fill="#300808" opacity="0.6" filter="url(#eyeGlow)"/>
+                <ellipse cx="252" cy="222" rx="8" ry="7" fill="#050202" opacity="1"/>
+
+                <!-- Nasal cavity -->
+                <path d="M 185 260 L 200 275 L 215 260 Q 205 255 200 258 Q 195 255 185 260 Z" fill="#030208" opacity="0.8"/>
+
+                <!-- Jaw/teeth (lower part of lich face) -->
+                <path d="M 110 310 Q 130 340 160 345 Q 200 355 240 345 Q 270 340 290 310 Q 260 330 200 330 Q 140 330 110 310 Z" fill="#0f0c14" opacity="0.6"/>
+                <!-- Teeth suggestion -->
+                <rect x="160" y="330" width="10" height="14" rx="2" fill="#181220" opacity="0.5"/>
+                <rect x="177" y="332" width="10" height="15" rx="2" fill="#181220" opacity="0.5"/>
+                <rect x="195" y="332" width="10" height="15" rx="2" fill="#181220" opacity="0.5"/>
+                <rect x="213" y="332" width="10" height="14" rx="2" fill="#181220" opacity="0.5"/>
+                <rect x="229" y="330" width="10" height="13" rx="2" fill="#181220" opacity="0.5"/>
+
+                <!-- Bony hands reaching down from sides -->
+                <!-- Left hand/claw -->
+                <path d="M 50 280 Q 80 320 100 360 Q 90 370 80 355 Q 85 345 70 330 Q 55 340 60 320 Q 55 310 50 280 Z" fill="#0f0c14" opacity="0.7"/>
+                <!-- Left finger 1 -->
+                <path d="M 80 355 Q 70 380 65 410" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+                <!-- Left finger 2 -->
+                <path d="M 88 360 Q 82 388 80 418" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+                <!-- Left finger 3 -->
+                <path d="M 97 365 Q 96 393 98 424" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+
+                <!-- Right hand/claw -->
+                <path d="M 350 280 Q 320 320 300 360 Q 310 370 320 355 Q 315 345 330 330 Q 345 340 340 320 Q 345 310 350 280 Z" fill="#0f0c14" opacity="0.7"/>
+                <!-- Right finger 1 -->
+                <path d="M 320 355 Q 330 380 335 410" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+                <!-- Right finger 2 -->
+                <path d="M 312 360 Q 318 388 320 418" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+                <!-- Right finger 3 -->
+                <path d="M 303 365 Q 304 393 302 424" fill="none" stroke="#151018" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+
+                <!-- Castle silhouette at bottom -->
+                <rect x="0" y="390" width="400" height="160" fill="url(#groundDark)"/>
+                <!-- Castle main body -->
+                <rect x="100" y="370" width="200" height="80" fill="#060408"/>
+                <!-- Tower left -->
+                <rect x="85" y="345" width="45" height="105" fill="#050306"/>
+                <rect x="80" y="335" width="55" height="18" fill="#060408"/>
+                <!-- Battlements left tower -->
+                <rect x="80" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="94" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="108" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="122" y="325" width="8" height="12" fill="#060408"/>
+                <!-- Tower right -->
+                <rect x="270" y="345" width="45" height="105" fill="#050306"/>
+                <rect x="265" y="335" width="55" height="18" fill="#060408"/>
+                <!-- Battlements right tower -->
+                <rect x="265" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="279" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="293" y="325" width="8" height="12" fill="#060408"/>
+                <rect x="307" y="325" width="8" height="12" fill="#060408"/>
+                <!-- Battlements main wall -->
+                <rect x="140" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="158" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="176" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="194" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="212" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="230" y="362" width="10" height="12" fill="#060408"/>
+                <rect x="248" y="362" width="10" height="12" fill="#060408"/>
+                <!-- Gate arch -->
+                <path d="M 175 450 L 175 400 Q 200 390 225 400 L 225 450 Z" fill="#030206"/>
+                <!-- Windows with faint red/yellow glow -->
+                <rect x="105" y="380" width="12" height="16" rx="1" fill="#1a0808" opacity="0.8"/>
+                <rect x="125" y="380" width="12" height="16" rx="1" fill="#100806" opacity="0.6"/>
+                <rect x="263" y="380" width="12" height="16" rx="1" fill="#100806" opacity="0.6"/>
+                <rect x="283" y="380" width="12" height="16" rx="1" fill="#1a0808" opacity="0.8"/>
+                <!-- Central keep window glow -->
+                <rect x="190" y="395" width="20" height="20" rx="2" fill="#1a0a06" opacity="0.9" filter="url(#stoneGlow)"/>
+
+                <!-- MIRA: small figure at bottom center, facing castle -->
+                <g transform="translate(196, 430)">
+                    <!-- Cloak/body -->
+                    <path d="M 0,-28 Q -8,-15 -10,0 L 10,0 Q 8,-15 0,-28 Z" fill="#2a2040" opacity="0.9"/>
+                    <!-- Head -->
+                    <circle cx="0" cy="-32" r="5" fill="#c8a880" opacity="0.9"/>
+                    <!-- Hair (half-elf, dark) -->
+                    <path d="M -5,-35 Q -7,-40 -3,-42 Q 0,-44 3,-42 Q 7,-40 5,-35" fill="#1a1020" opacity="0.8"/>
+                    <!-- Sunstone glow in hand -->
+                    <circle cx="10" cy="-16" r="10" fill="url(#sunstoneGlow)" opacity="0.7"/>
+                    <circle cx="10" cy="-16" r="4" fill="#ffe090" opacity="0.9"/>
+                    <!-- Arm holding sunstone -->
+                    <line x1="5" y1="-20" x2="10" y2="-16" stroke="#c8a880" stroke-width="2"/>
+                    <!-- Pip: tiny hedgehog shape on shoulder -->
+                    <ellipse cx="-8" cy="-30" rx="4" ry="3" fill="#5a4030" opacity="0.9"/>
+                    <path d="M -12,-30 Q -10,-34 -8,-33 Q -6,-34 -4,-30" fill="#3a2820" opacity="0.8"/>
+                </g>
+
+                <!-- Bats in the air -->
+                <path d="M 140 180 Q 145 175 148 180 Q 151 175 156 180" fill="none" stroke="#0f0c14" stroke-width="1.5" opacity="0.6"/>
+                <path d="M 248 195 Q 253 190 256 195 Q 259 190 264 195" fill="none" stroke="#0f0c14" stroke-width="1.5" opacity="0.5"/>
+                <path d="M 300 155 Q 305 150 308 155 Q 311 150 316 155" fill="none" stroke="#0f0c14" stroke-width="1.5" opacity="0.4"/>
+
+                <!-- Decorative border -->
+                <rect x="10" y="10" width="380" height="530" fill="none" stroke="#3a1a4a" stroke-width="2" opacity="0.8"/>
+                <rect x="15" y="15" width="370" height="520" fill="none" stroke="#3a1a4a" stroke-width="0.5" opacity="0.4"/>
+                <!-- Corner ornaments -->
+                <path d="M 10 30 L 10 10 L 30 10" fill="none" stroke="#5a2a7a" stroke-width="1.5" opacity="0.7"/>
+                <path d="M 370 10 L 390 10 L 390 30" fill="none" stroke="#5a2a7a" stroke-width="1.5" opacity="0.7"/>
+                <path d="M 10 520 L 10 540 L 30 540" fill="none" stroke="#5a2a7a" stroke-width="1.5" opacity="0.7"/>
+                <path d="M 370 540 L 390 540 L 390 520" fill="none" stroke="#5a2a7a" stroke-width="1.5" opacity="0.7"/>
+
+                <!-- Title band -->
+                <rect x="15" y="465" width="370" height="80" fill="#050308" opacity="0.85"/>
+                <line x1="30" y1="470" x2="370" y2="470" stroke="#5a2a7a" stroke-width="0.5" opacity="0.5"/>
+                <line x1="30" y1="540" x2="370" y2="540" stroke="#5a2a7a" stroke-width="0.5" opacity="0.5"/>
+
+                <!-- Title text -->
+                <text x="200" y="498" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" fill="#c8a0e0" text-anchor="middle" letter-spacing="4">THE HOLLOW</text>
+                <text x="200" y="526" font-family="Georgia, 'Times New Roman', serif" font-size="32" font-weight="bold" fill="#c8a0e0" text-anchor="middle" letter-spacing="4">KING</text>
+            </svg>
+            <div class="cover-buttons">
+                <button class="cover-begin-btn" onclick="goToOptions()">&#10086; Begin Adventure</button>
+                <span id="cover-resume-hint" onclick="resumeAdventure()">Continue reading&#8230;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home / Intro Section -->
+    <section id="home-section" class="game-section">
+        <div class="section-content">
+            <h1>THE HOLLOW KING</h1>
+            <p class="subtitle">An Endless Quest&#8482;-style Adventure</p>
+
+            <p>Veth the Hollow has lived in Darkspire Castle for three years now, and the valley has learned to leave him alone. He is a lich&#8212;a wizard who refused death and paid the price, his body preserved beyond its natural span by old magic and older will. He does not bother the villages and the villages do not bother him, and there has been a kind of peace.</p>
+
+            <p>That peace ended last night.</p>
+
+            <p>Your father Aldas is the finest sage in the valley, and his spellbook contains knowledge accumulated over forty years. Veth broke into his study, drained him nearly to nothing, and took the book. Not for its spells&#8212;a lich already knows more than most spellbooks contain. For one specific ritual: the waking of Kardrath, an ancient vampire lord sealed in the vault beneath Darkspire two hundred years ago. Veth has been searching for that ritual for a long time.</p>
+
+            <p><em>You</em> are Mira, your father&#8217;s apprentice: half-elf, fifteen, trained in the early stages of the craft, and gifted with something your father always called &#8220;your particular talent&#8221; without ever quite explaining it. You have prophetic dreams. You woke this morning from a dream that showed you exactly what was happening, and you woke to find it already done.</p>
+
+            <p>Your familiar Pip&#8212;a small, bad-tempered hedgehog of advanced years&#8212;is on your shoulder. It says: <em>&#8220;Now. Go now.&#8221;</em></p>
+
+            <p>Darkspire is twelve miles north. Bram, the hedge-witch, is two miles east. Your father is on the floor of his study, still breathing, but not for much longer if the book is not recovered.</p>
+
+            <button class="start-button" onclick="goToSection(1)">Begin the Adventure</button>
+        </div>
+    </section>
+
+    <!-- Game Sections -->
+
+    <section id="section-1" class="game-section" data-section="1">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">1</div>
+        <div class="section-content">
+            <p>You wake before dawn to the sound of Pip screaming.</p>
+            <p>Not in words&#8212;the hedgehog manages only fragments of language, short utterances that cost it enormous effort and come out sounding like words spoken through a door&#8212;but in the high, continuous alarm-sound it makes when something is genuinely wrong. In three years of keeping Pip you have heard it exactly twice.</p>
+            <p>You smell smoke and something chemical, and then you are out of bed with your boots on before the second thought catches up to the first.</p>
+            <p>Your father Aldas is on the floor of his study, his arms still outstretched toward the window as though reaching for something he could not quite grasp in time. He is alive&#8212;just&#8212;his breathing shallow and labored, the color gone from his face in a way that has nothing to do with ordinary illness. The spellbook&#8217;s shelf is empty. The iron clasp that held it lies on the floor, torn loose.</p>
+            <p>You know before you look. The dream you had three nights ago&#8212;which you dismissed as fever-imagination&#8212;reassembles itself behind your eyes with perfect clarity: Darkspire Castle on the hill north of town, and inside it, in a room below ground, something with hollow eye sockets and dead hands turning the pages of a book you recognize.</p>
+            <p>Veth. The lich who moved into Darkspire three years ago. The valley has learned to stay out of his path. Apparently that was a mistake.</p>
+            <p>Pip pulls at your sleeve. <em>&#8220;Now. Go now.&#8221;</em></p>
+            <p>The hedge-witch Bram lives two miles east along the creek road. She knows more about Darkspire and the things that live in it than anyone else in the valley. The detour would cost you an hour.</p>
+            <p class="choice">If you stop at Bram&#8217;s cottage first, turn to page <a href="#" onclick="goToSection(3); return false;" class="page-link"><strong>3</strong></a>.</p>
+            <p class="choice">If you ride directly for Darkspire, turn to page <a href="#" onclick="goToSection(2); return false;" class="page-link"><strong>2</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-2" class="game-section" data-section="2">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">2</div>
+        <div class="section-content">
+            <p>You ride north in the dark, Pip in your saddlebag with its nose out, testing the air.</p>
+            <p>An hour before Darkspire you find the road blocked. Four shapes stand in the moonlight ahead&#8212;roughly human, dressed in the remnants of what they were buried in, carrying torches in hands that do not flinch from the flame. They move with the slow deliberate purpose of things that do not tire and do not feel cold. Veth&#8217;s servants, raised from the old graveyard at the edge of his property. They were watching the road before you arrived. They have been watching it since the night of the theft.</p>
+            <p>They are spreading to flank you. This is not random. They knew you were coming, or were watching for anyone who might.</p>
+            <p>Pip presses flat against your neck and says nothing, which is worse than anything it might say.</p>
+            <p class="choice">If you draw your belt knife and fight, turn to page <a href="#" onclick="goToSection(6); return false;" class="page-link"><strong>6</strong></a>.</p>
+            <p class="choice">If you pull your horse off the road and down into the ditch, turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-3" class="game-section" data-section="3">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">3</div>
+        <div class="section-content">
+            <p>Bram answers before you knock. She is a small, gray, economical woman who does everything with the efficiency of someone who has been doing it for decades and stopped caring about appearances somewhere along the way. She listens to what happened in twenty seconds of your telling and disappears into her back room without speaking.</p>
+            <p>She returns with a clay sphere the size of a fist, its surface carved over every inch with characters too small to read by lamplight.</p>
+            <p>&#8220;Sunstone,&#8221; she says, pressing it into your hands. It is warm&#8212;warmth that travels up your arms and does not stop. &#8220;Three weeks to make one. Don&#8217;t drop it.&#8221; She shows you the word carved into the base. &#8220;Hold it toward him and speak the word. Liches hold themselves together with will and old magic. The sunstone unravels the will part.&#8221;</p>
+            <p>Then she sits down, and her expression changes.</p>
+            <p>&#8220;Mira. There&#8217;s something else.&#8221; She folds her hands. &#8220;Veth didn&#8217;t take your father&#8217;s book for its spells. He&#8217;s known more than that book contains for a hundred years. He took it because it holds a specific ritual. There is something in the vault beneath Darkspire&#8212;an ancient vampire lord named Kardrath, sealed in his coffin two centuries ago by his own generals when they finally turned against him.&#8221;</p>
+            <p>She looks at you steadily. &#8220;Veth wants to wake him. He believes Kardrath will reward whoever raises him.&#8221;</p>
+            <p>One more thing: the priests who built the chapel above Kardrath&#8217;s vault left a Mirror of Dawn on the altar. A ritual object, shaped to focus dawn&#8217;s first light. Their insurance&#8212;left so that if Kardrath were ever accidentally awakened, whoever found him would have a means of sealing him again permanently.</p>
+            <p>&#8220;I don&#8217;t know if it&#8217;s still there,&#8221; she says. &#8220;But if the King wakes while you&#8217;re inside that castle, you will want to find out.&#8221;</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(9); return false;" class="page-link"><strong>9</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-4" class="game-section" data-section="4">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">4</div>
+        <div class="section-content">
+            <p>Darkspire is not impressive so much as it is <em>wrong</em>: a squat, graceless keep on a low hill, iron-dark stone without ornamentation, four towers at the corners and a gatehouse in the center of the south face that has not been maintained by anyone who cared about it living. The dry moat has grown something pale and low to the ground that is not quite moss and gives off no smell you can identify.</p>
+            <p>Nothing moves on the walls. Veth does not need watchmen. He has other arrangements.</p>
+            <p>Pip turns its nose in a slow arc and says: <em>&#8220;Bad. All of it bad.&#8221;</em> Which is, as far as you can tell, an accurate summary.</p>
+            <p class="choice">If you circle the perimeter looking for another way in, turn to page <a href="#" onclick="goToSection(10); return false;" class="page-link"><strong>10</strong></a>.</p>
+            <p class="choice">If you approach the main gate, turn to page <a href="#" onclick="goToSection(11); return false;" class="page-link"><strong>11</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-5" class="game-section" data-section="5">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">5</div>
+        <div class="section-content">
+            <p>The portcullis comes down before you are clear of the arch. The weight of it is certain and absolute.</p>
+            <p>The cage is very dark. Pip makes a sound you have never heard before&#8212;low, continuous, the sound of an animal in a place it cannot escape and knows it cannot escape. It says nothing in words. There is nothing in words for this.</p>
+            <p>Something in the tower opens. Something begins to walk down the stairs, unhurried, its footsteps deliberate in the way that things are deliberate when they have no reason to hurry.</p>
+            <p>You never learn what Veth does with the spellbook, or whether Kardrath wakes, or whether there is anyone who comes for your father in time.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-6" class="game-section" data-section="6">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">6</div>
+        <div class="section-content">
+            <p>The knife is poor against things that do not feel pain and do not bleed. But they are slow in a way that living things are not slow, and the road is wide enough to ride through if you commit to the line and do not hesitate.</p>
+            <p>You break one apart at the middle with your horse&#8217;s shoulder. A second catches your arm and its grip is cold iron, cold that does not release even after you pull free, a cold that stays in the bone for a long time afterward&#8212;not injury, exactly, but something more like a stain. The other two are behind you by the time you reach the next rise.</p>
+            <p>They sent no alarm you could hear. But the way the last one turned its head before it fell makes you think Veth already knows someone is coming.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(8); return false;" class="page-link"><strong>8</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-7" class="game-section" data-section="7">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">7</div>
+        <div class="section-content">
+            <p>Down into the ditch: cold water to the knees, mud, the smell of old leaves. Pip is absolutely motionless against your neck&#8212;not a breath, not a shift of weight. The four shapes shuffle past above you on the road. Their torches cast shadows downward into the ditch. You hold still and look at the mud.</p>
+            <p>The dead smell of them, up close, is remarkable in its wrongness: not the smell of decay, which is biological and inevitable, but something older and more deliberate. Preservation, but not of anything you would want preserved.</p>
+            <p>When they are gone you wait a full count of fifty before climbing out. Then you ride north, cold and wet, and do not speak for a long time.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(8); return false;" class="page-link"><strong>8</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-8" class="game-section" data-section="8">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">8</div>
+        <div class="section-content">
+            <p>You reach Darkspire as the sky begins to pale. The castle sits on its rise in the pre-dawn gray, exactly as it looked in your dream three nights ago, which does not make you feel better.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(4); return false;" class="page-link"><strong>4</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-9" class="game-section" data-section="9">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">9</div>
+        <div class="section-content">
+            <p>You ride through the night with the sunstone wrapped in cloth at your belt. Even through the wool it is warm&#8212;a steady, purposeful warmth with nothing comfortable about it, the warmth of a thing with a specific job to do.</p>
+            <p>Twice in the dark you see shapes at the tree-line that hesitate, then withdraw. Bram&#8217;s stone is doing something at a distance. You choose not to think too carefully about what.</p>
+            <p>Darkspire waits on its hill in the pre-dawn gray, exactly as it did in your dream.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(4); return false;" class="page-link"><strong>4</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-10" class="game-section" data-section="10">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">10</div>
+        <div class="section-content">
+            <p>The north face of Darkspire has a drainage grate at its base where the old moat met the castle&#8217;s foundations. It is iron, rusted through in two corners, the opening barely wide enough for a person&#8212;wide enough, though, if that person removes their cloak and packs it ahead of them, and is not too particular about cold water and enclosed spaces and the kind of darkness that has been dark for a long time.</p>
+            <p>Pip examines the grate thoroughly, wriggling its nose through the bars, and says: <em>&#8220;Yes.&#8221;</em> From Pip, in these circumstances, that constitutes enthusiasm.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(14); return false;" class="page-link"><strong>14</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-11" class="game-section" data-section="11">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">11</div>
+        <div class="section-content">
+            <p>The gate is iron-banded oak, set in a stone arch. Where a portcullis mechanism would normally sit, there is instead a brass dial&#8212;three rotating rings, each bearing characters in the Old Script. A puzzle lock. Your father taught you the Old Script, which means Veth either did not anticipate you specifically or anticipated you and does not consider you a threat. Neither possibility is reassuring.</p>
+            <p>Each rotation clicks softly. It may be audible from inside. It may not matter.</p>
+            <p class="choice">If you work the dials carefully and try to solve the puzzle, turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+            <p class="choice">If you wrench the gate to force it, turn to page <a href="#" onclick="goToSection(13); return false;" class="page-link"><strong>13</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-12" class="game-section" data-section="12">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">12</div>
+        <div class="section-content">
+            <p>Three rings. The characters on each, when considered in sequence, can form several words in the Old Script&#8212;but only one alignment places the mechanism&#8217;s indicators at the center of each ring simultaneously. The word is an Old Script term that translates roughly as <em>entry</em>, or perhaps <em>welcome</em>&#8212;the double meaning is noted in two of your father&#8217;s linguistics primers, which you have had cause to read more carefully than he realized.</p>
+            <p>The gate swings inward without sound. Someone oiled those hinges recently.</p>
+            <p>You slip through with Pip, and the gate swings shut behind you.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-13" class="game-section" data-section="13">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">13</div>
+        <div class="section-content">
+            <p>The moment your shoulder hits the gate the mechanism releases and the portcullis drops. It falls faster than you expected. You have one instant.</p>
+            <p class="choice">If you shove under the portcullis and force through before it closes&#8212;you will be bruised and your pack will be caught and torn open, but you will be inside&#8212;turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a>.</p>
+            <p class="choice">If you scramble back before it pins you, turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-14" class="game-section" data-section="14">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">14</div>
+        <div class="section-content">
+            <p>Ten minutes of cold, wet, lightless crawling, with Pip riding on your back and narrating the experience in a string of single unflattering words delivered at regular intervals.</p>
+            <p>The tunnel emerges through a broken drainage cap into a storage room on the lower level&#8212;below the ground floor, carved from bedrock, empty except for the smell of old stone and something chemical you cannot identify and decide not to investigate. Whatever Veth stores here has been stored for a while.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-15" class="game-section" data-section="15">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">15</div>
+        <div class="section-content">
+            <p>The ground floor is a single large hall with a vaulted ceiling and the kind of cold that has built up over years rather than hours&#8212;the cold of a place where nothing warm has lived in a very long time. The smell is difficult: not the active smell of decay, which is biological and eventually fades, but old decay, the smell of things that finished rotting some time ago and have been preserved in that state.</p>
+            <p>On the western wall a door stands slightly ajar. Through the gap: the spines of books.</p>
+            <p>Directly ahead, a spiral staircase descends.</p>
+            <p class="choice">If you check the library first, turn to page <a href="#" onclick="goToSection(17); return false;" class="page-link"><strong>17</strong></a>.</p>
+            <p class="choice">If you take the stairs down immediately, turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-16" class="game-section" data-section="16">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">16</div>
+        <div class="section-content">
+            <p>Below ground, Darkspire changes in character. The stone is older, cut closer to the bedrock, the ceiling lower, the air cold enough to see your breath clearly. A thread of reddish magical light runs along the top of the left-hand wall&#8212;the kind of permanent guide-light that requires regular maintenance. Veth uses these passages constantly.</p>
+            <p>The corridor splits ahead: left and right, both dim, both equally uninviting.</p>
+            <p class="choice">If you take the left passage, turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a>.</p>
+            <p class="choice">If you take the right passage, turn to page <a href="#" onclick="goToSection(19); return false;" class="page-link"><strong>19</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-17" class="game-section" data-section="17">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">17</div>
+        <div class="section-content">
+            <p>Someone has reorganized this library according to a logic that makes sense only to Veth. The section he has left untouched is the historical record: too dull for a lich, apparently, whose relationship with history is personal rather than academic.</p>
+            <p>One of those histories is about Kardrath. You read quickly, standing in the cold with Pip on your shoulder, turning pages with fingers that are already going numb.</p>
+            <p>Kardrath ruled this entire valley two hundred years ago. When his generals finally turned against him, they sealed him in the vault beneath this castle&#8212;his own castle, originally&#8212;using a Mirror of Dawn that the priests who consecrated the chapel above had left specifically for this purpose. The mirror focuses dawn&#8217;s first light into a concentrated ray. Directed at Kardrath&#8217;s coffin from outside, it will open the crystal seal permanently. Directed at the coffin from inside the vault, with the intention of sealing rather than opening, it will close it permanently.</p>
+            <p>The priests knew someone might need this information in a hurry. They wrote it down.</p>
+            <p>Inside the back cover of the history there is a rough map of the lower level. It shows a chapel in the east wing, off a sealed passage.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-18" class="game-section" data-section="18">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">18</div>
+        <div class="section-content">
+            <p>The left passage runs forty feet before dogleg-turning right. As you round the corner, Pip launches off your shoulder without warning, scrambles up the left wall to a point near the ceiling, and freezes entirely.</p>
+            <p>Then it drops back to your shoulder.</p>
+            <p><em>&#8220;Wire,&#8221;</em> it says. <em>&#8220;Low. Don&#8217;t.&#8221;</em></p>
+            <p>You look down. At ankle height, nearly invisible against the dark stone, a thread of pale wire runs wall to wall. You step over it carefully. Beyond it the passage opens onto a small junction with two doors: one heavy and iron-bound, one lighter and wooden, its frame recently sealed with wax and pitch.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(20); return false;" class="page-link"><strong>20</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-19" class="game-section" data-section="19">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">19</div>
+        <div class="section-content">
+            <p>The right passage curves with the shape of the hill, the ceiling lowering slightly as it descends, and ends at a small junction with two doors: one heavy and iron-bound, one lighter and wooden, its frame recently sealed with wax and pitch.</p>
+            <p>Pip examines both doors without comment, which is as close as it gets to saying <em>I don&#8217;t know.</em></p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(20); return false;" class="page-link"><strong>20</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-20" class="game-section" data-section="20">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">20</div>
+        <div class="section-content">
+            <p>Two doors.</p>
+            <p>The iron one is cold even at arm&#8217;s length, and smells of preserved things and old magic&#8212;the concentrated, purposeful smell of a space where someone works constantly and carefully. A workroom. A study.</p>
+            <p>The wooden door is newer and its frame has been sealed with wax-and-pitch recently. Something on the other side has been deliberately closed away. Through the wood you cannot hear anything, but the air around the frame is different from the air in the passage&#8212;older, and colder, and carrying the particular quality of spaces that were built for a purpose long ago and have been waiting to fulfill it.</p>
+            <p class="choice">If you try the iron door, turn to page <a href="#" onclick="goToSection(21); return false;" class="page-link"><strong>21</strong></a>.</p>
+            <p class="choice">If you try the sealed wooden door, turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-21" class="game-section" data-section="21">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">21</div>
+        <div class="section-content">
+            <p>The study is cold and methodical&#8212;the workspace of someone who has had centuries to develop habits and has developed them thoroughly. Every surface has a purpose. Every object is precisely where it was placed and has not moved since.</p>
+            <p>Your father&#8217;s spellbook is not here. Veth keeps it with him.</p>
+            <p>But his notes are here, and you read the relevant pages in sixty seconds of controlled fear: the ritual requires a concentration of focused light to break the crystal seal on Kardrath&#8217;s coffin. The Mirror of Dawn&#8212;which Veth has searched for and cannot find&#8212;is the only object capable of providing this. Without it the ritual will fail, or take decades longer than Veth has patience for. With it, the seal will break in minutes.</p>
+            <p>The notes also say where the mirror is. The chapel in the east wing, off a sealed wooden door. Veth has not found it because he searched the chapel before re-sealing the door and did not recognize what he was looking at.</p>
+            <p>Pip has been completely silent since you entered. Now it says: <em>&#8220;Here.&#8221;</em></p>
+            <p>You turn.</p>
+            <p>A small brass cage has closed around Pip. It is magical&#8212;the bars glow faintly, and Pip&#8217;s small claws make no impression on them. A spring-release trap, set in the floor, triggered by something roughly hedgehog-sized. Veth thought of this specifically. He knew a spellcaster might come with a familiar and he planned for it.</p>
+            <p>Pip looks at you through the bars. Its expression is, as usual, difficult to read.</p>
+            <p class="choice">If you stop and work to open the cage and free Pip, turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+            <p class="choice">If you leave Pip in the cage and go for the Mirror of Dawn, turn to page <a href="#" onclick="goToSection(24); return false;" class="page-link"><strong>24</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-22" class="game-section" data-section="22">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">22</div>
+        <div class="section-content">
+            <p>The pitch-and-wax seal cracks when you push the door, releasing the held cold of a room that has not breathed since it was shut. The passage beyond is old chapel construction&#8212;arched ceiling, carved devotional stonework worn almost smooth, oil lamps in iron brackets that light as you enter, one after another, triggered by the presence of a living person. Someone built that enchantment into the lamps deliberately. They wanted whoever came here to be able to see.</p>
+            <p>At the end, on a stone altar, an object covered in heavy undyed cloth.</p>
+            <p>You pull the cloth back. A mirror: oval, six inches across, framed in silver that has not tarnished despite two centuries in a sealed room. When you hold it in the lamplight the glass catches and does something to the light&#8212;amplifies it, focuses it, warms it from ambient glow into something more purposeful, something that has direction and intent. It is not comfortable to look at directly.</p>
+            <p>The Mirror of Dawn. Exactly where the history said it would be, and precisely where Veth was unable to find it because Veth looked at it with dead eyes and saw only an old mirror and not what it contained.</p>
+            <p>You wrap it carefully in your cloak and take it.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(25); return false;" class="page-link"><strong>25</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-23" class="game-section" data-section="23">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">23</div>
+        <div class="section-content">
+            <p>The cage&#8217;s lock is magnetic and designed to resist tools. What it is not designed to resist is the thing you have always had and your father always called &#8220;your particular talent&#8221; and never properly explained: the psionic warmth that lives in your hands when you concentrate, the ability that shows up in dreams and in moments of crisis and has never quite behaved like any catalogued power in any of your father&#8217;s books.</p>
+            <p>Twelve minutes. Several attempts. Your head pounds and you have bitten through your lower lip without noticing and the cold in this room is making your hands shake.</p>
+            <p>The cage opens.</p>
+            <p>Pip steps out. Ruffles all its spines. Runs its small claws along each spine in sequence, a thing it does when collecting itself after distress. Then it looks at you with the expression that means it has several things to say and is choosing not to say any of them.</p>
+            <p>It climbs onto your shoulder.</p>
+            <p>You choose to call that gratitude and not look too hard at whether you are right.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-24" class="game-section" data-section="24">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">24</div>
+        <div class="section-content">
+            <p>You look at the cage for a long moment. The bars are magical. You do not have the right tools, and you do not know how long Veth will be absent, and every minute you spend here is a minute closer to the ritual completing and Kardrath waking and everything becoming much worse than it already is.</p>
+            <p>Pip looks at you through the bars.</p>
+            <p><em>&#8220;Go,&#8221;</em> it says. <em>&#8220;I know.&#8221;</em></p>
+            <p>You go.</p>
+            <p>The corridor outside Veth&#8217;s study feels different than it did a few minutes ago, as though something has changed that cannot be easily named. You are twelve miles from home and your familiar is in a magical cage and your father is on the floor of his study, and you keep moving because there is nothing else to do.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-25" class="game-section" data-section="25">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">25</div>
+        <div class="section-content">
+            <p>The chapel passage curves and meets the main lower corridor through a connecting arch&#8212;the priests who built this place designed it so the chapel could be reached from multiple directions, which at the time was a matter of ceremonial protocol and has now become a matter of considerable practical convenience.</p>
+            <p>The two passages converge at a set of stone steps leading down to a vault door, iron-banded and old. You can feel, through the soles of your boots against the stone, a vibration that has no natural explanation.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-26" class="game-section" data-section="26">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">26</div>
+        <div class="section-content">
+            <p>He is in the corridor at the foot of the steps, standing in front of the vault door with your father&#8217;s spellbook open in both hands. He is not moving. He is reading. The hollow of his eye sockets gives the impression of vast depth&#8212;not emptiness, but something very far away and very old looking out from a long distance.</p>
+            <p>The air around him distorts slightly, the way air distorts above heated stone, but cold. His lips do not move, but something in the room does: a change in the quality of silence, as though the silence itself is being reshaped by what he is reciting.</p>
+            <p>Through the vault door, through the stone beneath your feet, you feel it: a slow rhythmic pulse, like a heartbeat belonging to something enormous that has been still for two centuries and is beginning, very gradually, to wake.</p>
+            <p class="choice">If you have the sunstone from Bram, hold it toward Veth and speak the word she showed you &#8212; turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            <p class="choice">If you have the Mirror of Dawn but not the sunstone, slip past Veth while he is absorbed in the ritual &#8212; turn to page <a href="#" onclick="goToSection(28); return false;" class="page-link"><strong>28</strong></a>.</p>
+            <p class="choice">If you have neither, but Pip is with you, turn to page <a href="#" onclick="goToSection(29); return false;" class="page-link"><strong>29</strong></a>.</p>
+            <p class="choice">If you have neither and are alone, turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-27" class="game-section" data-section="27">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">27</div>
+        <div class="section-content">
+            <p>The sunstone burns like holding a second sun. The word leaves your mouth and the light leaves the stone and Veth stops reading mid-syllable.</p>
+            <p>The scream is not sound exactly&#8212;it occupies the frequency that sound occupies, the space where sound should be, filled suddenly with something that has no name in any language you have been taught. The spellbook falls. The distortion in the air around Veth collapses inward. The hollow eye sockets fill, briefly, with something that might be recognition&#8212;or might be only the projection of what you need to believe&#8212;before the light reaches them.</p>
+            <p>Then he is gone. Not destroyed the way living things are destroyed. <em>Unmade</em>: the will that held him together released all at once, two centuries of preserved malice dispersing into cold air like smoke from a fire that has finally run out of fuel.</p>
+            <p>Your father&#8217;s spellbook lies on the floor. You pick it up.</p>
+            <p>The vibration in the stone is stronger now. A slow rhythmic pulse, deep and patient, like something very old that has been waiting a very long time and has almost finished waiting.</p>
+            <p class="choice">If you have the Mirror of Dawn, go to the vault now &#8212; turn to page <a href="#" onclick="goToSection(32); return false;" class="page-link"><strong>32</strong></a>.</p>
+            <p class="choice">If you do not have the Mirror of Dawn, go to the vault anyway &#8212; turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a>.</p>
+            <p class="choice">If you choose to run &#8212; up the stairs, through the hall, out through whatever door you came in &#8212; turn to page <a href="#" onclick="goToSection(31); return false;" class="page-link"><strong>31</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-28" class="game-section" data-section="28">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">28</div>
+        <div class="section-content">
+            <p>He does not look up. The ritual has reached a phase that requires complete attention and he has given it all of his attention, every last fraction of it&#8212;the concentration of something that has been working toward this moment for decades and will not be distracted now.</p>
+            <p>You move along the wall with each step exactly placed, Pip absolutely motionless on your shoulder, and you reach the vault door and press through it into the stairwell beyond and descend before his distorted awareness catches the movement.</p>
+            <p>Behind you, above you, Veth finishes his syllable. Pauses. Begins the next one.</p>
+            <p>He will realize someone is in the vault within moments. Whatever you are going to do, you must do it before he does.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(32); return false;" class="page-link"><strong>32</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-29" class="game-section" data-section="29">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">29</div>
+        <div class="section-content">
+            <p>There are no good options when you have nothing useful and everything depends on getting past something that could destroy you with what amounts to focused intent.</p>
+            <p>Except.</p>
+            <p>Pip drops from your shoulder to the floor without a sound. It walks directly toward Veth, making a high continuous alarm-sound that is not quite language and has never been mistaken for anything other than what it is: the sound of a small animal making itself heard on purpose.</p>
+            <p>Veth lowers the book.</p>
+            <p>An undead wizard who set spring traps specifically for familiars does not ignore a familiar walking calmly toward him in his own corridor. He looks at Pip. His attention&#8212;all of that terrible ancient focused attention&#8212;moves to the small hedgehog walking toward him across the stone floor.</p>
+            <p>You move. Fast. Past Pip, past Veth&#8217;s peripheral attention, through the vault door, down the stairs, into the vault.</p>
+            <p>The door closes behind you. Pip is on the other side of it. You did not have time to bring it through. You did not have time for anything except what you did.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-30" class="game-section" data-section="30">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">30</div>
+        <div class="section-content">
+            <p>There is a particular quality to the attention of something that has been dead for a very long time and is accustomed to being the most dangerous thing in any room it occupies.</p>
+            <p>Veth looks up from the spellbook.</p>
+            <p>He does not speak. He does not need to. The distortion in the air moves toward you and the temperature drops with the speed of a door slamming, and you have nothing in your hands and nothing in your reach that has any hope of changing what is about to happen.</p>
+            <p>The last thing you hear clearly, through the vault door behind him, is the deep rhythmic pulse growing stronger. Something very old and very patient is waking below, and it will wake to find Veth&#8217;s work complete, and no one left to stop it.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-31" class="game-section" data-section="31">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">31</div>
+        <div class="section-content">
+            <p>You run.</p>
+            <p>The vibration in the stone deepens as you reach the stairs, as you cross the ground floor, as you push through the gate and into the cold air outside. Behind you, Darkspire makes sounds it has not made in two hundred years: stone on stone, something very old shifting its weight for the first time in a very long time.</p>
+            <p>You reach the road before you stop. Your horse is where you left it. The spellbook is in your arms. The sunstone is spent&#8212;cold now, inert, its purpose fulfilled.</p>
+            <p>Veth is gone. The ritual, as far as you could tell, was not complete when you destroyed him. Whether Kardrath will continue to wake without the ritual being finished, or whether Veth&#8217;s unmaking broke the process&#8212;you don&#8217;t know. You may find out soon. You may be making this ride again before the week is out, with more preparation and better tools.</p>
+            <p>Your father will recover. Bram said the theft drains the owner proportionally to the book&#8217;s power, and your father is strong. He has been strong before.</p>
+            <p>If Pip is with you, it is on your shoulder, its nose working even now, testing the morning air. It says nothing for a long time. Then it says: <em>&#8220;Good.&#8221;</em> That is more than it usually says. You decide it counts.</p>
+            <p>If you left Pip in the cage: the cage was magical, and its maker is gone. Whether Veth&#8217;s destruction unraveled his traps or whether the cage was designed to open eventually on its own&#8212;you will not know until you go back. You tell yourself this is not the same as knowing Pip is dead. You keep moving. You keep telling yourself this.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-32" class="game-section" data-section="32">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">32</div>
+        <div class="section-content">
+            <p>The vault beneath Darkspire is a natural cave enlarged by old construction, its walls carved with devotional stonework from a period you recognize from your father&#8217;s books as two or three centuries before the current calendar. At the center, a coffin of dark stone sealed with a crystal layer that has been glowing for two hundred years and is glowing more brightly now, the light in it rising in slow waves.</p>
+            <p>The coffin lid is moving. Not dramatically&#8212;a fraction of an inch, then stillness, then another fraction. The seal is not broken yet. There is still time. But not much.</p>
+            <p>You understand, holding the Mirror of Dawn in the vault with Kardrath&#8217;s coffin in front of you, exactly what the history said about its purpose: directed at the seal with the intention of closing rather than opening, dawn&#8217;s focused light will reinforce the crystal permanently.</p>
+            <p>You need one still moment. Just one. The mirror feels very light and very certain in your hands.</p>
+            <p class="choice">If you use the Mirror of Dawn now, turn to page <a href="#" onclick="goToSection(34); return false;" class="page-link"><strong>34</strong></a>.</p>
+            <p class="choice">If you hesitate, turn to page <a href="#" onclick="goToSection(35); return false;" class="page-link"><strong>35</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-33" class="game-section" data-section="33">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">33</div>
+        <div class="section-content">
+            <p>The vault beneath Darkspire is larger than you expected, and it is lit from inside the coffin, and the light is growing.</p>
+            <p>You have the spellbook, or you have nothing, and there is no ritual in either that you can perform in thirty seconds against something sealed for two hundred years and now unsealing. There is nothing in your hands and nothing in this room that changes the direction this is going.</p>
+            <p>The coffin lid moves.</p>
+            <p>On the other side of the vault door, in the corridor, somewhere: Pip. In a cage, or free from it, or something else entirely. You will not know. You are not going back through that door. You are not sure you are going anywhere at all.</p>
+            <p>Whatever happens next in this vault, and in this valley, and to the spellbook you came so far to recover&#8212;you are not equipped to be the one who stops it. Not tonight. Not like this.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-34" class="game-section" data-section="34">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">34</div>
+        <div class="section-content">
+            <p>Dawn&#8217;s light through the Mirror is nothing like what you expected. It is not a beam. It is more like a <em>fact</em>&#8212;the vault filled with it in an instant, purposeful and absolute, and the crystal seal responds immediately, and the light from the coffin shifts in character from the pale rising glow of something waking to the cold, steady white of something held.</p>
+            <p>The lid stops moving.</p>
+            <p>The silence that follows is the loudest thing you have heard in your life.</p>
+            <p>If Veth was destroyed: your father&#8217;s spellbook is in your arms or nearby on the floor, and the ritual is incomplete, and Kardrath will not wake again by any working that Veth began. You take the Mirror of Dawn from the vault. It seems right that it should not be left here unguarded again.</p>
+            <p>If you slipped past Veth to reach this vault: when you emerge, the corridor is empty. The distortion in the air, that cold shimmer of ancient presence, is gone. He abandoned Darkspire. Without Kardrath&#8217;s promised reward, without the ritual, without whatever future he had built in his imagination around this moment&#8212;two centuries of purpose evaporated in the time it took you to use the mirror. Where he went you do not know. The spellbook is on the floor where he dropped it when he fled. You take it.</p>
+            <p>If Pip is with you: outside Darkspire the morning is fully established, pale and cold and entirely ordinary. Pip sits on the pommel as you ride south, looking aggressively satisfied, its nose working. You think about saying something. You decide against it. Some things are understood between a person and their familiar without being spoken, and this is one of them.</p>
+            <p>If you left Pip behind: Veth&#8217;s study is on the way out. You go back for it. The brass cage is on the floor, and it is open&#8212;whether because Veth&#8217;s destruction unraveled his traps or because the cage was designed to release eventually, you don&#8217;t know and it doesn&#8217;t matter. Pip is in the corner of the study, curled tight. Then, as you stand there, it uncurls. Runs its claws along its spines. Looks at you. Climbs onto your hand without being asked.</p>
+            <p>It does not say anything. Neither do you.</p>
+            <p>Your father will recover. The valley will be safe. The Mirror of Dawn is in your pack, and the spellbook is in your arms, and Darkspire&#8217;s shadow falls behind you as you ride south into the morning.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-35" class="game-section" data-section="35">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">35</div>
+        <div class="section-content">
+            <p>The moment passes. One moment of stillness, and you do not use it.</p>
+            <p>The coffin opens.</p>
+            <p>Kardrath stands, and the vault fills with a cold that has nothing to do with temperature&#8212;the cold of something that has had no warmth for two centuries and has learned not to miss it. His eyes find you immediately. Of course they do. You are the only living thing in the room.</p>
+            <p>The Mirror of Dawn hits the stone floor. It does not break&#8212;it is very well made, and very old, and it was built to survive exactly this kind of failure. It will be here for whoever comes next, if anyone comes next, if they come in time and know what to do with it and do not hesitate.</p>
+            <p>You hope someone does.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    </div><!-- .page -->
+    <script>
+    let history = [];
+    let lastChoiceSection = null;
+    let currentView = 'cover';
+    let options = { darkMode: false, fontSize: 2, narration: false };
+    const fontSizes = [
+        { name: 'X-Small', size: '15px' },
+        { name: 'Small',   size: '17px' },
+        { name: 'Medium',  size: '19px' },
+        { name: 'Large',   size: '21px' },
+        { name: 'X-Large', size: '23px' }
+    ];
+    const allSections = Array.from(document.querySelectorAll('section.game-section[data-section]'));
+    const sortedSections = allSections.map(s => parseInt(s.dataset.section)).sort((a, b) => a - b);
+    const totalSections = sortedSections.length;
+
+    function hideAllSections() {
+        document.querySelectorAll('.game-section').forEach(s => {
+            s.classList.remove('active', 'flip-left', 'cover-visible');
+            s.style.display = 'none';
+        });
+    }
+    function showSection(section, direction) {
+        section.classList.add('active');
+        if (direction === 'left') section.classList.add('flip-left');
+        section.style.display = 'block';
+    }
+    function sectionHasChoices(sectionNum) {
+        const el = document.getElementById('section-' + sectionNum);
+        return el ? el.querySelectorAll('.page-link').length >= 2 : false;
+    }
+    function getLastChoiceForCurrent() {
+        if (!Array.isArray(history) || history.length === 0) return null;
+        const current = history[history.length - 1];
+        for (let i = history.length - 2; i >= 0; i--) {
+            const n = history[i];
+            if (n === current) continue;
+            if (sectionHasChoices(n)) return n;
+        }
+        return null;
+    }
+    function goToSection(num, isBookmarkJump, direction) {
+        const section = document.getElementById('section-' + num);
+        if (!section) { alert('Page ' + num + ' not found.'); return; }
+        hideAllSections();
+        showSection(section, direction);
+        currentView = 'section';
+        if (!isBookmarkJump || history[history.length - 1] !== num) history.push(num);
+        lastChoiceSection = getLastChoiceForCurrent();
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        updateBackChoiceBtn();
+        updateBookmarkLinks();
+        updateBreadcrumb();
+        saveProgress();
+    }
+    function goToNextPage() {
+        const current = getCurrentSection();
+        if (current === null) return;
+        const idx = sortedSections.indexOf(current);
+        if (idx < sortedSections.length - 1) goToSection(sortedSections[idx + 1], false, 'right');
+    }
+    function goToPrevPage() {
+        const current = getCurrentSection();
+        if (current === null) return;
+        const idx = sortedSections.indexOf(current);
+        if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+    }
+    function getCurrentSection() {
+        const active = document.querySelector('.game-section.active');
+        return active && active.dataset.section ? parseInt(active.dataset.section) : null;
+    }
+    function goToLastChoice() {
+        if (lastChoiceSection) goToSection(lastChoiceSection, true);
+    }
+    function jumpToPage() {
+        const val = parseInt(document.getElementById('page-jump').value);
+        if (!val || !document.getElementById('section-' + val)) { alert('Page ' + val + ' not found.'); return; }
+        goToSection(val);
+    }
+    function openBook() {
+        if (hasProgress()) {
+            const savedView = loadProgress();
+            if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                if (savedView === 'home') { goToIntro(); return; }
+                goToSection(savedView, true);
+                return;
+            }
+        }
+    }
+    let cameFromGameplay = false;
+    function goToOptions() {
+        cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+        hideAllSections();
+        showSection(document.getElementById('options-section'));
+        currentView = 'options';
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        applyOptions();
+        updateFontSizeSlider();
+        updateOptionsButtons();
+    }
+    function updateOptionsButtons() {
+        const primaryBtn = document.getElementById('options-primary-btn');
+        const restartBtn = document.getElementById('options-restart-btn');
+        if (cameFromGameplay) {
+            primaryBtn.innerHTML = '&#8592; Back to Story';
+            primaryBtn.onclick = function() { goBack(); };
+            restartBtn.style.display = 'block';
+        } else {
+            primaryBtn.innerHTML = '&#10086; Begin Adventure';
+            primaryBtn.onclick = function() { beginAdventure(); };
+            restartBtn.style.display = hasProgress() ? 'block' : 'none';
+        }
+    }
+    function goBack() {
+        if (history.length > 0) goToSection(history[history.length - 1], true);
+        else goToIntro();
+    }
+    function startFreshAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+    function restartFromOptions() {
+        if (confirm('Start over from the beginning? Your reading progress will be cleared.')) {
+            history = []; lastChoiceSection = null; saveProgress(); goToIntro();
+        }
+    }
+    function beginAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+    function resumeAdventure() {
+        const savedView = loadProgress();
+        if (savedView && savedView !== 'cover' && savedView !== 'options') {
+            if (savedView === 'home') { goToIntro(); return; }
+            goToSection(savedView, true);
+        } else { goToIntro(); }
+    }
+    function goToCover() {
+        hideAllSections();
+        const cover = document.getElementById('cover-section');
+        if (cover) {
+            cover.classList.add('cover-visible');
+            cover.style.display = 'block';
+            currentView = 'cover';
+        } else { goToOptions(); return; }
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        const hint = document.getElementById('cover-resume-hint');
+        if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+    }
+    function goToIntro() {
+        hideAllSections();
+        const home = document.getElementById('home-section');
+        if (home) { showSection(home); currentView = 'home'; window.scrollTo({ top: 0, behavior: 'auto' }); updatePageIndicator(); }
+    }
+    function updatePageIndicator() {
+        const el = document.getElementById('page-indicator');
+        if (!el) return;
+        if (currentView === 'cover') { el.textContent = 'Cover'; return; }
+        if (currentView === 'options') { el.textContent = 'Options'; return; }
+        if (currentView === 'home') { el.textContent = 'Intro'; return; }
+        const current = getCurrentSection();
+        if (current !== null) {
+            const idx = sortedSections.indexOf(current);
+            el.textContent = 'Page ' + current + ' (' + (idx + 1) + '/' + totalSections + ')';
+        }
+    }
+    function updateBackChoiceBtn() {
+        const btn = document.getElementById('back-choice-btn');
+        const num = document.getElementById('back-choice-num');
+        if (!btn) return;
+        btn.disabled = !lastChoiceSection;
+        if (num) num.textContent = lastChoiceSection || '?';
+    }
+    function updateBookmarkLinks() {
+        document.querySelectorAll('.bookmark-link').forEach(link => {
+            const parent = link.closest('.game-section');
+            if (!parent || !parent.classList.contains('active')) return;
+            link.style.display = lastChoiceSection ? 'block' : 'none';
+            link.innerHTML = lastChoiceSection
+                ? '<button class="bookmark-btn" onclick="goToLastChoice()">&#8592; Back to page ' + lastChoiceSection + '</button>'
+                : '';
+        });
+    }
+    function updateBreadcrumb() {
+        const trail = document.getElementById('breadcrumb-trail');
+        if (!trail) return;
+        trail.innerHTML = history.slice(-5).map((n, i, arr) =>
+            i < arr.length - 1
+                ? '<span class="breadcrumb-link" onclick="goToSection(' + n + ',true)">' + n + '</span>'
+                : '<strong>' + n + '</strong>'
+        ).join(' &rarr; ');
+    }
+    function toggleOption(which) {
+        if (which === 'dark') { options.darkMode = !options.darkMode; applyOptions(); saveProgress(); }
+    }
+    function setFontSizeFromSlider(value) { options.fontSize = parseInt(value); applyOptions(); saveProgress(); }
+    function updateFontSizeSlider() {
+        const slider = document.getElementById('font-size-slider');
+        if (slider) slider.value = options.fontSize;
+        updateFontPreview();
+    }
+    function updateFontPreview() {
+        const preview = document.getElementById('font-preview');
+        if (preview) preview.textContent = fontSizes[options.fontSize]?.name || 'Medium';
+    }
+    function applyOptions() {
+        document.documentElement.setAttribute('data-theme', options.darkMode ? 'dark' : '');
+        document.documentElement.style.setProperty('--font-size', fontSizes[options.fontSize]?.size || '19px');
+        const toggle = document.getElementById('toggle-dark');
+        if (toggle) toggle.classList.toggle('active', options.darkMode);
+        updateFontPreview();
+        const summary = document.getElementById('options-summary');
+        if (summary) {
+            const parts = [];
+            if (options.darkMode) parts.push('Dark Mode');
+            parts.push((fontSizes[options.fontSize]?.name || 'Medium') + ' text');
+            summary.textContent = parts.join(' \u00b7 ');
+        }
+    }
+    const PROGRESS_KEY = 'hollowKing_progress';
+    function saveProgress() {
+        try {
+            localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+                history, lastChoiceSection, currentView, options, v: getCurrentSection()
+            }));
+        } catch(e) {}
+    }
+    function loadProgress() {
+        try {
+            const saved = localStorage.getItem(PROGRESS_KEY);
+            if (!saved) return null;
+            const state = JSON.parse(saved);
+            if (state.history) history = state.history;
+            if (state.lastChoiceSection !== undefined) lastChoiceSection = state.lastChoiceSection;
+            if (state.options) options = Object.assign(options, state.options);
+            applyOptions();
+            return state.v || state.currentView;
+        } catch(e) { return null; }
+    }
+    function hasProgress() {
+        try {
+            const saved = localStorage.getItem(PROGRESS_KEY);
+            if (!saved) return false;
+            const state = JSON.parse(saved);
+            return state.history && state.history.length > 0;
+        } catch(e) { return false; }
+    }
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, {passive: true});
+    function handleSwipe() {
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) < 50) return;
+        if (diff > 0) goToNextPage(); else goToPrevPage();
+    }
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === 'ArrowRight') goToNextPage();
+        if (e.key === 'ArrowLeft') goToPrevPage();
+        if (e.key === 'Home') { e.preventDefault(); goToCover(); }
+    });
+    applyOptions();
+    goToCover();
+    openBook();
+    </script>
+</body>
+</html>

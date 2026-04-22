@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steel of the Mountain Shrine</title>
+    <style>
+        :root {
+            --bg-color: #d4cbb3;
+            --page-bg: linear-gradient(to right, #e8e0cc 0%, #f0ead8 5%, #f2ecd9 50%, #f0ead8 95%, #e8e0cc 100%);
+            --text-color: #1a1612;
+            --link-color: #8B4513;
+            --shadow-color: rgba(0,0,0,0.3);
+            --button-bg: #f0ead8;
+            --button-border: #8B4513;
+            --nav-color: #bbb;
+            --nav-hover: #666;
+            --font-size: 19px;
+        }
+
+        [data-theme="dark"] {
+            --bg-color: #1a1a2e;
+            --page-bg: linear-gradient(to right, #16213e 0%, #1a1a2e 5%, #1f1f3a 50%, #1a1a2e 95%, #16213e 100%);
+            --text-color: #e0d6c8;
+            --link-color: #d4a574;
+            --shadow-color: rgba(0,0,0,0.5);
+            --button-bg: #2a2a4a;
+            --button-border: #d4a574;
+            --nav-color: #666;
+            --nav-hover: #999;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Times New Roman', Times, Georgia, 'Palatino Linotype', serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            font-size: var(--font-size);
+            transition: background-color 0.3s, color 0.3s, font-size 0.2s;
+        }
+
+        .page {
+            max-width: 500px;
+            min-height: 700px;
+            margin: 0 auto;
+            padding: 40px 50px 60px 50px;
+            background: var(--page-bg);
+            box-shadow: 0 0 30px var(--shadow-color);
+            position: relative;
+            overflow-x: hidden;
+            transition: background 0.3s, box-shadow 0.3s;
+        }
+
+        .controls-bar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            max-width: 560px;
+            margin: 0 auto;
+            background: var(--bg-color);
+            padding: 8px 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            z-index: 200;
+            border-bottom: 1px solid var(--nav-color);
+            flex-wrap: wrap;
+            transition: background-color 0.3s;
+        }
+
+        .control-group { display: flex; align-items: center; gap: 5px; }
+
+        .control-btn {
+            background: var(--button-bg);
+            border: 1px solid var(--button-border);
+            color: var(--text-color);
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .control-btn:disabled { opacity: 0.35; cursor: default; }
+
+        .control-btn:hover { background: var(--button-border); color: var(--button-bg); }
+
+        .page-input {
+            width: 50px; padding: 5px;
+            border: 1px solid var(--button-border);
+            border-radius: 4px; text-align: center;
+            font-size: 14px;
+            background: var(--button-bg); color: var(--text-color);
+        }
+
+        .page-indicator {
+            font-size: 14px; color: var(--text-color);
+            min-width: 80px; text-align: center;
+        }
+
+        #breadcrumb {
+            position: fixed; bottom: 10px; left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg-color);
+            padding: 5px 15px; border-radius: 20px;
+            font-size: 12px; color: var(--nav-color);
+            max-width: 90%; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
+            z-index: 200; border: 1px solid var(--nav-color);
+            opacity: 0.8; display: none;
+        }
+
+        .breadcrumb-link { color: var(--link-color); cursor: pointer; text-decoration: none; }
+        .breadcrumb-link:hover { text-decoration: underline; }
+
+        body.qa-mode #breadcrumb { display: block; }
+
+        .page { margin-top: 50px; margin-bottom: 50px; }
+
+        .game-section { display: none !important; }
+
+        .game-section.active {
+            display: block !important;
+            animation: pageFlip 0.3s ease-out;
+        }
+
+        #cover-section.cover-visible {
+            display: block !important;
+            animation: none !important;
+        }
+
+        @keyframes pageFlip {
+            0% { opacity: 0; transform: translateX(20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .game-section.flip-left { animation: pageFlipLeft 0.3s ease-out; }
+
+        @keyframes pageFlipLeft {
+            0% { opacity: 0; transform: translateX(-20px); }
+            100% { opacity: 1; transform: translateX(0); }
+        }
+
+        .page-number {
+            font-size: 24px; font-weight: normal;
+            margin-bottom: 25px; color: var(--text-color);
+        }
+
+        .section-content { text-align: justify; }
+
+        .section-content p { margin: 0 0 1.2em 0; text-indent: 0; }
+        .section-content p:first-child { text-indent: 0; }
+
+        .section-content p.choice {
+            margin: 0.5em 0 0.3em 1.5em;
+            text-indent: 0;
+        }
+
+        .ending {
+            text-align: center !important;
+            font-size: 1.3em;
+            margin: 40px 0 !important;
+            text-indent: 0 !important;
+            font-weight: bold;
+        }
+
+        .page-link {
+            font-family: inherit; font-size: inherit;
+            color: var(--link-color);
+            background: none; border: none;
+            border-bottom: 1px solid var(--link-color);
+            padding: 0; cursor: pointer;
+            transition: color 0.2s, border-color 0.2s;
+            text-decoration: none;
+        }
+
+        .page-link:hover { color: var(--text-color); border-bottom-color: var(--text-color); }
+
+        .turn-instruction { text-align: center; margin-top: 2em; }
+
+        .bookmark-link {
+            position: absolute; bottom: 20px;
+            left: 50px; right: 50px;
+            text-align: center; font-size: 0.85em; color: #888;
+        }
+
+        .bookmark-btn {
+            font-family: inherit; font-size: inherit;
+            color: #888; background: none; border: none;
+            cursor: pointer; text-decoration: underline;
+        }
+
+        .bookmark-btn:hover { color: #4a3728; }
+
+        #home-section .page-number { display: none; }
+        #home-section .section-content { text-align: left; }
+
+        #home-section h1 {
+            font-size: 1.8em; text-align: center;
+            margin: 0 0 10px 0; font-weight: bold; letter-spacing: 2px;
+        }
+
+        #home-section .subtitle {
+            text-align: center; font-style: italic;
+            margin-bottom: 30px; font-size: 0.95em;
+        }
+
+        .start-button {
+            display: block; margin: 40px auto 20px;
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s;
+        }
+
+        .start-button:hover {
+            background-color: var(--text-color); color: var(--button-bg);
+        }
+
+        #options-section { text-align: center; }
+        #options-section h2 { font-size: 1.5em; margin-bottom: 30px; color: var(--text-color); }
+
+        .options-container { max-width: 350px; margin: 0 auto; text-align: left; }
+
+        .option-row {
+            display: flex; align-items: center;
+            justify-content: space-between;
+            padding: 15px 0; border-bottom: 1px solid var(--nav-color);
+        }
+
+        .option-row:last-of-type { border-bottom: none; }
+
+        .option-label { display: flex; flex-direction: column; gap: 2px; }
+        .option-name { font-weight: bold; color: var(--text-color); }
+        .option-desc { font-size: 0.75em; color: var(--nav-color); font-style: italic; }
+
+        .toggle-switch {
+            position: relative; width: 50px; height: 26px;
+            background: var(--nav-color); border-radius: 13px;
+            cursor: pointer; transition: background 0.3s; flex-shrink: 0;
+        }
+
+        .toggle-switch::after {
+            content: ''; position: absolute;
+            top: 3px; left: 3px; width: 20px; height: 20px;
+            background: var(--button-bg); border-radius: 50%; transition: transform 0.3s;
+        }
+
+        .toggle-switch.active { background: var(--link-color); }
+        .toggle-switch.active::after { transform: translateX(24px); }
+
+        .font-size-slider-container {
+            display: flex; align-items: center; gap: 16px;
+            padding: 16px 20px; background: rgba(128,128,128,0.15); border-radius: 12px;
+        }
+
+        .size-label { font-size: 18px; color: var(--text-color); font-weight: 500; min-width: 24px; opacity: 0.8; }
+        .size-label:first-of-type { font-size: 14px; }
+        .size-label:last-of-type { font-size: 22px; }
+
+        .font-slider {
+            flex: 1; height: 4px; border-radius: 2px;
+            background: rgba(255,255,255,0.2); outline: none;
+            -webkit-appearance: none; cursor: pointer;
+        }
+
+        .font-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3); margin-top: -8px;
+        }
+
+        .font-slider::-moz-range-thumb {
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #4A9EFF; cursor: pointer; border: none;
+        }
+
+        .font-preview { font-size: 13px; color: var(--nav-color); min-width: 55px; text-align: right; }
+
+        .options-summary { margin-top: 20px; font-size: 0.85em; color: var(--nav-color); font-style: italic; }
+
+        .options-actions {
+            margin-top: 30px; display: flex;
+            flex-direction: column; gap: 12px; align-items: center;
+        }
+
+        .options-primary-btn {
+            padding: 12px 30px; font-family: inherit; font-size: 1em;
+            background: none; border: 2px solid var(--text-color);
+            cursor: pointer; color: var(--text-color); transition: all 0.2s; min-width: 200px;
+        }
+
+        .options-primary-btn:hover { background-color: var(--text-color); color: var(--button-bg); }
+
+        .options-restart-btn {
+            font-family: inherit; font-size: 0.85em; color: var(--nav-color);
+            background: none; border: none; cursor: pointer; text-decoration: underline;
+        }
+
+        .options-restart-btn:hover { color: var(--link-color); }
+
+        .qa-only { display: none; }
+        body.qa-mode .qa-only { display: flex !important; }
+        body:not(.qa-mode) .page-nav { display: none; }
+        body.qa-mode .page-nav { display: block; }
+        #home-section .page-nav, #options-section .page-nav, #cover-section .page-nav { display: none !important; }
+
+        .cover-image {
+            max-width: 100%; max-height: 600px; cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: block; margin: 0 auto;
+        }
+
+        .cover-image:hover { transform: scale(1.02); box-shadow: 0 6px 20px rgba(0,0,0,0.5); }
+
+        .cover-buttons {
+            margin-top: 20px; display: flex;
+            flex-direction: column; align-items: center; gap: 12px;
+        }
+
+        .cover-begin-btn {
+            padding: 15px 40px; font-size: 1.2em; font-family: Georgia, serif;
+            background: linear-gradient(135deg, #8B4513 0%, #654321 100%);
+            color: #f5f5dc; border: 2px solid #5c3317; border-radius: 8px;
+            cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); transition: all 0.2s;
+        }
+
+        .cover-begin-btn:hover {
+            background: linear-gradient(135deg, #654321 0%, #4a2c0f 100%);
+            transform: translateY(-2px); box-shadow: 0 6px 15px rgba(0,0,0,0.4);
+        }
+
+        .cover-customize-link {
+            font-size: 0.9em; color: #666; cursor: pointer;
+            text-decoration: none; transition: color 0.2s;
+        }
+
+        .cover-customize-link:hover { color: var(--link-color); }
+
+        #cover-resume-hint {
+            font-size: 0.85em; color: var(--nav-color); font-style: italic;
+            cursor: pointer; text-decoration: underline; display: none;
+        }
+
+        #cover-resume-hint:hover { color: var(--link-color); }
+
+        #cover-section, #home-section { text-align: center; padding: 20px; }
+
+        .page-nav {
+            position: absolute; top: 50vh; transform: translateY(-50%);
+            width: 40px; height: 40px; display: flex;
+            align-items: center; justify-content: center;
+            cursor: pointer; color: var(--nav-color); font-size: 20px;
+            transition: color 0.2s; user-select: none;
+        }
+
+        .page-nav:hover { color: var(--nav-hover); }
+        .page-nav.disabled { opacity: 0.2; cursor: default; }
+        .page-nav-left { left: -50px; }
+        .page-nav-right { right: -50px; }
+
+        @media (max-width: 560px) {
+            .page-nav-left { left: 5px; }
+            .page-nav-right { right: 5px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="controls-bar">
+        <div class="control-group">
+            <button class="control-btn" onclick="goToCover()" title="Cover">&#8962;</button>
+            <button class="control-btn" id="back-choice-btn" onclick="goToLastChoice()" disabled>&#8592; p.<span id="back-choice-num">?</span></button>
+        </div>
+        <span class="page-indicator" id="page-indicator">Cover</span>
+        <div class="control-group">
+            <button class="control-btn" onclick="goToOptions()">&#9881;</button>
+        </div>
+        <div class="control-group qa-only">
+            <input type="number" id="page-jump" class="page-input" placeholder="#" min="1">
+            <button class="control-btn" onclick="jumpToPage()">Go</button>
+        </div>
+    </div>
+
+    <div id="breadcrumb"><span id="breadcrumb-trail"></span></div>
+
+    <div class="page">
+
+    <section id="options-section" class="game-section">
+        <h2>Options</h2>
+        <div class="options-container">
+            <div class="option-row">
+                <div class="option-label">
+                    <span class="option-name">Dark Mode</span>
+                    <span class="option-desc">Easier on the eyes at night</span>
+                </div>
+                <div class="toggle-switch" id="toggle-dark" onclick="toggleOption('dark')"></div>
+            </div>
+            <div class="option-row">
+                <div class="font-size-slider-container">
+                    <span class="size-label">A</span>
+                    <input type="range" class="font-slider" id="font-size-slider" min="0" max="4" value="2"
+                           oninput="setFontSizeFromSlider(this.value)">
+                    <span class="size-label">A</span>
+                    <span class="font-preview" id="font-preview">Medium</span>
+                </div>
+            </div>
+        </div>
+        <div class="options-summary" id="options-summary"></div>
+        <div class="options-actions">
+            <button class="options-primary-btn" id="options-primary-btn" onclick="beginAdventure()">&#10086; Begin Adventure</button>
+            <button class="options-restart-btn" id="options-restart-btn" onclick="restartFromOptions()" style="display:none;">Start Over</button>
+        </div>
+    </section>
+
+    <!-- Cover Section -->
+    <section id="cover-section" class="game-section">
+        <div class="section-content">
+            <svg class="cover-image" viewBox="0 0 400 550" xmlns="http://www.w3.org/2000/svg" onclick="goToOptions()">
+                <defs>
+                    <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#080c18"/>
+                        <stop offset="45%" stop-color="#0f1e38"/>
+                        <stop offset="100%" stop-color="#1a2d50"/>
+                    </linearGradient>
+                    <linearGradient id="mountainGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#dce8f5"/>
+                        <stop offset="40%" stop-color="#9aadbe"/>
+                        <stop offset="100%" stop-color="#5a6a7a"/>
+                    </linearGradient>
+                    <linearGradient id="groundGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#1a1028"/>
+                        <stop offset="100%" stop-color="#0a0812"/>
+                    </linearGradient>
+                    <radialGradient id="moonGlow" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stop-color="#fffce8" stop-opacity="1"/>
+                        <stop offset="70%" stop-color="#e8d8a0" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="#c8a860" stop-opacity="0"/>
+                    </radialGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+                <!-- Sky -->
+                <rect width="400" height="440" fill="url(#skyGrad)"/>
+                <!-- Stars -->
+                <circle cx="42" cy="30" r="1" fill="white" opacity="0.8"/>
+                <circle cx="78" cy="18" r="1.2" fill="white" opacity="0.9"/>
+                <circle cx="130" cy="42" r="0.8" fill="white" opacity="0.7"/>
+                <circle cx="165" cy="22" r="1" fill="white" opacity="0.8"/>
+                <circle cx="240" cy="35" r="0.8" fill="white" opacity="0.6"/>
+                <circle cx="350" cy="25" r="1.2" fill="white" opacity="0.9"/>
+                <circle cx="380" cy="55" r="0.8" fill="white" opacity="0.7"/>
+                <circle cx="55" cy="75" r="0.8" fill="white" opacity="0.6"/>
+                <circle cx="95" cy="110" r="1" fill="white" opacity="0.5"/>
+                <circle cx="360" cy="90" r="0.8" fill="white" opacity="0.6"/>
+                <circle cx="22" cy="120" r="1" fill="white" opacity="0.7"/>
+                <!-- Moon glow halo -->
+                <circle cx="310" cy="75" r="50" fill="url(#moonGlow)" opacity="0.4"/>
+                <!-- Moon -->
+                <circle cx="310" cy="75" r="32" fill="#f5edd8"/>
+                <!-- Moon shadow (crescent) -->
+                <circle cx="325" cy="65" r="28" fill="#0f1828" opacity="0.85"/>
+                <!-- Mountain peak -->
+                <polygon points="200,42 370,400 30,400" fill="url(#mountainGrad)"/>
+                <!-- Snow highlights on mountain face -->
+                <polygon points="200,42 230,110 170,110" fill="white" opacity="0.85"/>
+                <polygon points="200,42 260,175 230,160 210,130 190,130 170,160 140,175" fill="white" opacity="0.4"/>
+                <!-- Secondary peak left -->
+                <polygon points="80,160 160,400 20,400" fill="#6a7a8a" opacity="0.7"/>
+                <!-- Secondary peak right -->
+                <polygon points="320,180 395,400 240,400" fill="#5a6a7a" opacity="0.6"/>
+                <!-- Mountain shrine gate (torii) silhouette -->
+                <rect x="172" y="295" width="8" height="60" fill="#1a0a08"/>
+                <rect x="220" y="295" width="8" height="60" fill="#1a0a08"/>
+                <rect x="165" y="293" width="70" height="7" rx="2" fill="#1a0a08"/>
+                <rect x="170" y="283" width="60" height="7" rx="2" fill="#1a0a08"/>
+                <!-- Ground / base -->
+                <rect y="400" width="400" height="150" fill="url(#groundGrad)"/>
+                <!-- Snow on ground -->
+                <ellipse cx="200" cy="402" rx="200" ry="10" fill="white" opacity="0.15"/>
+                <!-- Katana silhouette across bottom -->
+                <g transform="translate(60, 480) rotate(-8)">
+                    <!-- Blade -->
+                    <rect x="0" y="-2" width="240" height="4" rx="1" fill="#c8d8e8" opacity="0.9"/>
+                    <!-- Edge highlight -->
+                    <rect x="0" y="-2" width="240" height="1.5" rx="0.5" fill="white" opacity="0.7"/>
+                    <!-- Guard (tsuba) -->
+                    <ellipse cx="55" cy="0" rx="7" ry="10" fill="#c8a030"/>
+                    <!-- Grip (tsuka) -->
+                    <rect x="18" y="-4" width="37" height="8" rx="3" fill="#4a2010"/>
+                    <!-- Grip wrapping lines -->
+                    <line x1="24" y1="-4" x2="24" y2="4" stroke="#8a5020" stroke-width="1.5"/>
+                    <line x1="30" y1="-4" x2="30" y2="4" stroke="#8a5020" stroke-width="1.5"/>
+                    <line x1="36" y1="-4" x2="36" y2="4" stroke="#8a5020" stroke-width="1.5"/>
+                    <line x1="42" y1="-4" x2="42" y2="4" stroke="#8a5020" stroke-width="1.5"/>
+                    <line x1="48" y1="-4" x2="48" y2="4" stroke="#8a5020" stroke-width="1.5"/>
+                    <!-- Pommel (kashira) -->
+                    <ellipse cx="15" cy="0" rx="6" ry="5" fill="#8a6020"/>
+                </g>
+                <!-- Decorative border -->
+                <rect x="12" y="12" width="376" height="526" fill="none" stroke="#c8a030" stroke-width="2" opacity="0.8"/>
+                <rect x="17" y="17" width="366" height="516" fill="none" stroke="#c8a030" stroke-width="0.5" opacity="0.4"/>
+                <!-- Corner ornaments -->
+                <circle cx="12" cy="12" r="4" fill="#c8a030" opacity="0.7"/>
+                <circle cx="388" cy="12" r="4" fill="#c8a030" opacity="0.7"/>
+                <circle cx="12" cy="538" r="4" fill="#c8a030" opacity="0.7"/>
+                <circle cx="388" cy="538" r="4" fill="#c8a030" opacity="0.7"/>
+                <!-- Title background band -->
+                <rect x="17" y="415" width="366" height="110" fill="#080c18" opacity="0.7"/>
+                <!-- Title text -->
+                <text x="200" y="448" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#e8d090" text-anchor="middle" letter-spacing="3">STEEL OF THE</text>
+                <text x="200" y="476" font-family="Georgia, 'Times New Roman', serif" font-size="22" font-weight="bold" fill="#e8d090" text-anchor="middle" letter-spacing="3">MOUNTAIN SHRINE</text>
+                <!-- Divider line -->
+                <line x1="80" y1="487" x2="320" y2="487" stroke="#c8a030" stroke-width="0.8" opacity="0.6"/>
+                <!-- Subtitle -->
+                <text x="200" y="505" font-family="Georgia, 'Times New Roman', serif" font-size="12" fill="#a09060" text-anchor="middle" font-style="italic">An Adventure in the Kingdom of Yamato</text>
+                <!-- Author line -->
+                <text x="200" y="523" font-family="Georgia, 'Times New Roman', serif" font-size="11" fill="#706040" text-anchor="middle">An original gamebook in the Endless Quest tradition</text>
+            </svg>
+            <div class="cover-buttons">
+                <button class="cover-begin-btn" onclick="goToOptions()">&#10086; Begin Adventure</button>
+                <span id="cover-resume-hint" onclick="resumeAdventure()">Continue reading&#8230;</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home / Intro Section -->
+    <section id="home-section" class="game-section">
+        <div class="section-content">
+            <h1>STEEL OF THE MOUNTAIN SHRINE</h1>
+            <p class="subtitle">An Adventure in the Kingdom of Yamato</p>
+
+            <p>The Kingdom of Yamato has known peace for a generation. Its cities are full, its roads are maintained, and its Emperor&#8212;old now, and fading&#8212;has held the throne longer than most of his subjects have been alive.</p>
+
+            <p>But peace built on sacred power requires that sacred power to hold. Three relics of the Mountain Shrine at Iron Peak have kept this throne legitimate for a hundred years: the Bell of Heaven, the Jade Mask, and the Mirror of Eternal Snow. Two weeks ago, they were taken.</p>
+
+            <p>The thief was Yomiko: the ice spirit of Iron Peak, old before the kingdom was founded, who has watched three dynasties from her mountain and despised them all.</p>
+
+            <p><em>You</em> are Kira, daughter of the swordswoman Hana, trained since childhood in the art of the blade. Two years ago your mother rode north toward Iron Peak on a commission she never explained&#8212;and never returned. The Emperor&#8217;s summons arrived this morning with a single object: your mother&#8217;s katana, Kireha, &#8220;cutting leaf,&#8221; a blade so old its history predates the hilt.</p>
+
+            <p>The Emperor is dying. The relics must be returned before his successor can be crowned, or the throne will have no legitimate foundation when challenges come. And they will come.</p>
+
+            <p>You have the sword. The mountain is waiting.</p>
+
+            <button class="start-button" onclick="goToSection(1)">Begin the Adventure</button>
+        </div>
+    </section>
+
+    <!-- Game Sections -->
+
+    <section id="section-1" class="game-section" data-section="1">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">1</div>
+        <div class="section-content">
+            <p>The Emperor&#8217;s throne room smells of incense and old stone. He has not risen from his cushioned dais in three days&#8212;the court physicians whisper that he may not rise again. His hands tremble when he holds the lacquered box. You kneel.</p>
+            <p>&#8220;The relics of the Mountain Shrine,&#8221; he says. &#8220;Three objects that have kept this throne legitimate for a hundred years. The Bell of Heaven. The Jade Mask. The Mirror of Eternal Snow.&#8221; He pauses. &#8220;Yomiko has taken them.&#8221;</p>
+            <p>The court goes quiet at the name. Yomiko: the ice spirit of Iron Peak, old before the kingdom was founded, who has watched three dynasties from her mountain and despised them all.</p>
+            <p>The Emperor opens the box. Inside, on green silk, lies a katana. Your mother&#8217;s. Kireha&#8212;&#8220;cutting leaf&#8221;&#8212;a blade so old its history predates the hilt. Hana carried it on the day she vanished two years ago, riding north toward Iron Peak on a commission she never explained.</p>
+            <p>&#8220;She came to me before she left,&#8221; the Emperor says. &#8220;She said that if she did not return, this sword should go to her daughter. And her daughter should go where she had gone.&#8221;</p>
+            <p>You take Kireha. The grip fits your hand as though it remembers your mother&#8217;s palm.</p>
+            <p>There is a question of time. A scholar named Ryuken has spent forty years studying Yomiko&#8217;s nature in the eastern hills. He may know something useful. The detour would cost you two days, and the Emperor&#8217;s heir grows more impatient by the hour.</p>
+            <p class="choice">If you ride directly north toward Iron Peak without delay, turn to page <a href="#" onclick="goToSection(2); return false;" class="page-link"><strong>2</strong></a>.</p>
+            <p class="choice">If you first seek out the scholar Ryuken in the eastern hills, turn to page <a href="#" onclick="goToSection(3); return false;" class="page-link"><strong>3</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-2" class="game-section" data-section="2">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">2</div>
+        <div class="section-content">
+            <p>The road north is wide and dry until the second day, when it narrows to a track between iceberry bushes and the sky turns the color of iron. You have been riding through scattered snowflakes for an hour when you hear the whistle.</p>
+            <p>Four figures in white cloaks drop from the trees. They move with the precise economy of trained fighters&#8212;spreading to flank you before you can wheel your horse. One carries a short spear wrapped in frost. Their eyes are pale as river ice.</p>
+            <p>Yomiko&#8217;s hunters. They have been waiting for you.</p>
+            <p>Your horse rears. In the confusion, you have a single moment to choose.</p>
+            <p class="choice">If you draw Kireha and fight, turn to page <a href="#" onclick="goToSection(8); return false;" class="page-link"><strong>8</strong></a>.</p>
+            <p class="choice">If you drive your heels into your horse&#8217;s flanks and bolt into the forest, turn to page <a href="#" onclick="goToSection(14); return false;" class="page-link"><strong>14</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-3" class="game-section" data-section="3">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">3</div>
+        <div class="section-content">
+            <p>Ryuken&#8217;s hermitage is a single-room stone building at the end of a goat track, half-buried in climbing vines. He answers the door before you knock&#8212;an old man, enormous eyebrows, ink-stained fingers.</p>
+            <p>&#8220;I knew someone would come eventually,&#8221; he says. &#8220;I just did not expect it to be Hana&#8217;s daughter.&#8221; He studies your face. &#8220;She has your jaw. Come in.&#8221;</p>
+            <p>He knows everything about Yomiko. He has mapped her territory, catalogued her servants, and documented her weaknesses over forty years of patient study. Sacred fire troubles her greatly, he says&#8212;she cannot maintain her form near it. He produces a small clay vial sealed with wax.</p>
+            <p>&#8220;Sacred fire from the shrine at Kenzan. If you break the seal in Yomiko&#8217;s presence, the flame will drive her back.&#8221; He presses it into your hand carefully. &#8220;Do not drop it.&#8221;</p>
+            <p>He also warns you about the Mountains of Fire to the south of Iron Peak: if you take that route, you will encounter a cockatrice. &#8220;It cannot abide its own reflection. You understand me?&#8221;</p>
+            <p>He gives you a letter of introduction for Elder Masa in the village of Tsurugi at the base of the mountain&#8212;a letter that will open doors.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(9); return false;" class="page-link"><strong>9</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-4" class="game-section" data-section="4">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">4</div>
+        <div class="section-content">
+            <p>The gallery stretches before you in terrible silence. Column after column of blue-white ice, and within each column a figure: men and women in the armor and robes of decades past, hands at their sides, eyes open. A general in bronze plate. A priestess in ceremonial white. Two young scholars standing side by side. Dozens of them.</p>
+            <p>These are the ones Yomiko considered worth keeping. Her collection.</p>
+            <p>You move through them quickly, Kireha drawn. The Jade Mask is warm in your hands, but without wearing it you cannot read the faces clearly through the ice&#8212;just shapes and colors, the vague impression of features. You do not know what you are looking for, and perhaps it is better that way.</p>
+            <p>At the far end of the gallery a door of carved ice waits, its edges sealed with frost. Beyond it you can hear a sound like wind moving through hollow bones.</p>
+            <p class="choice">If you stop to examine the frozen figures and attempt to free some of them, turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            <p class="choice">If you press on through the door to Yomiko&#8217;s sanctum, turn to page <a href="#" onclick="goToSection(29); return false;" class="page-link"><strong>29</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-5" class="game-section" data-section="5">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">5</div>
+        <div class="section-content">
+            <p>You run straight for the cave passage, hoping to get through before the wolves can coordinate. It almost works.</p>
+            <p>The largest wolf hits you from the left, shoulder to shoulder, spinning you into the cave wall. The cold stone takes the breath out of your lungs. The pack closes in, not growling&#8212;completely silent, which is worse. Kireha is caught under your arm at the wrong angle.</p>
+            <p>The cold comes very fast after that. You think of your mother, somewhere in the ice above, her eyes open in the dark. You hope she cannot see this.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-6" class="game-section" data-section="6">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">6</div>
+        <div class="section-content">
+            <p>The village of Tsurugi is a handful of buildings around a frozen well, smoke coming from every chimney. The people watch you ride in with the blank wariness of those who have learned that strangers mean trouble.</p>
+            <p>Elder Masa is a small woman of sixty who takes one look at the dried blood on your sleeve and says nothing except, &#8220;Sit.&#8221;</p>
+            <p>She treats the wound without ceremony. While she works she talks: Yomiko&#8217;s hunters have been more active in the past week. The upper shrine is still accessible, for now, but the monks have been frightened into keeping their distance. The Bell of Heaven hangs in the inner sanctum&#8212;she knows because her mother told her, who knew because her mother told her, going back a hundred years.</p>
+            <p>&#8220;Take the path behind the well,&#8221; she says. &#8220;It climbs to the shrine in half a day. Don&#8217;t linger.&#8221;</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-7" class="game-section" data-section="7">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">7</div>
+        <div class="section-content">
+            <p>The passage into the ice caves opens at the base of Iron Peak&#8217;s western face&#8212;a wide arch of natural stone carved smooth by centuries of melt-water, now frozen again. The tunnel beyond breathes cold.</p>
+            <p>Four wolves guard it: pale-furred, the size of ponies, eyes the color of old ice. They are fully alert, watching the entrance with the focused patience of animals trained not to bark. Yomiko has been expecting company.</p>
+            <p>The passage is roughly thirty feet across. The wolves patrol it in a slow, deliberate rotation that leaves no obvious gap.</p>
+            <p class="choice">If you draw Kireha and fight the wolves directly, turn to page <a href="#" onclick="goToSection(21); return false;" class="page-link"><strong>21</strong></a>.</p>
+            <p class="choice">If you wait for a gap in their patrol and attempt to slip through quietly, turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a>.</p>
+            <p class="choice">If you reach into your pack and toss your travel rations across the passage to draw their attention, turn to page <a href="#" onclick="goToSection(13); return false;" class="page-link"><strong>13</strong></a>.</p>
+            <p class="choice">If you simply run for the passage and hope to get through before they react, turn to page <a href="#" onclick="goToSection(5); return false;" class="page-link"><strong>5</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-8" class="game-section" data-section="8">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">8</div>
+        <div class="section-content">
+            <p>You draw Kireha mid-fall, before your feet touch the ground, and the first hunter&#8217;s frost-spear cracks on the blade. The shock runs up your arm and numbs it to the elbow.</p>
+            <p>The fight is difficult and close. These are not ordinary soldiers&#8212;they are fast and coordinated, and their weapons carry a cold that seeps through your gloves with each block. But Kireha is a very old blade, and whatever it was forged from does not love ice.</p>
+            <p>You break the last hunter&#8217;s spear and put him down. But you have taken a deep gash along your left forearm, now bound with strips torn from your cloak, and one of the hunters released a bird before you could reach him&#8212;a small white crow that flew north the moment the fight began. Someone at Iron Peak will know you are coming.</p>
+            <p>You ride for Tsurugi.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(6); return false;" class="page-link"><strong>6</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-9" class="game-section" data-section="9">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">9</div>
+        <div class="section-content">
+            <p>The village of Tsurugi is a handful of buildings around a frozen well, smoke from every chimney. You arrive leading your horse, Ryuken&#8217;s letter in your hand.</p>
+            <p>Elder Masa reads it twice, then looks at you with an expression that moves from wariness to something more complicated.</p>
+            <p>&#8220;Hana&#8217;s daughter,&#8221; she says. &#8220;Ryuken wrote that you might come eventually. We have been waiting since your mother went up the mountain.&#8221; She gives you tea, a hot meal, and a frost-ward charm&#8212;a braided knot of silver wire that she ties to your wrist herself. &#8220;It will not stop Yomiko. But her servants will think twice before they touch you.&#8221;</p>
+            <p>She tells you about the Bell of Heaven in the upper shrine, the ice caves below the peak, and the passage to Yomiko&#8217;s sanctum beyond. She tells you more than she should, more than she has told anyone in years. It is clear she has been holding this information carefully, waiting for the right person to arrive.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-10" class="game-section" data-section="10">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">10</div>
+        <div class="section-content">
+            <p>The Mountains of Fire earn their name: fumaroles breathe yellow smoke from the ridgeline, and the path between them is dusted with gray ash. The air smells of sulfur and something metallic, like heated copper.</p>
+            <p>The cockatrice is waiting at the narrow pass. It is the size of a cart horse&#8212;bronze feathers, a serrated crest, a tail that ends in a barbed hook. It watches you from the center of the trail with eyes the color of deep ice, its crest rising slowly.</p>
+            <p>Ryuken&#8217;s warning comes back to you: <em>it cannot abide its own reflection.</em> Your free hand finds Kireha&#8217;s hilt. The blade is old and has been polished to a mirror finish.</p>
+            <p>But the animal is between you and the only passage north. You will have to do something.</p>
+            <p class="choice">If you draw Kireha and fight the cockatrice directly, turn to page <a href="#" onclick="goToSection(18); return false;" class="page-link"><strong>18</strong></a>.</p>
+            <p class="choice">If you draw Kireha and hold the blade up so the cockatrice can see its own reflection in the polished steel, turn to page <a href="#" onclick="goToSection(19); return false;" class="page-link"><strong>19</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-11" class="game-section" data-section="11">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">11</div>
+        <div class="section-content">
+            <p>The shrine is older than it looks from the path&#8212;the cedar pillars have gone gray with weather, and the offering bowls are empty. The monks have gone for the day, perhaps for longer. There is no fire in the braziers.</p>
+            <p>You search alone. The inner sanctum is dark except for thin lines of light coming through gaps in the roof, and what hangs in the center of the room takes a moment to resolve: the Bell of Heaven. It is smaller than you expected, dark bronze, the size of a large melon, suspended on a silk cord fraying at the upper loop. The engravings on its surface&#8212;mountains, clouds, some characters you cannot read&#8212;are worn almost smooth.</p>
+            <p>The room is very still. Whatever decision you make, you make it alone.</p>
+            <p class="choice">If you take down the Bell and ring it once, turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+            <p class="choice">If you take down the Bell quietly and put it in your pack without ringing it, turn to page <a href="#" onclick="goToSection(17); return false;" class="page-link"><strong>17</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-12" class="game-section" data-section="12">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">12</div>
+        <div class="section-content">
+            <p>The shrine crests a saddle ridge: three cedar buildings around a stone courtyard, the woodwork bleached silver by years of mountain weather. Three monks in gray robes are seated in the open despite the cold, eyes closed in meditation. They do not move when you enter the gate. They are not obstacles&#8212;simply witnesses.</p>
+            <p>The inner sanctum is lit by oil lamps that have apparently been burning for years without tending. The Bell of Heaven hangs in the center of the room on a silk cord&#8212;dark bronze, smaller than you expected, engraved with mountains and cloud-shapes worn almost smooth by time. The air in here is very still, held by something older than the building around it.</p>
+            <p>One of the monks outside coughs softly. Otherwise there is no sound.</p>
+            <p class="choice">If you take down the Bell and ring it once, turn to page <a href="#" onclick="goToSection(16); return false;" class="page-link"><strong>16</strong></a>.</p>
+            <p class="choice">If you take down the Bell quietly and slip it into your pack without ringing it, turn to page <a href="#" onclick="goToSection(17); return false;" class="page-link"><strong>17</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-13" class="game-section" data-section="13">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">13</div>
+        <div class="section-content">
+            <p>You pull out the last of your travel rations&#8212;dried fish, hard bread, a wrapped block of pressed rice&#8212;and pitch the bundle across the passage toward the far wall. It hits the stone with a satisfying crack and scatters.</p>
+            <p>All four wolves turn. The largest trots toward the sound, and the others follow out of habit or hunger or something in their training that tells them to investigate first and think later. You move fast and low along the near wall, Kireha sheathed against your back to avoid any reflection that might catch a pale eye.</p>
+            <p>You are through the passage before they sort out there is nothing there but old bread and a cold draft.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-14" class="game-section" data-section="14">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">14</div>
+        <div class="section-content">
+            <p>Your horse crashes through the iceberry brush and into the forest proper, branches whipping at your face. The hunters do not follow&#8212;they are foot soldiers, not riders, and the trees close behind you like a door.</p>
+            <p>When you stop to get your bearings, the road is gone. You are somewhere in the deep forest south of the Iron Peak road, the sky invisible above the canopy. The cold is significant and your horse is trembling.</p>
+            <p>After an hour of slow navigation you find a trail marked with cairns&#8212;not the main road, but something older. Where two trails diverge, a carved stone marker stands in the fork, its characters worn nearly smooth. You can just make out a fire symbol pointing south and, to the north, what might be a bird glyph&#8212;or perhaps just a pattern in the weathering.</p>
+            <p>Strange lights are visible through the trees to the north: blue-white, drifting slowly between the trunks like lanterns cut loose from their lines.</p>
+            <p class="choice">If you follow the fire symbol south, through the Mountains of Fire, turn to page <a href="#" onclick="goToSection(10); return false;" class="page-link"><strong>10</strong></a>.</p>
+            <p class="choice">If you investigate the drifting lights to the north, turn to page <a href="#" onclick="goToSection(15); return false;" class="page-link"><strong>15</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-15" class="game-section" data-section="15">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">15</div>
+        <div class="section-content">
+            <p>The lights are beautiful&#8212;blue-white, drifting between the trees like lanterns blown loose from some far celebration. You find yourself moving toward them without having made a conscious decision to do so. Your horse refuses to follow and you tie it to a branch without quite noticing you are doing it.</p>
+            <p>The trees thin. The cold deepens in a way that has nothing to do with the temperature. The lights drift closer together, clustering around a shape in the snow that you cannot quite make out.</p>
+            <p>The last thing you think clearly is that the lights are the same color as the eyes of Yomiko&#8217;s hunters, and that you should have noticed this immediately, back at the fork.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-16" class="game-section" data-section="16">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">16</div>
+        <div class="section-content">
+            <p>You lift the Bell and strike it once, gently, with your knuckle.</p>
+            <p>The sound fills the room&#8212;low and deep and somehow resonant with the mountain itself, as though the stone has been waiting for this frequency for a long time. It keeps going, past the point where you expect it to fade, washing out through the gaps in the walls and across the ridge and down the slopes in a long, slow roll.</p>
+            <p>Somewhere distant&#8212;very distant, but audible through the walls&#8212;there is a long cry. Not pain, exactly. Something more like the sound of a mirror cracking: sudden, high, and final.</p>
+            <p>If there were monks present, the eldest of them opens his eyes. He bows very slightly toward you, once, and closes them again.</p>
+            <p>You take the Bell, wrap it carefully in your cloak, and begin the descent toward the ice caves. The mountain feels different under your feet now&#8212;as if something that was very tightly wound has begun, slowly, to loosen.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(20); return false;" class="page-link"><strong>20</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-17" class="game-section" data-section="17">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">17</div>
+        <div class="section-content">
+            <p>You take the Bell from its cord carefully, wrap it in your cloak, and ease it into your pack. There is no sound. The silence after feels like a held breath&#8212;the room waiting to see what you do next.</p>
+            <p>The advantage is secrecy. Yomiko will not know you are coming. She will be at full strength, undisturbed, and she will not have the warning that the Bell&#8217;s resonance would carry through the mountain stone.</p>
+            <p>You leave the shrine and descend toward the base of Iron Peak.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(7); return false;" class="page-link"><strong>7</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-18" class="game-section" data-section="18">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">18</div>
+        <div class="section-content">
+            <p>The cockatrice does not wait. It lunges, all bronze feathers and screaming crest, and the first strike takes you across the upper arm as you roll left. Kireha takes the second hit full on the flat&#8212;the impact is like metal on metal, and the cockatrice stumbles back, confused by the sound.</p>
+            <p>You press the advantage. Three exchanges of strikes and parries, each one costing you something: a cut across the cheek from the crest, a pulled muscle in your sword arm, a bad step that jars your knee against a boulder. By the time the cockatrice retreats snarling back up the pass, you are breathing hard and bleeding from two places.</p>
+            <p>The path through is open, but you are slower now. The afternoon is old by the time you reach the upper shrine. The monks have gone for the evening, and the building stands empty in the fading light.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(11); return false;" class="page-link"><strong>11</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-19" class="game-section" data-section="19">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">19</div>
+        <div class="section-content">
+            <p>You draw Kireha and hold the blade horizontal, angled so the flat catches the ash-filtered light and throws a rectangle of reflection forward&#8212;a mirror-image cockatrice hovering in the old steel, bronze feathers and serrated crest perfectly rendered.</p>
+            <p>The animal stops mid-step. Its eyes track the reflection. Its crest rises, then flattens, uncertain. It turns its head to one side, then the other, trying to understand what it is seeing&#8212;another of its kind, identical, motionless, approaching at exactly the same speed it approaches.</p>
+            <p>Then it freezes. Not literally, but completely: held by its own image in the particular way that certain predators are caught by unexpected mirrors, their instincts rewriting themselves around a puzzle that has no answer.</p>
+            <p>You walk past it carefully, blade still angled, and do not lower it until you are well clear of the pass and onto open ground. By noon you are at the shrine.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(12); return false;" class="page-link"><strong>12</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-20" class="game-section" data-section="20">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">20</div>
+        <div class="section-content">
+            <p>The entrance to the ice caves opens at the base of Iron Peak&#8217;s western face&#8212;a wide arch of natural stone, carved smooth by centuries of melt-water, now frozen again. The tunnel beyond breathes cold.</p>
+            <p>Four wolves stand guard here normally. Today they are listless. One is asleep on its side, ribs rising and falling slowly. Two others are watching their own breath fog in the cold air with the unfocused attention of animals that cannot name what is wrong with them. The fourth raises its head when you approach, ears pricked&#8212;then lets them fall and looks away, as though it heard something just below the threshold of sense.</p>
+            <p>The Bell&#8217;s echo is still in the mountain stone, resonating at frequencies that wolves find deeply unsettling. They are not incapacitated, but they are not themselves.</p>
+            <p class="choice">If you slip past them quietly while they are distracted, turn to page <a href="#" onclick="goToSection(22); return false;" class="page-link"><strong>22</strong></a>.</p>
+            <p class="choice">If you draw Kireha and clear the entrance, turn to page <a href="#" onclick="goToSection(21); return false;" class="page-link"><strong>21</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-21" class="game-section" data-section="21">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">21</div>
+        <div class="section-content">
+            <p>They are large animals and there are four of them and they fight in complete silence, which is the worst part&#8212;no growling, no yelping, no audio cues at all. You spend a long and exhausting twenty minutes in a close battle where you cannot read them by sound, only by movement and the white flash of teeth.</p>
+            <p>By the end your clothes are torn, your knuckles are bleeding, and you have used Kireha in ways a swordsmith would object to. But the wolves have retreated to the far end of the cave and the passage ahead is clear.</p>
+            <p>You are tired in a way that will matter later. You press deeper into the ice caves.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-22" class="game-section" data-section="22">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">22</div>
+        <div class="section-content">
+            <p>Wolves watch with their noses first and their eyes second. You approach from downwind&#8212;carefully, slowly, one measured step at a time&#8212;and the largest one lifts its head and turns it toward you for a long moment before settling back. You freeze. Wait. Count thirty heartbeats. Then move again.</p>
+            <p>The passage is thirty feet. You take three full minutes crossing it, and at one point you are close enough to the nearest wolf to see its ribs moving in sleep. But you make it through, and at the far end you breathe again.</p>
+            <p>The caves open before you, blue-lit and silent.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-23" class="game-section" data-section="23">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">23</div>
+        <div class="section-content">
+            <p>The ice caves generate their own dim blue light, refracted through crystal formations in the walls and ceiling. The silence is absolute and has a texture to it, like cold cloth pressed against your ears.</p>
+            <p>The passage opens into a chamber thirty feet across. On a plinth of black ice in the center sits the Jade Mask. It is small and ancient&#8212;carved green jade, a human face with closed eyes and an expression that might be grief or serenity or something in between that does not have a name in your language. The cold in this room is different from the cold in the passage: not natural cold, but the kind that contains something.</p>
+            <p>You circle the plinth once. There are no obvious traps, no guards, no inscription on the plinth telling you what will happen when you touch it.</p>
+            <p class="choice">If you pick up the Jade Mask and put it on, turn to page <a href="#" onclick="goToSection(25); return false;" class="page-link"><strong>25</strong></a>.</p>
+            <p class="choice">If you pick up the Jade Mask and carry it carefully without wearing it, turn to page <a href="#" onclick="goToSection(26); return false;" class="page-link"><strong>26</strong></a>.</p>
+            <p class="choice">If you leave the Jade Mask for now and explore the passage that continues deeper into the caves, turn to page <a href="#" onclick="goToSection(24); return false;" class="page-link"><strong>24</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-24" class="game-section" data-section="24">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">24</div>
+        <div class="section-content">
+            <p>The passage beyond the chamber winds deeper for perhaps two hundred feet before it opens&#8212;suddenly, without warning&#8212;into a space that is not a cave anymore. It is a room. The walls are carved and smoothed. Oil lamps burn in iron brackets with steady, windless flames.</p>
+            <p>At the far end of the room a tall figure in white robes stands completely still. Her hair is loose and silver. She is facing you. She heard you before you entered.</p>
+            <p>Yomiko. You have come without the Jade Mask and without the Bell and without any of the advantages you might have earned along the way. She regards you with the patience of someone who has been waiting here for a very long time and does not mind waiting a little longer.</p>
+            <p>&#8220;You came the wrong way,&#8221; she says. &#8220;Most do.&#8221;</p>
+            <p class="choice">If you retreat quickly and go back for the Jade Mask, turn to page <a href="#" onclick="goToSection(23); return false;" class="page-link"><strong>23</strong></a>.</p>
+            <p class="choice">If you draw Kireha and face her now, turn to page <a href="#" onclick="goToSection(35); return false;" class="page-link"><strong>35</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-25" class="game-section" data-section="25">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">25</div>
+        <div class="section-content">
+            <p>The Jade Mask settles over your face as though shaped for it. For a moment there is nothing but cold and darkness, and then&#8212;</p>
+            <p>You can see.</p>
+            <p>The ice in the walls is not empty. The crystal columns in the passage ahead are not decorative. There are figures in them. You can see their faces with a clarity that has nothing to do with light: a general in bronze armor, hands folded. A young scholar with ink on his fingers. A woman with gray-streaked hair and a posture that is almost unbearably familiar&#8212;</p>
+            <p>Your mother. Hana. Her eyes are open. Her expression is composed, the way it always was when she was waiting for something she had been expecting for a long time.</p>
+            <p>She is alive in there.</p>
+            <p>The Jade Mask shows you one thing more: at the heart of Yomiko&#8217;s sanctum, deeper in the mountain, the Mirror of Eternal Snow pulses with a light that does not illuminate the room it hangs in. That is where you need to go. And wearing this mask, you know exactly which passage leads there.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(28); return false;" class="page-link"><strong>28</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-26" class="game-section" data-section="26">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">26</div>
+        <div class="section-content">
+            <p>The Jade Mask is warm in your hands&#8212;warmer than jade has any right to be in a cave this cold. You wrap it carefully in your cloak and continue along the passage, following the blue light deeper into the mountain.</p>
+            <p>The passage opens into a long gallery. You stop in the entrance and look down its length, and your breath catches.</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(4); return false;" class="page-link"><strong>4</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-27" class="game-section" data-section="27">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">27</div>
+        <div class="section-content">
+            <p>There are twenty-two frozen figures in the gallery. Without the Jade Mask you cannot read their faces with certainty through the ice&#8212;they are shapes and colors, the vague impression of features. With the mask, you can see every one of them clearly, and what you see makes the decision easy.</p>
+            <p>You draw Kireha and press the flat of the blade against the nearest column, pushing something through it&#8212;not physical warmth, which the blade does not carry, but something older that lives in a sword ancient enough to remember when it was living metal, before anyone shaped it.</p>
+            <p>The ice cracks. The figure within gasps and steps free. And the next. And the next.</p>
+            <p>Twenty minutes later, twenty-two people stand in the gallery behind you&#8212;thin and disoriented but alive, blinking in the blue light, steadying themselves against each other and against the walls. A woman with gray-streaked hair and a posture you would know anywhere reaches for a spear from a fallen column and straightens to her full height.</p>
+            <p>Your mother presses her hand to your face. Her fingers are very cold.</p>
+            <p>&#8220;You found the sword,&#8221; she says. Her voice is steady. &#8220;Show me the way.&#8221;</p>
+        </div>
+        <div class="turn-instruction">
+            <p class="choice">Turn to page <a href="#" onclick="goToSection(30); return false;" class="page-link"><strong>30</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-28" class="game-section" data-section="28">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">28</div>
+        <div class="section-content">
+            <p>Wearing the Jade Mask, you pass through the gallery with perfect clarity. You can see every face in every column: the general, the scholars, the two children, the priestess. You know your mother is here&#8212;third row, center column, eyes open, alive&#8212;and the knowledge sits inside you like a stone dropped into deep water.</p>
+            <p>At the far end, the carved door to Yomiko&#8217;s sanctum waits with its edges sealed in frost.</p>
+            <p class="choice">If you stop now and use Kireha to free the frozen prisoners, turn to page <a href="#" onclick="goToSection(27); return false;" class="page-link"><strong>27</strong></a>.</p>
+            <p class="choice">If you go directly to Yomiko&#8217;s sanctum, carrying the knowledge the mask has given you, turn to page <a href="#" onclick="goToSection(29); return false;" class="page-link"><strong>29</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-29" class="game-section" data-section="29">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">29</div>
+        <div class="section-content">
+            <p>Yomiko&#8217;s sanctum is a hemisphere of ice thirty feet across, lit by the Mirror of Eternal Snow, which hangs on the far wall and does not reflect what stands before it but rather what stood before it long ago&#8212;emperors, mountains, faces of the long dead, cycling through in slow succession.</p>
+            <p>Yomiko turns when you enter. She is tall and very still, her hair loose and silver, her eyes without pupils&#8212;just pale irises the color of new ice from edge to edge. She regards you the way a river regards something dropped into it: with total, impersonal attention.</p>
+            <p>&#8220;Hana&#8217;s daughter,&#8221; she says. Her voice is precise and without accent, as though she learned language from a very old book. &#8220;I expected you to be more interesting.&#8221;</p>
+            <p>She raises one hand. The temperature in the room drops ten degrees.</p>
+            <p class="choice">If you have the flame vial from Ryuken, break the seal and use it now &#8212; turn to page <a href="#" onclick="goToSection(32); return false;" class="page-link"><strong>32</strong></a>.</p>
+            <p class="choice">If you rang the Bell of Heaven at the shrine and its resonance has already weakened Yomiko, use that power against her now &#8212; turn to page <a href="#" onclick="goToSection(33); return false;" class="page-link"><strong>33</strong></a>.</p>
+            <p class="choice">If you have neither advantage, draw Kireha and face her &#8212; turn to page <a href="#" onclick="goToSection(35); return false;" class="page-link"><strong>35</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-30" class="game-section" data-section="30">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">30</div>
+        <div class="section-content">
+            <p>Twenty-two people with improvised weapons standing at your back changes the arithmetic entirely, and Yomiko knows it before you enter the room. You can see it in the slight change in her posture&#8212;the first time you have seen her posture change at all.</p>
+            <p>She is already moving, the temperature dropping, the Mirror beginning to pulse with that backward-facing light. The gallery&#8217;s freed prisoners spread out behind you. Your mother takes a position at your left shoulder, borrowed spear raised, expression calm.</p>
+            <p class="choice">If you have the flame vial from Ryuken, this is the moment to use it &#8212; turn to page <a href="#" onclick="goToSection(31); return false;" class="page-link"><strong>31</strong></a>.</p>
+            <p class="choice">If you do not have the flame vial, the freed heroes will fight alongside you &#8212; turn to page <a href="#" onclick="goToSection(34); return false;" class="page-link"><strong>34</strong></a>.</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-31" class="game-section" data-section="31">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">31</div>
+        <div class="section-content">
+            <p>You break the seal on the clay vial and the sacred fire jumps from your hand to the Mirror of Eternal Snow with no hesitation, as though it has been looking for a path there for a very long time and is glad to have finally found it.</p>
+            <p>Yomiko makes a sound you will remember for the rest of your life: not pain, not rage, but surprise. The Mirror shatters. The cold in the room collapses like a tent with its pole pulled out&#8212;suddenly and completely, replaced by a warmth that has no source, that seems to come from the stone itself.</p>
+            <p>Yomiko does not die&#8212;spirits that old do not die in moments. She disperses. You watch her become less coherent, less present, her outline softening and spreading until she is just a cold wind that moves through the shattered chamber, searches the corners once as if looking for something misplaced, and then passes out through the ice above and is gone.</p>
+            <p>The heroes lower their weapons one by one. Somewhere a crack appears in the gallery ceiling and a thin line of gray daylight comes through.</p>
+            <p>Your mother is next to you. She is looking at the space where Yomiko was, and then she looks at you. Her hand finds your arm.</p>
+            <p>&#8220;All three,&#8221; she says. &#8220;You have all three relics.&#8221;</p>
+            <p>You do. The Bell of Heaven, the Jade Mask, and the Mirror of Eternal Snow&#8212;recovered, intact, ready to be returned to the shrine. The Emperor will have his coronation. The throne will hold.</p>
+            <p>You and your mother walk out of the mountain together into the cold, clear light of a Yamato morning.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-32" class="game-section" data-section="32">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">32</div>
+        <div class="section-content">
+            <p>You break the seal on the clay vial and the sacred fire leaps across the room toward Yomiko. She has not been weakened by the Bell&#8212;she is at full strength, her form dense and cold and fully present&#8212;and so the flame catches her but does not consume her. She screams, one terrible high note, and is driven back hard against the far wall, pinned there by the light.</p>
+            <p>It is enough. She cannot pursue you. She cannot fight. She is held against the ice by the sacred fire&#8217;s light as long as it burns, which will not be long.</p>
+            <p>You take the Mirror of Eternal Snow from the wall. It is heavier than it looks. You put the Bell and the Jade Mask in your pack and walk back through the empty gallery and out through the caves without looking behind you.</p>
+            <p>You do not know that your mother is in one of those columns. You did not enter the gallery wearing the mask. You do not know that twenty-two people, including her, are still in there, eyes open in the dark, waiting.</p>
+            <p>The empire will have its coronation. The shrine relics will be restored. The throne will hold. These are not small things.</p>
+            <p>But Iron Peak will keep its gallery of frozen heroes, waiting in their columns in the blue-lit silence, for someone who will come back for them someday.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-33" class="game-section" data-section="33">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">33</div>
+        <div class="section-content">
+            <p>The Bell&#8217;s resonance is still in the mountain stone. You can feel it in the soles of your feet&#8212;a low vibration that the rock has been holding since you rang it at the shrine, carrying it down through the peak and into the very walls of this chamber.</p>
+            <p>You reach for that sound. You speak it aloud, a single syllable, the way Masa described when she explained the Bell&#8217;s properties: not a word, exactly, but a shaped breath that asks the stone to carry what it has been holding.</p>
+            <p>The room picks it up and amplifies it. Yomiko flinches&#8212;not dramatically, not the way fire would drive her back, but a structural flinch, the kind that means something in her fundamental cohesion is failing. Her outline shimmers.</p>
+            <p>Kireha finds the gap. You are fast, and the old blade understands what it was made for, and Yomiko&#8217;s form comes apart in a cascade of pale light that turns to frost before it reaches the floor and simply settles there in a thin white layer, like the first snow of autumn.</p>
+            <p>The Mirror of Eternal Snow goes dark, then clear, then shows you your own face looking back at you&#8212;just your face, present and immediate, with no ghosts behind it.</p>
+            <p>In the gallery behind you, through the wall, you hear the crack of ice, and then another, and then the sound of twenty-two people breathing at once.</p>
+            <p>When you go back through, your mother is standing free among the others, blinking in the blue light. She looks around, takes stock of the situation with the speed of someone who has been thinking through contingencies for a long time, and then looks at you.</p>
+            <p>&#8220;You rang the Bell,&#8221; she says. She sounds unsurprised, as though she always knew you would. &#8220;Good.&#8221;</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-34" class="game-section" data-section="34">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">34</div>
+        <div class="section-content">
+            <p>Twenty-two people who have been frozen in ice for various lengths of time are not a professional fighting force. But they are angry, and many of them were soldiers and warriors and scholars in their day, and they have been standing in columns of blue ice with their eyes open for a long time, and they have been thinking about what they would do when they got out.</p>
+            <p>The fight in Yomiko&#8217;s sanctum is not elegant. It is loud and close and chaotic, and you take a long gash across your ribs that will leave a scar you will be explaining for years. But Yomiko cannot focus her cold on a single point when there are twenty-two others pressing from every direction, and old spirits, however powerful, are still spirits, and spirits that cannot focus cannot hold their form.</p>
+            <p>She comes apart in pieces, retreating into the Mirror until the Mirror goes white and then silent and then dark. The temperature in the room begins to rise almost immediately.</p>
+            <p>Your mother, bleeding from a shallow cut on her forearm, stands next to you in the center of the room. She looks at the Mirror for a long moment, then at you, and something in her expression settles.</p>
+            <p>&#8220;All three,&#8221; she says. &#8220;You have all three.&#8221;</p>
+            <p>You do.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    <section id="section-35" class="game-section" data-section="35">
+        <div class="page-nav page-nav-left" onclick="goToPrevPage()">&#9664;</div>
+        <div class="page-nav page-nav-right" onclick="goToNextPage()">&#9654;</div>
+        <div class="page-number">35</div>
+        <div class="section-content">
+            <p>Yomiko does not give you time to think. The cold crashes into the room like a wave, and you are moving&#8212;Kireha drawing a line of warmth through the frozen air&#8212;but she is in three places at once, her form refracting across the ice walls in images that are each as solid and present as the original, and there is no single point to press toward.</p>
+            <p>You try. You fight the way Hana taught you&#8212;reading the center of gravity, waiting for the moment of commitment, finding the line between attack and defense. For a few minutes you think it might be enough. It is not. Yomiko is older than the kingdom, older than the mountain road, older than the practice of naming things, and she does not make the kind of mistakes that training is designed to exploit.</p>
+            <p>The last thing you see clearly is the Mirror of Eternal Snow, and in it your own face, and behind your face, deep in the silver, the face of your mother looking out at you with an expression of grief and helplessness and a terrible, patient recognition.</p>
+            <p>The cold is very thorough.</p>
+            <p class="ending">THE END</p>
+        </div>
+        <div class="bookmark-link" style="display:none;"></div>
+    </section>
+
+    </div><!-- .page -->
+    <script>
+    let history = [];
+    let lastChoiceSection = null;
+    let currentView = 'cover';
+    let options = { darkMode: false, fontSize: 2, narration: false };
+    const fontSizes = [
+        { name: 'X-Small', size: '15px' },
+        { name: 'Small',   size: '17px' },
+        { name: 'Medium',  size: '19px' },
+        { name: 'Large',   size: '21px' },
+        { name: 'X-Large', size: '23px' }
+    ];
+    const allSections = Array.from(document.querySelectorAll('section.game-section[data-section]'));
+    const sortedSections = allSections.map(s => parseInt(s.dataset.section)).sort((a, b) => a - b);
+    const totalSections = sortedSections.length;
+
+    function hideAllSections() {
+        document.querySelectorAll('.game-section').forEach(s => {
+            s.classList.remove('active', 'flip-left', 'cover-visible');
+            s.style.display = 'none';
+        });
+    }
+    function showSection(section, direction) {
+        section.classList.add('active');
+        if (direction === 'left') section.classList.add('flip-left');
+        section.style.display = 'block';
+    }
+    function sectionHasChoices(sectionNum) {
+        const el = document.getElementById('section-' + sectionNum);
+        return el ? el.querySelectorAll('.page-link').length >= 2 : false;
+    }
+    function getLastChoiceForCurrent() {
+        if (!Array.isArray(history) || history.length === 0) return null;
+        const current = history[history.length - 1];
+        for (let i = history.length - 2; i >= 0; i--) {
+            const n = history[i];
+            if (n === current) continue;
+            if (sectionHasChoices(n)) return n;
+        }
+        return null;
+    }
+    function goToSection(num, isBookmarkJump, direction) {
+        const section = document.getElementById('section-' + num);
+        if (!section) { alert('Page ' + num + ' not found.'); return; }
+        hideAllSections();
+        showSection(section, direction);
+        currentView = 'section';
+        if (!isBookmarkJump || history[history.length - 1] !== num) history.push(num);
+        lastChoiceSection = getLastChoiceForCurrent();
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        updateBackChoiceBtn();
+        updateBookmarkLinks();
+        updateBreadcrumb();
+        saveProgress();
+    }
+    function goToNextPage() {
+        const current = getCurrentSection();
+        if (current === null) return;
+        const idx = sortedSections.indexOf(current);
+        if (idx < sortedSections.length - 1) goToSection(sortedSections[idx + 1], false, 'right');
+    }
+    function goToPrevPage() {
+        const current = getCurrentSection();
+        if (current === null) return;
+        const idx = sortedSections.indexOf(current);
+        if (idx > 0) goToSection(sortedSections[idx - 1], false, 'left');
+    }
+    function getCurrentSection() {
+        const active = document.querySelector('.game-section.active');
+        return active && active.dataset.section ? parseInt(active.dataset.section) : null;
+    }
+    function goToLastChoice() {
+        if (lastChoiceSection) goToSection(lastChoiceSection, true);
+    }
+    function jumpToPage() {
+        const val = parseInt(document.getElementById('page-jump').value);
+        if (!val || !document.getElementById('section-' + val)) { alert('Page ' + val + ' not found.'); return; }
+        goToSection(val);
+    }
+    function openBook() {
+        if (hasProgress()) {
+            const savedView = loadProgress();
+            if (savedView && savedView !== 'cover' && savedView !== 'options') {
+                if (savedView === 'home') { goToIntro(); return; }
+                goToSection(savedView, true);
+                return;
+            }
+        }
+    }
+    let cameFromGameplay = false;
+    function goToOptions() {
+        cameFromGameplay = (currentView !== 'cover' && currentView !== 'options' && history.length > 0);
+        hideAllSections();
+        showSection(document.getElementById('options-section'));
+        currentView = 'options';
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        applyOptions();
+        updateFontSizeSlider();
+        updateOptionsButtons();
+    }
+    function updateOptionsButtons() {
+        const primaryBtn = document.getElementById('options-primary-btn');
+        const restartBtn = document.getElementById('options-restart-btn');
+        if (cameFromGameplay) {
+            primaryBtn.innerHTML = '&#8592; Back to Story';
+            primaryBtn.onclick = function() { goBack(); };
+            restartBtn.style.display = 'block';
+        } else {
+            primaryBtn.innerHTML = '&#10086; Begin Adventure';
+            primaryBtn.onclick = function() { beginAdventure(); };
+            restartBtn.style.display = hasProgress() ? 'block' : 'none';
+        }
+    }
+    function goBack() {
+        if (history.length > 0) goToSection(history[history.length - 1], true);
+        else goToIntro();
+    }
+    function startFreshAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+    function restartFromOptions() {
+        if (confirm('Start over from the beginning? Your reading progress will be cleared.')) {
+            history = []; lastChoiceSection = null; saveProgress(); goToIntro();
+        }
+    }
+    function beginAdventure() { history = []; lastChoiceSection = null; saveProgress(); goToIntro(); }
+    function resumeAdventure() {
+        const savedView = loadProgress();
+        if (savedView && savedView !== 'cover' && savedView !== 'options') {
+            if (savedView === 'home') { goToIntro(); return; }
+            goToSection(savedView, true);
+        } else { goToIntro(); }
+    }
+    function goToCover() {
+        hideAllSections();
+        const cover = document.getElementById('cover-section');
+        if (cover) {
+            cover.classList.add('cover-visible');
+            cover.style.display = 'block';
+            currentView = 'cover';
+        } else { goToOptions(); return; }
+        window.scrollTo({ top: 0, behavior: 'auto' });
+        updatePageIndicator();
+        const hint = document.getElementById('cover-resume-hint');
+        if (hint) hint.style.display = hasProgress() ? 'block' : 'none';
+    }
+    function goToIntro() {
+        hideAllSections();
+        const home = document.getElementById('home-section');
+        if (home) { showSection(home); currentView = 'home'; window.scrollTo({ top: 0, behavior: 'auto' }); updatePageIndicator(); }
+    }
+    function updatePageIndicator() {
+        const el = document.getElementById('page-indicator');
+        if (!el) return;
+        if (currentView === 'cover') { el.textContent = 'Cover'; return; }
+        if (currentView === 'options') { el.textContent = 'Options'; return; }
+        if (currentView === 'home') { el.textContent = 'Intro'; return; }
+        const current = getCurrentSection();
+        if (current !== null) {
+            const idx = sortedSections.indexOf(current);
+            el.textContent = 'Page ' + current + ' (' + (idx + 1) + '/' + totalSections + ')';
+        }
+    }
+    function updateBackChoiceBtn() {
+        const btn = document.getElementById('back-choice-btn');
+        const num = document.getElementById('back-choice-num');
+        if (!btn) return;
+        btn.disabled = !lastChoiceSection;
+        if (num) num.textContent = lastChoiceSection || '?';
+    }
+    function updateBookmarkLinks() {
+        document.querySelectorAll('.bookmark-link').forEach(link => {
+            const parent = link.closest('.game-section');
+            if (!parent || !parent.classList.contains('active')) return;
+            link.style.display = lastChoiceSection ? 'block' : 'none';
+            link.innerHTML = lastChoiceSection
+                ? '<button class="bookmark-btn" onclick="goToLastChoice()">&#8592; Back to page ' + lastChoiceSection + '</button>'
+                : '';
+        });
+    }
+    function updateBreadcrumb() {
+        const trail = document.getElementById('breadcrumb-trail');
+        if (!trail) return;
+        trail.innerHTML = history.slice(-5).map((n, i, arr) =>
+            i < arr.length - 1
+                ? '<span class="breadcrumb-link" onclick="goToSection(' + n + ',true)">' + n + '</span>'
+                : '<strong>' + n + '</strong>'
+        ).join(' &rarr; ');
+    }
+    function toggleOption(which) {
+        if (which === 'dark') { options.darkMode = !options.darkMode; applyOptions(); saveProgress(); }
+    }
+    function setFontSizeFromSlider(value) { options.fontSize = parseInt(value); applyOptions(); saveProgress(); }
+    function updateFontSizeSlider() {
+        const slider = document.getElementById('font-size-slider');
+        if (slider) slider.value = options.fontSize;
+        updateFontPreview();
+    }
+    function updateFontPreview() {
+        const preview = document.getElementById('font-preview');
+        if (preview) preview.textContent = fontSizes[options.fontSize]?.name || 'Medium';
+    }
+    function applyOptions() {
+        document.documentElement.setAttribute('data-theme', options.darkMode ? 'dark' : '');
+        document.documentElement.style.setProperty('--font-size', fontSizes[options.fontSize]?.size || '19px');
+        const toggle = document.getElementById('toggle-dark');
+        if (toggle) toggle.classList.toggle('active', options.darkMode);
+        updateFontPreview();
+        const summary = document.getElementById('options-summary');
+        if (summary) {
+            const parts = [];
+            if (options.darkMode) parts.push('Dark Mode');
+            parts.push((fontSizes[options.fontSize]?.name || 'Medium') + ' text');
+            summary.textContent = parts.join(' \u00b7 ');
+        }
+    }
+    const PROGRESS_KEY = 'steelOfTheMountainShrine_progress';
+    function saveProgress() {
+        try {
+            localStorage.setItem(PROGRESS_KEY, JSON.stringify({
+                history, lastChoiceSection, currentView, options, v: getCurrentSection()
+            }));
+        } catch(e) {}
+    }
+    function loadProgress() {
+        try {
+            const saved = localStorage.getItem(PROGRESS_KEY);
+            if (!saved) return null;
+            const state = JSON.parse(saved);
+            if (state.history) history = state.history;
+            if (state.lastChoiceSection !== undefined) lastChoiceSection = state.lastChoiceSection;
+            if (state.options) options = Object.assign(options, state.options);
+            applyOptions();
+            return state.v || state.currentView;
+        } catch(e) { return null; }
+    }
+    function hasProgress() {
+        try {
+            const saved = localStorage.getItem(PROGRESS_KEY);
+            if (!saved) return false;
+            const state = JSON.parse(saved);
+            return state.history && state.history.length > 0;
+        } catch(e) { return false; }
+    }
+    let touchStartX = 0, touchEndX = 0;
+    document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive: true});
+    document.addEventListener('touchend', e => { touchEndX = e.changedTouches[0].screenX; handleSwipe(); }, {passive: true});
+    function handleSwipe() {
+        const diff = touchStartX - touchEndX;
+        if (Math.abs(diff) < 50) return;
+        if (diff > 0) goToNextPage(); else goToPrevPage();
+    }
+    document.addEventListener('keydown', e => {
+        if (e.target.tagName === 'INPUT') return;
+        if (e.key === 'ArrowRight') goToNextPage();
+        if (e.key === 'ArrowLeft') goToPrevPage();
+        if (e.key === 'Home') { e.preventDefault(); goToCover(); }
+    });
+    applyOptions();
+    goToCover();
+    openBook();
+    </script>
+</body>
+</html>
