@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Indiana Jones and the Seal of Solomon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink:       #1a0e02;
+    --parchment: #f2e8cc;
+    --aged:      #c9a96e;
+    --rust:      #8b3318;
+    --gold:      #b8832a;
+    --shadow:    rgba(26,14,2,0.35);
+    --dim:       #7a5c32;
+    --paper:     #ede0b8;
+    --red:       #7a1c0c;
+  }
+
+  html, body {
+    min-height: 100vh;
+    background: #1a0e02;
+    font-family: 'Lora', Georgia, serif;
+    color: var(--ink);
+  }
+
+  /* Grain overlay */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 0;
+    opacity: 0.6;
+  }
+
+  #app {
+    position: relative; z-index: 1;
+    max-width: 740px;
+    margin: 0 auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  /* ── COVER ── */
+  #cover {
+    display: flex; flex-direction: column; align-items: center;
+    padding: 3rem 2rem;
+  }
+  .cover-frame {
+    background: var(--parchment);
+    border: 3px solid var(--gold);
+    box-shadow: 0 0 0 8px #1a0e02, 0 0 0 10px var(--gold), 0 12px 60px var(--shadow);
+    padding: 3rem 3.5rem 3.5rem;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    background-image:
+      radial-gradient(ellipse at 30% 20%, rgba(201,169,110,0.18) 0%, transparent 60%),
+      radial-gradient(ellipse at 70% 80%, rgba(138,80,40,0.10) 0%, transparent 55%);
+  }
+  .cover-frame::before, .cover-frame::after {
+    content: '';
+    position: absolute;
+    border: 1px solid var(--aged);
+  }
+  .cover-frame::before { inset: 10px; }
+  .cover-frame::after  { inset: 14px; opacity: 0.4; }
+
+  .series-badge {
+    font-family: 'Lora', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--rust);
+    margin-bottom: 1.2rem;
+  }
+  .cover-star {
+    font-size: 1.8rem;
+    color: var(--gold);
+    display: block;
+    margin-bottom: 1rem;
+    letter-spacing: 0.5em;
+    text-shadow: 0 0 20px rgba(184,131,42,0.4);
+  }
+  .cover-title-main {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.6rem, 5vw, 2.5rem);
+    font-weight: 900;
+    line-height: 1.05;
+    color: var(--ink);
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+  }
+  .cover-title-and {
+    font-family: 'Playfair Display', serif;
+    font-style: italic;
+    font-size: 1rem;
+    color: var(--dim);
+    display: block;
+    margin: 0.4rem 0;
+  }
+  .cover-subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.2rem, 4vw, 1.9rem);
+    font-weight: 700;
+    font-style: italic;
+    color: var(--rust);
+    line-height: 1.2;
+    margin-top: 0.2rem;
+  }
+  .cover-divider {
+    width: 80px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold), transparent);
+    margin: 1.4rem auto;
+  }
+  .cover-byline {
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  .cover-blurb {
+    font-size: 0.85rem;
+    line-height: 1.7;
+    color: #4a320a;
+    margin: 1.2rem auto 0;
+    max-width: 440px;
+    font-style: italic;
+  }
+  .cover-badge {
+    display: inline-block;
+    margin-top: 1.6rem;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rust);
+    border: 1px solid var(--aged);
+    padding: 0.3rem 0.9rem;
+  }
+
+  .start-btn {
+    display: block;
+    margin: 2.5rem auto 0;
+    background: var(--rust);
+    color: var(--parchment);
+    border: none;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.85rem 3rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(139,51,24,0.4);
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  }
+  .start-btn:hover { background: #a34020; transform: translateY(-2px); box-shadow: 0 6px 28px rgba(139,51,24,0.5); }
+  .start-btn:active { transform: translateY(0); }
+
+  /* ── SECTION PAGE ── */
+  #section-page { display: none; }
+
+  .section-header {
+    text-align: center;
+    padding-bottom: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--aged);
+  }
+  .section-number-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--dim);
+    font-family: 'Lora', serif;
+  }
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--gold);
+    line-height: 1;
+    margin: 0.1rem 0 0.3rem;
+    text-shadow: 1px 1px 0 rgba(138,80,40,0.2);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--rust);
+  }
+
+  .section-body {
+    background: var(--parchment);
+    border: 1px solid var(--aged);
+    box-shadow: 0 4px 30px var(--shadow), inset 0 0 40px rgba(201,169,110,0.08);
+    padding: 2.5rem 2.5rem 2rem;
+    position: relative;
+    background-image:
+      radial-gradient(ellipse at 20% 0%, rgba(201,169,110,0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 100%, rgba(138,80,40,0.08) 0%, transparent 45%);
+  }
+  .section-body::before {
+    content: '';
+    position: absolute; inset: 6px;
+    border: 1px solid rgba(184,131,42,0.2);
+    pointer-events: none;
+  }
+
+  .section-text { font-size: 0.97rem; line-height: 1.85; color: var(--ink); }
+  .section-text p { margin-bottom: 1.1em; }
+  .section-text p:last-child { margin-bottom: 0; }
+  .section-text em { font-style: italic; color: #3a2008; }
+  .section-text strong { font-weight: 600; }
+
+  .choices-divider {
+    width: 60px; height: 1px;
+    background: linear-gradient(to right, transparent, var(--aged), transparent);
+    margin: 2rem auto 1.8rem;
+  }
+
+  .choices-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--dim);
+    text-align: center;
+    margin-bottom: 1.2rem;
+  }
+
+  .choices-list { list-style: none; display: flex; flex-direction: column; gap: 0.7rem; }
+
+  .choice-btn {
+    width: 100%;
+    background: #f7edd4;
+    border: 1px solid var(--aged);
+    color: var(--ink);
+    font-family: 'Lora', serif;
+    font-size: 0.88rem;
+    line-height: 1.5;
+    padding: 0.85rem 1.1rem 0.85rem 2.4rem;
+    text-align: left;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  }
+  .choice-btn::before {
+    content: '❧';
+    position: absolute;
+    left: 0.85rem; top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    font-size: 0.85rem;
+  }
+  .choice-btn:hover {
+    background: #fff8e8;
+    border-color: var(--gold);
+    transform: translateX(3px);
+  }
+  .choice-btn:active { transform: translateX(1px); }
+
+  /* ENDING styles */
+  .ending-tag {
+    display: inline-block;
+    background: var(--rust);
+    color: #f2e8cc;
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.7rem;
+    font-family: 'Lora', serif;
+    margin-bottom: 0.8rem;
+  }
+  .ending-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--rust);
+    margin-bottom: 0.5rem;
+  }
+  .ending-epigraph {
+    font-style: italic;
+    color: var(--dim);
+    font-size: 0.85rem;
+    margin-bottom: 1.5rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--aged);
+  }
+  .section-body.is-ending {
+    border-color: var(--gold);
+    box-shadow: 0 4px 40px rgba(138,80,40,0.35), inset 0 0 60px rgba(201,169,110,0.1);
+  }
+  .section-body.is-bad-ending {
+    border-color: #5a3010;
+    box-shadow: 0 4px 40px rgba(26,14,2,0.6), inset 0 0 60px rgba(26,14,2,0.1);
+  }
+
+  .restart-btn {
+    display: block;
+    margin: 2rem auto 0;
+    background: transparent;
+    color: var(--rust);
+    border: 1px solid var(--rust);
+    font-family: 'Playfair Display', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 0.6rem 2rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+  }
+  .restart-btn:hover { background: var(--rust); color: var(--parchment); }
+
+  /* Top bar */
+  .top-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 2rem;
+  }
+  .book-title-small {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.75rem;
+    font-style: italic;
+    color: var(--aged);
+    letter-spacing: 0.05em;
+  }
+  .top-restart {
+    background: transparent;
+    border: 1px solid #3a2008;
+    color: var(--aged);
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    font-family: 'Lora', serif;
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .top-restart:hover { border-color: var(--aged); color: var(--parchment); }
+
+  /* Transition */
+  .fade-out { animation: fadeOut 0.25s ease-out forwards; }
+  .fade-in  { animation: fadeIn  0.3s  ease-out forwards; }
+  @keyframes fadeOut { to   { opacity: 0; transform: translateY(6px); } }
+  @keyframes fadeIn  { from { opacity: 0; transform: translateY(8px); } }
+
+  @media (max-width: 560px) {
+    .section-body { padding: 1.5rem 1.2rem 1.5rem; }
+    .cover-frame  { padding: 2rem 1.5rem 2.5rem; }
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- COVER -->
+  <div id="cover">
+    <div class="cover-frame">
+      <div class="series-badge">A Find Your Fate Adventure &nbsp;·&nbsp; For Mature Readers</div>
+      <span class="cover-star">✶ ✦ ✶</span>
+      <div class="cover-title-main">Indiana Jones</div>
+      <span class="cover-title-and">and the</span>
+      <div class="cover-subtitle">Seal of Solomon</div>
+      <div class="cover-divider"></div>
+      <div class="cover-byline">An Original Adventure &nbsp;·&nbsp; 1937</div>
+      <p class="cover-blurb">
+        A murdered friend. A three-thousand-year-old artifact capable of compelling truth
+        from any living soul. And a race across Istanbul, Cairo, Jerusalem, and the
+        Sinai desert — with the SS-Ahnenerbe one step behind you at every turn.
+      </p>
+      <div class="cover-badge">Five Endings &nbsp;·&nbsp; Multiple Story Arcs</div>
+    </div>
+    <button class="start-btn" onclick="startGame()">Begin the Adventure</button>
+  </div>
+
+  <!-- SECTION PAGE -->
+  <div id="section-page">
+    <div class="top-bar">
+      <span class="book-title-small">Indiana Jones and the Seal of Solomon</span>
+      <button class="top-restart" onclick="returnToCover()">↩ Cover</button>
+    </div>
+    <div id="section-content">
+      <div class="section-header">
+        <div class="section-number-label">Section</div>
+        <div class="section-number" id="sec-num"></div>
+        <div class="section-title" id="sec-title"></div>
+      </div>
+      <div class="section-body" id="sec-body">
+        <div class="section-text" id="sec-text"></div>
+        <div id="sec-choices"></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<script>
+// ── SECTION DATA ────────────────────────────────────────────────────────────
+
+const sections = {
+
+  1: {
+    title: "Istanbul, Tuesday, June 8th",
+    text: `<p>The telegram arrived tucked between a stack of ungraded midterms and an overdue library notice for a book you hadn't borrowed. You almost missed it.</p>
+    <p><em>INDY STOP FOUND WHAT WE LOST IN ANTIOCH STOP COME TO ISTANBUL STOP TRUST NO ONE STOP &mdash;YUSUF</em></p>
+    <p>Dr. Yusuf al-Rashidi. You haven't spoken to him in three years &mdash; not since a falling-out over the provenance of a Hittite seal that turned out to be both genuine and stolen. He'd been right about it. You'd been stubborn. The friendship had survived, barely, the way old friendships do, by not examining itself too closely.</p>
+    <p>The phrase <em>what we lost in Antioch</em> is enough to get you on a plane. In 1929, you and Yusuf spent six weeks in the ruins east of Antioch searching for fragments of a copper scroll that described the resting place of a much older artifact: the Seal of Solomon. Not the biblical ring of legend, Yusuf argued, but something older &mdash; a bronze signet disc engraved with the six-pointed star, the <em>Khatam Sulayman</em>, which Islamic and Jewish tradition alike agreed had given Solomon power over djinn, spirits, and the forces that move beneath the visible world. You'd found two scroll fragments. Decoded roughly a third of the directions. Then the trail went cold and the fragments were stolen before you could publish.</p>
+    <p>Yusuf, apparently, had kept looking.</p>
+    <p>You cable the Pera Palace Hotel for a room, inform Dean Thomasson that you have a family emergency &mdash; not entirely a lie, given that you think of Yusuf as the older brother you never had &mdash; and three days later you step off a boat at the Karaköy docks as the evening call to prayer echoes across the water. Istanbul smells of salt and coal smoke and something older than both.</p>
+    <p>The address Yusuf left in a follow-up cable leads you to a small antiquities shop in the Eminönü district. The door, you discover, is unlocked.</p>`,
+    choices: [{ label: "Enter the shop.", next: 2 }]
+  },
+
+  2: {
+    title: "What a Shop Reveals",
+    text: `<p>The interior of Yusuf's shop is a battlefield.</p>
+    <p>Shelves overturned, books scattered, the glass front of a display case shattered across the stone floor. Your hand goes to the .38 under your jacket as you move through the shadows toward the back room, where a lamp has been left burning.</p>
+    <p>Yusuf is there. He is seated, or rather arranged to appear seated, in a wooden chair behind his desk. His hands are folded on the blotter. The medical examiner, when he eventually arrives, will say strangulation. You don't need a medical examiner.</p>
+    <p>You force yourself to work quickly. The shop has been searched with purpose &mdash; whoever did it knew what they wanted and didn't find it. Larger furniture was destroyed; smaller hiding places remain untouched. Yusuf's habits, you know from a decade of friendship, ran toward the architectural: the loose tile behind the desk, for example, has not been disturbed.</p>
+    <p>Beneath it, wrapped in oilcloth, you find two things. First: a torn journal page covered in Yusuf's cramped Arabic, with the words <em>Pera Palace</em> and a room number &mdash; <strong>414</strong> &mdash; underlined twice in the margin. Second: a fragment of ancient bronze, roughly palm-sized, covered in archaic Hebrew characters interwoven with a geometric pattern you recognize immediately. A six-pointed star, its lines extended into an elaborate interlocking grid. Your stomach drops. He'd actually found a piece of it.</p>
+    <p>You pocket both. Outside, footsteps cross the cobblestones. You cannot stay.</p>`,
+    choices: [
+      { label: "Go directly to the Pera Palace Hotel and investigate Room 414.", next: 3 },
+      { label: "Find a quiet teahouse and decode Yusuf's Arabic notes before doing anything else.", next: 4 }
+    ]
+  },
+
+  3: {
+    title: "The Pera Palace",
+    text: `<p>The Pera Palace Hotel is everything Istanbul wants to be: European, elegant, and slightly past its prime but unwilling to admit it. You take the stairs to the fourth floor with your hand near your jacket.</p>
+    <p>Room 414 was registered &mdash; according to a ten-dollar bill pressed into the palm of a cooperative desk clerk &mdash; to one Madame Nadia Ozan, representing the Istanbul offices of the Ozan Trading Company. She checked out three hours ago, in a hurry, with one suitcase.</p>
+    <p>A chambermaid leads you to the room, not yet cleaned. In the ashtray: three stubs of expensive Turkish tobacco. On the nightstand: a half-melted glass of raki. Most importantly &mdash; the writing desk has been wiped, but not carefully. Under the lamp's angle you can read the ghost of pen strokes left on the blotter. A pencil rubbed lightly across the impression reveals the last thing Nadia Ozan wrote before she left.</p>
+    <p>It's a partial map &mdash; a few lines, a compass bearing, and a label: <em>Wadi Feiran, Sinai Peninsula. Below the monastery. Third stone from the left.</em> Beneath it, a date three weeks from now.</p>
+    <p>You are staring at it when you notice, in the window's reflection, two men in the corridor who don't move the way civilians move. SS, almost certainly. They've been watching this room.</p>`,
+    choices: [
+      { label: "Slip out through the service staircase. You need to leave Istanbul tonight.", next: 5 },
+      { label: "Confront the watchers. You need to know who sent them.", next: 6 }
+    ]
+  },
+
+  4: {
+    title: "Yusuf's Notes",
+    text: `<p>You find a teahouse still open three streets away and spread Yusuf's journal page under the table lamp while a skeptical waiter brings tea you don't touch.</p>
+    <p>Yusuf's Arabic is dense with abbreviations and private shorthand the two of you developed over years of fieldwork. Twenty minutes of work yields the essential picture. He'd acquired a second copper fragment &mdash; a different piece of the same document you'd partially decoded in Antioch. This one contained directional references: a valley in the Sinai, three days east of St. Catherine's Monastery. And a reference to a third fragment held by a dealer in Cairo, a man named Tariq who operates out of the Khan el-Khalili bazaar.</p>
+    <p>There is also a warning, underlined three times: <em>The Germans know. Ahnenerbe. A man named Drexler. He has the Antioch fragments we lost.</em></p>
+    <p>Your tea goes cold. Drexler. The SS-Ahnenerbe unit &mdash; Himmler's occult research division, staffed by true believers in the power of ancient artifacts to reshape history. If they recovered the Antioch fragments, they've been ahead of you for years.</p>
+    <p>Below the warning, in a different pen, Yusuf has written two words with a question mark: <em>Nadia &mdash; ally?</em></p>
+    <p>Two leads. Tariq in Cairo has a physical fragment. The Sinai reference is more specific than anything you decoded in Antioch. You need to choose which thread to pull.</p>`,
+    choices: [
+      { label: "Take the earliest train south. Cairo first &mdash; Tariq has a fragment and needs to be found before Drexler's people reach him.", next: 7 },
+      { label: "The Sinai is the actual location. Get there first and you won't need the fragments.", next: 8 }
+    ]
+  },
+
+  5: {
+    title: "The Overnight Boat",
+    text: `<p>The service staircase smells of mops and old cooking. You take it three steps at a time and emerge into a back alley between the hotel and a shuttered restaurant. The two men haven't followed &mdash; they don't know you've made them yet, which buys you twenty minutes.</p>
+    <p>You move through the back streets of Beyoğlu toward the docks, the scrap of traced map tucked into your shirt. <em>Wadi Feiran, Sinai. Below the monastery. Third stone from the left.</em> Not much, but more than you had an hour ago.</p>
+    <p>The overnight boat to Athens is departing at midnight. From Athens you can connect to Alexandria and then Cairo &mdash; a longer route than going direct, but Istanbul's police will be looking for anyone connected to Yusuf's death by morning, and the Athens route avoids their jurisdiction.</p>
+    <p>At the dock, while waiting to purchase your ticket, a man sits beside you on a bench without being invited. He's in his late fifties, wearing a rumpled linen suit with the kind of face that has survived considerable hardship and settled into resigned amusement. He speaks in accented English.</p>
+    <p>"You were in Yusuf's shop tonight," he says quietly. Not a question. "I was watching from across the street. You found what he left. I know because you are not panicking, which means you found something useful." He extends a hand. "Professor Eli Stern. Hebrew University &mdash; until six months ago. Now, apparently, a refugee. I know what Yusuf was searching for. My grandfather translated the primary text, in Vilnius, in 1891. I was going to help Yusuf. Now I am offering to help you."</p>
+    <p>He looks at you steadily. He could be exactly what he says. He could also be exactly what you can't afford.</p>`,
+    choices: [
+      { label: "Trust Stern. If his grandfather really translated the source text, he could be invaluable.", next: 9 },
+      { label: "Keep your cards close. You'll listen without revealing what you found or where you're going.", next: 10 }
+    ]
+  },
+
+  6: {
+    title: "Corporal Brandt",
+    text: `<p>You step back from the window and into the corridor, hands visible, moving with enough confidence that the two men don't immediately reach for their weapons.</p>
+    <p>"Gentlemen," you say, in German, because the cut of their suits and the professional blankness of their faces has told you what you need to know. "I think we're looking for the same thing."</p>
+    <p>It almost works. The taller one &mdash; mid-thirties, blond, scar along the jaw &mdash; hesitates. The shorter one doesn't. He's drawing when your right hand closes around his wrist and your left elbow meets his jaw with a crack that drops him. The taller one gets the butt of your revolver against his temple before he can shout.</p>
+    <p>You search them quickly. SS identification. The taller one is Corporal Heinz Brandt, twenty-two years old according to his papers. You haul him into Room 414, tie him with curtain cord, and wait for his eyes to focus.</p>
+    <p>He's young. Beneath the fear there is something else &mdash; a look you've seen before, in men who have begun to suspect the cause they enlisted for is not the cause they were sold.</p>
+    <p>"Drexler sent you," you say. He flinches at the name. Confirmation enough. "Where is he now?"</p>
+    <p>Brandt swallows. "Athens. He took the morning flight. He has the fragments from Antioch. He believes the Seal is real. He believes it—" He stops.</p>
+    <p>"He believes it works," you finish. Brandt looks at the floor and says nothing, which is its own answer.</p>`,
+    choices: [
+      { label: "Leave Brandt in the chair. The boat to Athens leaves in two hours.", next: 11 },
+      { label: "Cut Brandt's hands free. He looks like a man looking for a reason to switch sides.", next: 12 }
+    ]
+  },
+
+  7: {
+    title: "Cairo: The Egyptian Museum",
+    text: `<p>The overnight train from Istanbul to Ankara, and from there a series of connecting services south, deposits you in Cairo forty-two hours later, tired and running on Turkish coffee and stubbornness.</p>
+    <p>You go directly to the Egyptian Museum because Dr. Amira Khalil works there, and because Amira Khalil is the finest epigraphic linguist in the Arab world, and also because you owe her an apology you've been composing for three years and still haven't delivered.</p>
+    <p>She is in the basement archive when you find her, surrounded by stacked folders, a cup of tea gone cold at her elbow. She looks up when you knock on the open door and her expression moves through surprise, resignation, and something that might be relief before settling on professionally neutral.</p>
+    <p>"Indiana," she says.</p>
+    <p>"Amira." A pause. "You look well."</p>
+    <p>"You look terrible." She gestures at the chair across from her. "Sit down. And before you tell me whatever extraordinarily dangerous thing you're involved in &mdash; my brother Hassan was killed four months ago. In Istanbul. He was working with Yusuf al-Rashidi."</p>
+    <p>The bottom drops out of the room.</p>
+    <p>"Yusuf is dead too," you say. "I found him last night."</p>
+    <p>Amira closes her eyes for exactly three seconds. Then she opens them, and what's in them now is something harder and more focused than grief. "Then we don't have time to waste," she says. "Tell me everything."</p>
+    <p>You do. When you finish, she sets down her pen. "There is a man in the Khan el-Khalili &mdash; Tariq. He has the Cairo fragment. He's been trying to sell it for months without finding a buyer who doesn't terrify him."</p>`,
+    choices: [
+      { label: "Go with Amira to find Tariq.", next: 13 },
+      { label: "Ask Amira to stay somewhere safe. You'll go to the bazaar alone &mdash; less conspicuous.", next: 14 }
+    ]
+  },
+
+  8: {
+    title: "The Sinai Gamble",
+    text: `<p>You don't go south. You go east. Every other step on this trail is navigation &mdash; the Sinai is the destination, and every hour you spend finding fragments is an hour Drexler's people use to close the gap.</p>
+    <p>A fisherman named Özgür takes twenty dollars to carry you from a quiet stretch of Istanbul waterfront to a cargo vessel making for Alexandria. From there you hire a car east across the desert, then by camel &mdash; which you hate &mdash; to the valley Yusuf sketched in his notes. You arrive at the Wadi Feiran at dusk on the third day, parched and saddle-sore.</p>
+    <p>Wadi Feiran is the largest oasis in the Sinai: green and improbable in its desert context, dominated at the far end by the ancient walls of St. Catherine's Monastery, which has been continuously inhabited since the fourth century. The Abbot, a Greek named Father Nikodemos, receives you in a spare stone room over weak tea.</p>
+    <p>He listens to your cover story &mdash; academic research, colleague's notes &mdash; with the patient expression of a man who has heard many stories and believes approximately none of them.</p>
+    <p>"We have had other visitors recently," he says, setting down his cup. "Germans. They were less polite than you." A pause. "They found nothing. Because there is nothing to find here in the monastery's records. Those were copied to Jerusalem in the fourteenth century." He meets your eyes. "However &mdash; you did not come here for the records."</p>`,
+    choices: [
+      { label: "Be direct. Tell the Abbot what you're really looking for &mdash; nothing to lose by being honest with a man who already seems to know.", next: 15 },
+      { label: "Wait until dark and search the valley walls yourself.", next: 34 }
+    ]
+  },
+
+  9: {
+    title: "Stern's Knowledge",
+    text: `<p>Stern buys the tickets &mdash; first class, two berths &mdash; with the practiced calm of a man who has learned to keep cash close and questions scarce. By the time the boat clears the Bosphorus, you are in the dining car with a bottle of raki between you, and Stern is telling you about his grandfather's life work.</p>
+    <p>"The text my grandfather translated was a twelfth-century Sufi commentary on Solomon's ring," he says, turning his glass slowly. "Written by a scholar named Ibn Kammuna, who claims to have handled the Seal himself. It is not a ring. My grandfather was very clear about this. It is a disc &mdash; bronze, about this big." He makes a circle with his thumb and forefinger. "One face has the hexagram. The other has seventy-two characters in a script that predates Hebrew and Arabic both. Possibly Proto-Sinaitic."</p>
+    <p>Proto-Sinaitic &mdash; the writing system found in the turquoise mines of the Sinai Peninsula, among the oldest alphabetic scripts ever recovered. If the Seal's inscription is Proto-Sinaitic, it predates Solomon by a thousand years.</p>
+    <p>"It was broken into three fragments and hidden," Stern continues. "My grandfather believed this was done deliberately, by a Crusader-era scholar who feared what would happen if it were assembled. One fragment went west. One stayed in Jerusalem. One was hidden in the place the original text calls <em>the valley of the burning bush.</em>"</p>
+    <p>Wadi Feiran. The same location written on Nadia Ozan's blotter.</p>
+    <p>"Your grandfather &mdash; where did he obtain the Ibn Kammuna text?"</p>
+    <p>Stern takes a long drink of raki. "From a dealer in Istanbul," he says quietly. "Named al-Rashidi."</p>`,
+    choices: [{ label: "Continue. Head for Jerusalem together.", next: 17 }]
+  },
+
+  10: {
+    title: "The Cautious Approach",
+    text: `<p>You let Stern talk. You give him very little &mdash; Yusuf was a friend, you're not sure what he found, you were hoping the hotel would give you a lead. Just a worried colleague making inquiries. You listen with the particular attentiveness of someone trying to determine, without asking directly, why a supposed refugee from Hebrew University happens to be on this specific dock at this specific hour.</p>
+    <p>Stern tells you about three copper fragments, a hidden valley in the Sinai, a medieval commentary. The same general outline as Yusuf's journal page. Too much of the same outline to be coincidence &mdash; and he watches you throughout with a precision that suggests he is memorizing your responses, cataloguing what you reveal and what you don't.</p>
+    <p>At Piraeus, when the boat docks for a two-hour layover, you excuse yourself for the washroom and take the service exit off the dock instead.</p>
+    <p>On the quay, watching the boat's lights, you take stock. Stern was placed there &mdash; you're almost certain of it now. Which means Drexler knows you're coming. But Stern, in turn, now believes you know nothing beyond "something is hidden in the Sinai," which is useless without the specific location.</p>
+    <p>You're in Athens with a bronze fragment, a partial map impression, and a warning. You need to get information without exposing yourself further, and the only person you trust enough to cable is Amira Khalil in Cairo. But Athens itself may offer one more path &mdash; if you can find the right door to knock on.</p>`,
+    choices: [
+      { label: "Cable Amira in Cairo. Let her coordinate the fragment search while you head directly to Jerusalem.", next: 28 },
+      { label: "Stay in Athens. Regroup and try to reconstruct what you're missing before committing to a direction.", next: 21 }
+    ]
+  },
+
+  11: {
+    title: "Southbound",
+    text: `<p>You leave Brandt in the chair &mdash; conscious now, watching you with an expression that is difficult to read &mdash; and move out through a side exit.</p>
+    <p>The boat for Athens leaves in two hours. You spend the time in a tea house near the docks, spreading what you have across a corner table. The copper fragment. The traced map impression. Yusuf's journal notes. Three pieces that don't quite lock together.</p>
+    <p>What you know: the Seal is in the Sinai, somewhere near Wadi Feiran. There's a fragment in Cairo with a dealer named Tariq. Drexler is in Athens with the Antioch scroll fragments. There was a woman named Nadia who knew something and left in a hurry.</p>
+    <p>What you don't know: where the third fragment is. How complete Drexler's picture is. Whether Nadia Ozan is ahead of you, behind you, or in your way.</p>
+    <p>You board the boat and are asleep within ten minutes of departure. In the morning, crossing the Aegean, you cable Amira Khalil at the Egyptian Museum. You and Amira have history &mdash; professional and otherwise &mdash; but she is also the most capable person you know, and right now you need capable more than you need uncomplicated.</p>
+    <p>The cable you receive back, as you dock at Piraeus four hours later, is three words: <em>Already on it.</em></p>`,
+    choices: [{ label: "Proceed to Athens, then south.", next: 21 }]
+  },
+
+  12: {
+    title: "An Unlikely Ally",
+    text: `<p>Something about the young corporal's expression makes you hesitate. You've seen men break for the wrong reasons and break for the right ones, and Brandt, from where you're standing, looks like someone who broke a while ago and hasn't admitted it yet.</p>
+    <p>"I'm going to cut your hands free," you tell him. "If you shout, I'll be gone before anyone comes and you'll spend the next hour explaining to Drexler why you let a civilian walk out of this room. If you don't shout..." You open the penknife and sever the curtain cord. "Tell me why you joined."</p>
+    <p>Brandt rubs his wrists and is quiet for a moment. Then: "Because my father said it was the right thing. Three years ago. I was nineteen." He looks at his hands. "Drexler has a photograph. From Antioch. Of when the scroll fragments were taken. There was a man &mdash; an Arab scholar &mdash; who wouldn't let go of them." He stops.</p>
+    <p>"What happened to him?"</p>
+    <p>Brandt doesn't answer. He doesn't need to.</p>
+    <p>"Drexler killed Yusuf," you say.</p>
+    <p>"He had them <em>retrieved</em>," Brandt says, in the flat way of a man repeating words he was told to use.</p>
+    <p>You look at the young corporal for a moment. Then you say: "There's a boat to Athens in two hours. You can go back to your unit and pretend this didn't happen, or you can help me stop the man who did it."</p>
+    <p>Brandt stands, straightens his civilian jacket, and picks up his hat. "Athens," he says.</p>`,
+    choices: [{ label: "Board the boat together.", next: 22 }]
+  },
+
+  13: {
+    title: "The Khan el-Khalili",
+    text: `<p>The Khan el-Khalili is a sixteenth-century institution &mdash; a labyrinth of covered walkways, stacked goods, and commerce that has been going on in this exact location for five hundred years. You know it well enough to find Tariq's stall without asking, which matters, because asking would announce you.</p>
+    <p>Tariq is a heavy man in his sixties with carefully trimmed white stubble and the eyes of someone who has survived by being the least interesting person in any dangerous room. He sees you and Amira coming and his expression doesn't change, which tells you he was expecting someone.</p>
+    <p>"Dr. al-Rashidi's friends," he says. Not quite a greeting.</p>
+    <p>"Dr. al-Rashidi is dead," Amira says. Her voice is level. "Killed four nights ago in Istanbul."</p>
+    <p>Tariq closes his eyes for a moment. Then he reaches beneath the counter and places a small wooden box on the glass surface between you. Inside, wrapped in oilcloth identical to what you found under Yusuf's floor tile, is a second fragment of ancient bronze &mdash; slightly smaller than yours, covered in the same archaic characters. "He told me to give it to whoever came first," Tariq says. "He told me: if he didn't come himself, it meant they had found him." He pushes the box toward you. "Take it. I want no more of this. The Germans have been here twice."</p>
+    <p>Amira examines both fragments together, her expression shifting from concentration to something closer to awe. "They fit," she says quietly. "The geometric pattern continues across both pieces. And this sequence here &mdash;" she traces a line of characters with her fingertip "—this is a directional notation. If we find the third fragment, Indy, we can triangulate the exact location."</p>`,
+    choices: [
+      { label: "Ask Tariq if he knows anything about the third fragment's location.", next: 23 },
+      { label: "You already know the third piece is in Jerusalem. Head north now.", next: 25 }
+    ]
+  },
+
+  14: {
+    title: "Alone in the Bazaar",
+    text: `<p>"You should stay here," you say.</p>
+    <p>Amira's expression does something complex. "Hassan is dead, Indiana. Yusuf is dead. I am not staying here."</p>
+    <p>She's right, and you're wrong, and you both know it. You walk to the Khan el-Khalili together.</p>
+    <p>Tariq is easy to find &mdash; a large man in his sixties presiding over a stall that sells navigational instruments and ostensibly nothing else, exactly the right cover for an antiquities middleman. You introduce yourself as Yusuf's friend. The word lands on Tariq's face like a stone dropped in still water.</p>
+    <p>He leads you to a back room and opens a leather satchel, producing a bronze fragment &mdash; smaller than yours, similarly engraved. "He told me," Tariq says: "if someone comes who knows about the fragment in the shop, give them this one." He pauses. "He also told me to tell you, if you came with Dr. Khalil, that the third piece is not in Jerusalem as he first thought. It was sold at auction in Athens in 1931. A Greek shipping magnate named Papadakis. The man doesn't know what he has &mdash; he just liked the star."</p>
+    <p>Amira, already comparing the two fragments, looks up sharply. "Athens. Then we need to split up or we need to move fast &mdash; Drexler will reach Jerusalem first if we chase the Papadakis piece, and he'll reach Papadakis first if we go to Jerusalem."</p>
+    <p>"Or we go to Jerusalem," you say, "because that's where the third fragment actually is. Tariq was told to redirect us."</p>
+    <p>Amira studies you. Then she studies Tariq. Tariq looks at the middle distance and says nothing.</p>`,
+    choices: [{ label: "Trust your instinct. Go to Jerusalem.", next: 25 }]
+  },
+
+  15: {
+    title: "Honesty with the Abbot",
+    text: `<p>You set down your tea. "I'm not here about historical records, Father. I'm looking for the Seal of Solomon &mdash; a bronze disc, possibly in three fragments. An old friend of mine was killed following this same trail, and his killer is somewhere behind me on the road."</p>
+    <p>The Abbot is quiet for a long time.</p>
+    <p>"We call it something different," he says finally. "In our tradition, Solomon's power over spirits was a gift, and the Seal was the instrument. When the Temple fell, the Seal was broken &mdash; not destroyed, because such things cannot be destroyed &mdash; and hidden, because such things cannot be trusted to any single hand." He folds his own hands on the table. "The fragment that was kept here was moved. In 1934. When we received word that people were searching."</p>
+    <p>"Where?"</p>
+    <p>"Jerusalem. To the Armenian Patriarchate in the Old City. Bishop Zarian holds it, though he was told only that it was a Crusader-era devotional object of uncertain origin. We thought it better that way."</p>
+    <p>He stands, signaling the conversation is ending. At the door he pauses. "The Germans who came here," he says. "They were not interested in what the Seal <em>is</em>, Dr. Jones. They were interested in what it <em>does.</em> There is a difference that matters enormously."</p>
+    <p>"I know," you say.</p>
+    <p>"I hope so," says Father Nikodemos.</p>`,
+    choices: [{ label: "Thank the Abbot and head for Jerusalem.", next: 27 }]
+  },
+
+  17: {
+    title: "The Full Picture",
+    text: `<p>The boat docks at Piraeus. Stern has a contact &mdash; a woman named Elena who runs a boarding house in the Monastiraki district and knows how to keep people off official records. By midnight you are at a small table with his grandfather's notebook spread between you and a bottle of Athenian wine that is doing its best.</p>
+    <p>The picture that emerges, between your physical evidence and the Ibn Kammuna commentary, is startlingly complete. Three fragments. One held by a dealer in Cairo named Tariq. One kept in Jerusalem by the Armenian Patriarchate. One hidden in the Sinai, in a location described in precise Proto-Sinaitic characters that Stern's grandfather spent a decade deciphering.</p>
+    <p>"The Sinai fragment," Stern says, turning the notebook toward you, "was placed inside a sealed cavity in the cliff face above the valley floor. The text says: <em>three handspans north of the column of red, at the height where the morning shadow of the opposite cliff face falls at the winter solstice.</em>"</p>
+    <p>It's the most specific directional reference you've encountered in any ancient text. It's also useless without the other two fragments to confirm the valley coordinates.</p>
+    <p>"Cairo and Jerusalem," you say.</p>
+    <p>"Cairo and Jerusalem," Stern agrees. He looks at you. "Drexler's people will go to Cairo first &mdash; it's the most obvious lead. Which suggests &mdash;"</p>
+    <p>"We go to Jerusalem first."</p>
+    <p>He nods. "And fast."</p>`,
+    choices: [{ label: "Head for Jerusalem. Stern will follow independently &mdash; safer to travel separately.", next: 27 }]
+  },
+
+  21: {
+    title: "Athens: Taking Stock",
+    text: `<p>Athens in summer is white light and diesel fumes, the Acropolis watching everything from above with the indifference of something that has seen empires rise and fall and decided not to be impressed. You take a room in the Monastiraki district and sit with what you have.</p>
+    <p>The partial map from the Pera Palace: <em>Wadi Feiran, Sinai. Below the monastery. Third stone from the left.</em></p>
+    <p>Yusuf's journal page: Cairo fragment with Tariq. Sinai as final location. Drexler has the Antioch scrolls.</p>
+    <p>You're still missing the second and third fragments &mdash; and possibly missing your precise position within the valley. Without all three pieces, you can locate the general valley but not the specific cache.</p>
+    <p>A cable arrives from Amira. It's characteristically terse: <em>Tariq still has the Cairo piece. Germans visited twice. Told them nothing. Waiting. The third fragment is in Jerusalem &mdash; Armenian Patriarchate. Hassan confirmed this before he died. Move quickly. &mdash;A.</em></p>
+    <p>Hassan Khalil had known the Jerusalem location and been killed for it. Which means Drexler knows about Jerusalem too.</p>
+    <p>You need to reach both cities before he does. You can't do both at once.</p>`,
+    choices: [
+      { label: "Go directly to Cairo. Amira and the Tariq fragment are there, and you trust her to hold the line.", next: 32 },
+      { label: "Go to Jerusalem first. It's the piece Drexler is most likely to move on, and you can reach Cairo afterward.", next: 25 }
+    ]
+  },
+
+  22: {
+    title: "What Brandt Knows",
+    text: `<p>Corporal Heinz Brandt is, it turns out, remarkably useful. He knows Drexler's operating procedures: communication protocols, the cover identities the unit uses, the name of their Athens handler. This last piece is particularly valuable &mdash; it means you can avoid the hotel where Drexler's men typically stay and watch for the vehicle they typically hire.</p>
+    <p>In Athens, while Drexler's unit is apparently pursuing a dead-end lead in Thessaloniki, you and Brandt have a day and a half unmolested. You cable Amira. You study what you have. Over dinner at a taverna, you ask the question you've been circling.</p>
+    <p>"Why did you really come with me?"</p>
+    <p>Brandt stabs a piece of grilled fish and chews thoughtfully. "Because Drexler showed me a photograph once," he says. "Of what he wants the Seal to <em>do.</em>" He doesn't elaborate on the photograph. His face suggests he would rather not.</p>
+    <p>"What does he want it to do?"</p>
+    <p>"He believes," Brandt says slowly, "that whoever holds the assembled disc and reads the inscription aloud can compel everyone within earshot to see themselves honestly. To see what they truly fear and what they truly desire. No comfortable fictions. No performed loyalty." He pauses. "He has been learning to read Proto-Sinaitic characters for six months."</p>
+    <p>You sit with that for a moment. In 1937, the ability to strip comfortable fictions from an audience is not a mystical power. It is either the most valuable thing imaginable or the most dangerous. Probably both.</p>`,
+    choices: [{ label: "Head for Jerusalem. You have the intelligence advantage &mdash; use it.", next: 25 }]
+  },
+
+  23: {
+    title: "Tariq's Last Secret",
+    text: `<p>Tariq shakes his head when you ask. "I am a middleman," he says. "I know one fragment. I make it my business not to know more. Knowing more is where Yusuf got himself killed."</p>
+    <p>But Amira, laying the two pieces side by side on the counter, has already found something. "Look at this edge," she says. "The pattern doesn't terminate &mdash; it continues. The missing section includes what I believe is a provenance inscription. Standard practice for objects of this antiquity: the maker or custodian would note origin and destination. If the third fragment completes this inscription, it may tell us directly where to find it."</p>
+    <p>"Yusuf's notes mention Jerusalem," you say.</p>
+    <p>"And Drexler will figure that out from Yusuf's papers within a day," she says. "Which is why we need to be there first." She looks at you steadily. "Together."</p>
+    <p>You look at her. You look at the two copper fragments in their oilcloth wrapping. You think about all the ways this can go wrong and all the reasons she is right.</p>
+    <p>"Together," you say.</p>`,
+    choices: [{ label: "Travel north to Jerusalem.", next: 25 }]
+  },
+
+  25: {
+    title: "Jerusalem: The Armenian Quarter",
+    text: `<p>Jerusalem in 1937 is a city barely held together by competing sacred claims and British administrative exhaustion. You enter through the Jaffa Gate in the early morning, when the Old City is most itself: pilgrims, merchants, the smell of bread and incense and ancient stone that has been here long enough to have opinions.</p>
+    <p>The Armenian Patriarchate is in the southwest quarter, a complex of buildings inhabited continuously since the fifth century. Bishop Zarian is a small, precise man with silver-rimmed glasses and a mind that wastes no words. He receives you in a spare room &mdash; you, and whoever the road has put beside you &mdash; and listens without interruption to your explanation, which is, at this point, more complete than you expected to be able to offer.</p>
+    <p>"The object was given to us in 1934 by the monastery of St. Catherine in the Sinai," he says when you finish, "with instructions to keep it safe from people who would misuse it." He looks at you over his glasses. "I have had three German visitors in the past two weeks. The most recent was yesterday. He was very persistent."</p>
+    <p>"Drexler," you say.</p>
+    <p>"He gave another name. But yes." He opens a drawer and removes a cloth-wrapped object. He unwraps it: a third fragment of ancient bronze, the same archaic characters, the same hexagram geometry. "Before I give you this," he says, "I need to ask you the question that man refused to answer."</p>
+    <p>He meets your eyes. "What will you do with the Seal when you find it?"</p>`,
+    choices: [{ label: "Answer honestly. Then take the fragment and head for the Sinai.", next: 33 }]
+  },
+
+  27: {
+    title: "The Third Fragment",
+    text: `<p>The route to Jerusalem varies &mdash; from Athens by boat and train, from Cairo by car and will, from the Sinai's monastery by camel and stubbornness &mdash; but the destination is the same, and Bishop Zarian is the same patient man at the end of every road.</p>
+    <p>He hands you the third fragment after asking one question: "What will you do with the Seal, when you find it?"</p>
+    <p>You think about Yusuf. About Hassan Khalil. About what Brandt said in the taverna &mdash; or what the Abbot said at the monastery door, or what you have read in Stern's grandfather's careful translation &mdash; about what Drexler believes the Seal can do. About 1937, and what the year is, and what is happening to the world, and what a tool for compelling honesty would mean in the hands of people who have made a science of the opposite.</p>
+    <p>"I'll make sure it doesn't end up with anyone who would use it the way they want to use it," you say.</p>
+    <p>It isn't a complete answer. Zarian seems to understand that it is the honest one.</p>
+    <p>He places the third fragment in your hands, and with it a manuscript leaf &mdash; Byzantine Greek, faded, dense with notation. "Our founder left this with the fragment," he says. "A translation of the inscription on the reverse face. Read it only when you must, Dr. Jones. And consider carefully what 'must' means."</p>`,
+    choices: [{ label: "Take everything. Head for the Sinai.", next: 33 }]
+  },
+
+  28: {
+    title: "Athens: The Gap",
+    text: `<p>You are in Athens with a bronze fragment, a partial map impression, and the certain knowledge that someone tried to use you as an intelligence source. You have nothing else. Drexler is somewhere ahead of you on the road.</p>
+    <p>You cable Amira Khalil at the Egyptian Museum, routing through the American consulate. You spend the waiting hours rebuilding from Yusuf's journal page: the reference to Tariq, to Jerusalem, to <em>the valley of the burning bush.</em> The Sinai location is mentioned but without coordinates. You know the general area. You don't know the specific point within it.</p>
+    <p>Amira's cable arrives twelve hours later: <em>Tariq has the Cairo fragment. Germans visited twice. Third piece is in Jerusalem &mdash; Armenian Patriarchate. Hassan confirmed before he died. I am going to Jerusalem now. Meet me there or meet me in Cairo. &mdash;A.</em></p>
+    <p>She's already moving. Which is characteristic. You have two options: join her in Jerusalem, where the third fragment is and where Drexler will move next, or go to Cairo first to secure the second fragment with Tariq before Drexler's people circle back to it.</p>
+    <p>Both are reasonable. One of them leads to a dead end if you guess wrong about Drexler's timetable.</p>`,
+    choices: [
+      { label: "Go to Cairo. Secure the Tariq fragment first, then rendezvous with Amira.", next: 32 },
+      { label: "Go straight to Jerusalem. The third fragment is the critical piece; the Cairo one can wait.", next: 50 }
+    ]
+  },
+
+  29: {
+    title: "A Step Ahead",
+    text: `<p>Drexler's people are on a mountainside in northern Greece, looking for something that isn't there, and the clock you bought with the misdirection is ticking.</p>
+    <p>You make for Cairo. In the Khan el-Khalili, Tariq hands over the Cairo fragment without additional ceremony, having held it at sufficient personal risk long enough. "The Germans came twice," he says. "I told them it was sold. They believed me, barely. They'll be back." He pauses. "Take it somewhere far and don't tell me where."</p>
+    <p>You don't tell him.</p>
+    <p>Amira meets you outside the bazaar with a folder of notes and the contained urgency of someone who has been managing controlled fury for several days. She has Yusuf's secondary papers &mdash; a set Hassan had copied and sent her before his death &mdash; which include Stern's grandfather's published work: the translation of the Ibn Kammuna commentary, the directional reference, the specific language about the cliff face above Wadi Feiran.</p>
+    <p>With the Cairo fragment, the notes, and the partial map from the Pera Palace, you now have two of the three physical pieces and a detailed description of the third's location. You're close. Jerusalem is the final stop before the Sinai.</p>`,
+    choices: [{ label: "Head to Jerusalem.", next: 25 }]
+  },
+
+  32: {
+    title: "Cairo: Full Coordination",
+    text: `<p>Cairo is the organizing point. Amira is there, and Amira has been working.</p>
+    <p>She meets you at the museum with a folder of notes and the contained urgency of someone who has been managing controlled fury for days. She has Yusuf's secondary papers, the Ibn Kammuna commentary translation, and a hand-drawn map of Wadi Feiran derived from a British geological survey conducted in 1929.</p>
+    <p>"The cliff face reference in the original text," she says, spreading the survey map between you, "corresponds to this formation." She points to a feature on the north wall of the valley. "The red column is a natural sandstone pillar. The morning shadow calculation places the target cavity at approximately &mdash;" she draws a circle "—here."</p>
+    <p>"You know where it is without the third fragment."</p>
+    <p>"I know approximately. The fragments give precision, which matters if the cavity is small. But Drexler is working purely from the encoded text. Without all three pieces he cannot decode it precisely. We have a map he doesn't." She looks at you. "We need to move. Today."</p>
+    <p>You look at the survey map. Then at the two fragments lying in their oilcloth. Then at Amira, who has lost her brother to this and is still here, still working, still moving forward.</p>
+    <p>"We still need the third piece from Jerusalem," you say.</p>
+    <p>"Then Jerusalem first," she says. "And quickly."</p>`,
+    choices: [{ label: "Head to Jerusalem together.", next: 25 }]
+  },
+
+  33: {
+    title: "The Complete Seal",
+    text: `<p>Three fragments. The full picture.</p>
+    <p>You lay them out &mdash; on a table in Cairo or a monastery floor or a boarding house room in Athens or the spare stone chamber of the Armenian Patriarchate &mdash; and the three pieces of ancient bronze fit together with the satisfied precision of something that has been waiting to be whole again. The complete disc is smaller than you expected: ten centimeters across, dense with characters on both faces, the hexagram pattern resolving into startling clarity when all three sections are aligned.</p>
+    <p>Amira spends two hours with it, cross-referencing translations, making notes, occasionally making sounds under her breath that suggest equal amounts of excitement and unease.</p>
+    <p>"The front face is a directional document," she says finally. "It describes the valley &mdash; Wadi Feiran, certainly. A specific formation in the north cliff. The <em>column of red</em> &mdash; a sandstone pillar &mdash; and a cavity at the height where the winter solstice shadow falls. It's precise enough to find with a compass and a calendar."</p>
+    <p>"And the other face?"</p>
+    <p>She doesn't answer immediately. "The other face is the inscription. Seventy-two characters." She sets down her pen. "The translation says it is an <em>invocation of clarity.</em> When read aloud by the holder of the assembled Seal, it is said to compel everyone within earshot to see themselves honestly. To see what they truly fear and what they truly desire. No performed selves. No comfortable fictions." A pause. "In 1937, Dr. Jones, that is either the most valuable thing in the world or the most dangerous."</p>
+    <p>"Both," you say.</p>
+    <p>"Both," she agrees. "What are we going to do with it?"</p>
+    <p>The question will need an answer. But first you have to get there before Drexler does.</p>`,
+    choices: [{ label: "Head for the Sinai. The clock is running.", next: 39 }]
+  },
+
+  34: {
+    title: "Into the Valley",
+    text: `<p>You thank the Abbot for his tea, excuse yourself before dark, and go into the valley.</p>
+    <p>Wadi Feiran at dusk is genuinely beautiful in the way of things that have been beautiful for a very long time and don't require your appreciation. The oasis green glows in the failing light. The cliff faces above &mdash; red sandstone, deeply shadowed in the horizontal sun &mdash; are enormous and old and full of cavities and fissures that could hide anything.</p>
+    <p>You work from what you have: Yusuf's journal reference to the valley, the partial map from Nadia Ozan's blotter, and two copper fragments whose combined geometric pattern suggests a directional encoding you've been working on since Cairo. Your Arabic is good. Your Proto-Sinaitic is functional at best. But you're an archaeologist &mdash; and in eight hours of searching the north cliff face, by lamplight in the final hours, you find what you're looking for.</p>
+    <p>A sealed cavity in the rock, mortared shut with something that the centuries have largely claimed. Behind the flat stone covering it, in a niche carved from living rock, wrapped in leather that falls apart when you touch it, is a bronze disc.</p>
+    <p>Complete. Not three fragments. A full, assembled disc.</p>
+    <p>Your stomach drops. The fragments in Istanbul, Cairo, and Jerusalem were a map. The Seal itself was never broken &mdash; it was never moved. It was here the entire time, hidden in plain sight while its supposed pieces led searchers across the Mediterranean.</p>
+    <p>Voices. Below, on the valley floor: headlights on the track. Drexler has arrived.</p>`,
+    choices: [{ label: "You have the Seal. Now decide what to do with it.", next: 41 }]
+  },
+
+  39: {
+    title: "The Sinai",
+    text: `<p>You go south and east, through whatever route the journey has made available &mdash; by boat to Aqaba, by truck to the oasis, by foot up the valley &mdash; carrying what you've gathered: fragments, notes, calculations, the accumulated intelligence of dead friends and living allies and whatever remains of your optimism about how this ends.</p>
+    <p>Wadi Feiran receives you in the late afternoon of the third day, the light going golden over the red cliffs, the distant bell of the monastery carrying across the valley in the cooling air. It is, you find yourself thinking, exactly the kind of place ancient people chose to hide things. The scale is human but the stone is geological; it makes you feel both significant and temporary.</p>
+    <p>The red column is on the north cliff face, exactly where Stern's grandfather's translation and Amira's survey map both place it &mdash; a natural sandstone pillar, reddish-brown, distinct from the surrounding rock face. Above it, at the height where the morning shadow of the opposite cliff falls in late December, the rock surface is slightly different. Disturbed, very long ago, and then left to look undisturbed.</p>
+    <p>You've found it.</p>
+    <p>Then you see the headlights.</p>`,
+    choices: [{ label: "Three vehicles on the valley track. Drexler has arrived.", next: 40 }]
+  },
+
+  40: {
+    title: "Drexler's Arrival",
+    text: `<p>Three vehicles on the track below, their headlights cutting through the deepening dusk. The lead truck carries a partially covered emblem that you don't need to read fully &mdash; you know whose vehicles these are. Drexler's team. Six men visible, possibly more in the rear vehicle. All armed.</p>
+    <p>Your position is the advantage: you're already on the ledge below the red column, having climbed here while the light was still good. They don't know you're here &mdash; or they know you're in the valley and haven't yet determined where.</p>
+    <p>The cavity is within reach. The sealed stone covering it is loosened &mdash; the centuries have done most of the work for you. But Drexler's men are moving with purpose, and the officer directing them from the lead vehicle is consulting a map that looks uncomfortably specific.</p>
+    <p>A woman steps out of the second vehicle. She is well-dressed, impossibly so given the context &mdash; dark linen, a traveling coat, her black hair pinned under a wide-brimmed hat. She surveys the cliff face with the calm of someone who has been here before, or close enough to here that the difference is academic.</p>
+    <p>Nadia Ozan. She is not with Drexler. She is ahead of him, watching him the way you're watching all of them: with calculation.</p>
+    <p>She looks up at the cliff. Her eyes find you.</p>
+    <p>She does not give you away.</p>`,
+    choices: [
+      { label: "Move fast. Get into the cavity and retrieve the Seal before Drexler's men reach the cliff base.", next: 44 },
+      { label: "Confront Drexler directly. You need to know the full shape of what he knows before this ends.", next: 45 },
+      { label: "Signal Nadia. She's not with Drexler, which makes her something else entirely.", next: 42 }
+    ]
+  },
+
+  41: {
+    title: "The Seal in Hand",
+    text: `<p>The disc rests in your hands. This is the moment that exists before all the others collapse back into it &mdash; before the decision, before the justification, before the language you'll use later to explain what you did and why. Right now there is only this: a bronze disc, roughly the weight of a heavy book, warm from the rock around it. The hexagram on one face is worn but perfectly legible. The other face &mdash; the seventy-two characters in Proto-Sinaitic, each one as sharp as the day it was cut &mdash; catches the lamplight like a mirror.</p>
+    <p>Voices below. Drexler's men are at the cliff base. A rope is already moving, someone beginning to climb.</p>
+    <p>Amira, if she is with you, meets your eyes and says nothing because there is nothing to say that isn't already understood. Brandt, if he is with you, looks at the Seal with the expression of a man who has come too far to look away. Even Nadia, if she has come up the cliff face rather than staying below &mdash; even she is quiet, watching you hold the thing that everyone in this valley has been running toward for months.</p>
+    <p>You have perhaps three minutes before Drexler's lead man reaches this ledge.</p>
+    <p>Bishop Zarian's question hangs in the air: <em>What will you do with it, when you find it?</em></p>
+    <p>Now you have to answer.</p>`,
+    choices: [
+      { label: "Destroy it. No one should have this &mdash; not you, not a museum, not any government. End it here.", next: 51 },
+      { label: "Hide it. Better than before, in a place that will take the next searcher another three thousand years.", next: 52 },
+      { label: "Use it. Turn its power on Drexler's men, here, now &mdash; and trust yourself to put it down again after.", next: 54 }
+    ]
+  },
+
+  42: {
+    title: "Nadia's Terms",
+    text: `<p>You signal her with a careful movement &mdash; just visible from the valley floor, invisible to Drexler's men who are focused on the cliff face further east. Nadia sees it. She draws one of Drexler's men into a conversation that buys you forty seconds, then works her way to the base of the cliff directly below your position.</p>
+    <p>She climbs efficiently and without drama, and when she reaches your ledge and straightens up she is breathing only slightly harder than usual. She looks at the sealed cavity, at the loosened stone, at you.</p>
+    <p>"Dr. Jones," she says quietly.</p>
+    <p>"Miss Ozan." You study her. "You've known where it was all along."</p>
+    <p>"My family has held a piece of this knowledge for eighty years," she says. "My grandmother acquired it from a monk who needed passage to Constantinople. A letter. Describing the location precisely." She is speaking quickly, one eye on the valley below. "I needed the fragments to confirm it and to decode the inscription on the reverse face. I was not responsible for Yusuf. I want you to understand that."</p>
+    <p>You look at her for a long moment. "I'm starting to believe you."</p>
+    <p>"I want to take the Seal to a department of the Turkish government that deals with sensitive historical material. People I trust. I believe it is safer in institutional hands &mdash; the right institutional hands &mdash; than buried in a cliff that Drexler has now found."</p>
+    <p>Drexler's men are moving toward the cliff base.</p>`,
+    choices: [
+      { label: "Accept her terms. Get the Seal out together, then negotiate custody.", next: 53 },
+      { label: "Refuse. No government. You'll handle this yourself.", next: 41 }
+    ]
+  },
+
+  44: {
+    title: "The Extraction",
+    text: `<p>Speed over caution.</p>
+    <p>The flat stone comes away with one good pull &mdash; the mortar has been failing for decades and you've been loosening it for the past half-hour. The cavity behind it is dark and cool and smells of stone and something older. The bronze disc is there. Complete, intact, perfectly preserved in its niche of carved rock. You have it in your hands before Drexler's lead man has finished setting his first piton at the cliff base.</p>
+    <p>From above you can watch Drexler himself &mdash; a tall man in his forties, spare and angular, in a linen suit that has given up pretending to be clean. He is consulting his map with the focused attention of a man who has been proven right about something after a very long time of being told he's wrong, and that particular kind of focus is dangerous because it excludes almost everything else.</p>
+    <p>He hasn't looked up yet.</p>
+    <p>You have the Seal and a thirty-meter rope and enough of a head start that the question is no longer whether you get off this cliff. The question is what you do when you reach the valley floor.</p>`,
+    choices: [{ label: "Descend. The choice below is the real one.", next: 41 }]
+  },
+
+  45: {
+    title: "The Confrontation",
+    text: `<p>You call down from the ledge, your voice carrying clearly in the valley's cooling air.</p>
+    <p>"Drexler."</p>
+    <p>He looks up. A pause. He says something to his men &mdash; <em>stand down</em> &mdash; and steps forward, away from the group, looking up at the rope and the ledge and you.</p>
+    <p>"Dr. Jones." He sounds, improbably, almost pleased. "You are more resourceful than the reports suggested."</p>
+    <p>"I'm standing on a ledge above your target location," you say. "I'd say resourcefulness is adequate." You keep the revolver visible without pointing it. "Tell me what you actually think the Seal does. Not the party line &mdash; what <em>you</em> believe."</p>
+    <p>A long pause. Then Drexler walks forward and looks up at you with something that might, under different circumstances, be respect.</p>
+    <p>"I believe it is exactly what the texts say," he says. "A tool for seeing truth. For knowing, without ambiguity, what another person truly fears and desires." He sounds almost tired. "The Reich has thirty-five men whose function is to tell the Führer what he wants to hear. I have spent four years watching catastrophic decisions made on the basis of preferred fictions. The Seal, if it works, would make comfortable lies impossible." A pause. "You may argue with my methods. I think you would find it difficult to argue with that specific goal."</p>
+    <p>He is not wrong. And he is absolutely the wrong man to have this.</p>`,
+    choices: [
+      { label: "End the conversation. Get the Seal and escape before his men reach the ledge.", next: 46 },
+      { label: "His men are already climbing. There's going to be a fight.", next: 47 }
+    ]
+  },
+
+  46: {
+    title: "The Exit",
+    text: `<p>You retrieve the Seal from the cavity while Drexler is still watching you from the valley floor &mdash; he can see that you have it but cannot reach you, and his expression as you pocket it is the most purely complex thing you've seen in years. Anger. Certainty. And underneath both, something that might be relief.</p>
+    <p>Then you move.</p>
+    <p>Along the ledge to the valley's north end, where a shepherd's path drops back to the valley floor two hundred meters from Drexler's vehicles. Amira, if she's been waiting on the floor, has the horses. Brandt, if he's come this far, knows which way the road goes. Even alone, the dark is enough, and Drexler's men are slow because they're carrying equipment and moving toward a cliff face rather than away from it.</p>
+    <p>You reach the road before dawn.</p>`,
+    choices: [{ label: "The Seal is in your hands. The real decision is still ahead.", next: 41 }]
+  },
+
+  47: {
+    title: "The Necessary Fight",
+    text: `<p>There are six of them and they are trained and the situation, which has been technically balanced for approximately ninety seconds, tips when the man on the rope reaches the ledge and draws his weapon.</p>
+    <p>What follows is conducted in near-silence because the narrow ledge rewards precision over volume and because neither party, it turns out, wants to dislodge anyone into the valley forty feet below. You take a graze along your left arm that burns like a brand and will need proper attention eventually. You deliver three responses that will take considerably longer to heal.</p>
+    <p>Brandt, if he's come this far, creates the kind of distraction at the cliff base that suggests he's been waiting for a reason to do something irrevocable. Amira, if she's on the valley floor, has already started the vehicle.</p>
+    <p>You descend with the Seal tucked inside your jacket, one hand on the rope and one useful arm, and you make the valley floor before the remaining men finish their discussion about what exactly just happened.</p>`,
+    choices: [{ label: "Reach the valley floor. The decision is still ahead.", next: 49 }]
+  },
+
+  49: {
+    title: "Drexler's Surrender",
+    text: `<p>It ends on the valley floor, in the dark, with a gun barrel pressed to the back of Drexler's neck by Corporal Heinz Brandt, who has come too far and seen too much and arrived, finally, at the place where deciding is easier than not deciding.</p>
+    <p>"The fragment," Drexler says, to you. "You have it."</p>
+    <p>"We found the complete disc," you say. "It was never three pieces. The fragments were a map."</p>
+    <p>Something crosses his face. Not quite defeat &mdash; more like a very complicated kind of relief. The expression of a man who has been telling himself a necessary story and has just discovered the ending is different from what he wrote.</p>
+    <p>"What are you going to do with it?" he asks. He sounds, for the first time in any version of this conversation, like a man asking a genuine question rather than running a negotiation.</p>
+    <p>"That," you say, "is none of your business."</p>
+    <p>His men are disarmed. They will be found by the British patrol that comes through this valley every four days &mdash; Amira, who knows the patrol schedule, made sure of that before you started climbing. Drexler will have an interesting conversation with the mandate authorities and an even more interesting one when he returns to Berlin.</p>
+    <p>You walk back up the valley with the Seal, and the question that Bishop Zarian asked in Jerusalem, and three minutes to make the decision you've been postponing since Istanbul.</p>`,
+    choices: [{ label: "The decision cannot wait any longer.", next: 41 }]
+  },
+
+  // ── ENDINGS ─────────────────────────────────────────────────────────────────
+
+  50: {
+    title: "The Wrong Valley",
+    isEnding: true,
+    isBad: true,
+    endingLabel: "Ending: The Dead End",
+    endingTitle: "A Dry Wadi Two Kilometers From the Truth",
+    epigraph: "Not all paths lead to the prize. Some lead to wisdom instead.",
+    text: `<p>The valley you're in is the wrong one. You know it by the third hour of searching &mdash; the red column isn't here, the cliff face configuration doesn't match the description in Yusuf's notes, and the shadow angle in the late afternoon is wrong by thirty degrees. You've been working from incomplete information, and incomplete information in the Sinai leads you to a dry wadi two kilometers from where you need to be, with Drexler's trucks raising dust on the approach road to the correct location.</p>
+    <p>You retreat. Regroup. You are not dead, which is something. But Drexler reaches Wadi Feiran first, and what he does or doesn't find there is a question whose answer arrives, months later, through back channels and rumor and the particular silence of things that happen in the dark and are never officially confirmed.</p>
+    <p>You return to Barnett College with a bruised left arm, a journal page in archaic Arabic, a fragment of ancient bronze, and a conviction that somewhere in the Sinai there is something ancient and extraordinary waiting patiently for whoever asks the right questions in the right order.</p>
+    <p>It will keep. These things always do.</p>
+    <p>You file the fragment in your desk drawer, beneath a half-finished monograph on Hittite trade routes. Sometimes, late in the evening when the campus is quiet, you take it out and set it on the blotter and look at the six-pointed star worked into the bronze, and think about what Yusuf spent his life believing.</p>
+    <p>You think he was right. You think you'll get another chance.</p>
+    <p>In the meantime: you have papers to grade.</p>`,
+    choices: []
+  },
+
+  51: {
+    title: "The Seal Destroyed",
+    isEnding: true,
+    endingLabel: "Ending One — The Good Fight",
+    endingTitle: "What Cannot Be Taken",
+    epigraph: "\"The wisest men I ever knew were those who were most certain that wisdom had limits.\" — Yusuf al-Rashidi, private correspondence, 1931",
+    text: `<p>You think about everyone who decided, over three thousand years, that this thing was too dangerous to exist in one piece. The monk who built the decoy. The scholars who carried the pieces across the Mediterranean and gave them to careful hands. Yusuf, who spent his career tracking it and left it sealed in a cliff rather than take it into the world. Father Nikodemos, who asked not whether you could find it but what you would do when you did.</p>
+    <p>You think about 1937. About what it means to have a tool that compels truth in a year when the loudest voices in the world have made an art form of the opposite &mdash; and about what it would mean to have that tool available not just now but in every year that follows, carried by whoever finds it next, and whoever finds it after them.</p>
+    <p>The disc doesn't burn. Bronze doesn't. But the Proto-Sinaitic inscription, according to Stern's grandfather's translation, requires the characters to be legible. A cold chisel from your pack, and fifteen minutes of work on the ledge above the valley &mdash; the inscription is not gone, but it is not readable. Not without the kind of scholarly restoration that would take years and announce itself to anyone paying attention.</p>
+    <p>The disc goes into the deepest fissure in the cavity wall. You hear it fall for a long time.</p>
+    <p>Below, Drexler's men have given up on the cliff face and are arguing among themselves. You descend on the far side and walk north through the valley in the dark.</p>
+    <p>At the mouth of the wadi, Amira asks you what you did.</p>
+    <p>"Hid it," you say. "Better than before."</p>
+    <p>She is quiet for a moment. "In a way that can be found again?"</p>
+    <p>"Everything can be found again," you say. "The question is whether the right people find it."</p>
+    <p>You walk out of the Sinai into the grey pre-dawn of a world that is, for the moment, one extraordinarily dangerous artifact shorter. It doesn't feel like enough. It feels like the right thing.</p>
+    <p>Sometimes those are the same.</p>`,
+    choices: []
+  },
+
+  52: {
+    title: "The Seal Hidden",
+    isEnding: true,
+    endingLabel: "Ending Two — The Patience",
+    endingTitle: "A Better World Than This One",
+    epigraph: "\"Some discoveries belong to their proper era.\" — found in Yusuf al-Rashidi's field journal, undated",
+    text: `<p>You are not going to destroy it.</p>
+    <p>You've considered it, briefly and carefully, and the answer is no &mdash; not because you doubt the rightness of destruction, but because you are an archaeologist, and the voice that says <em>this is three thousand years old and irreplaceable</em> cannot be entirely silenced even now. There are arguments for fire. You know them all. But you are also standing in a place where people have been hiding things for centuries precisely because they understood that the answer to a dangerous object is not always obliteration. Sometimes it is patience.</p>
+    <p>You drop back down the rope, move along the valley floor, find the secondary wadi that Amira identified on the British survey &mdash; unmarked on any current map, branching east from the main valley into a box canyon whose walls are sheer and whose floor has not been disturbed since a geological event that predates recorded language.</p>
+    <p>At the base of the canyon's north face, two meters down, you bury the disc in its oilcloth and mark the location by a method legible only to someone who knows what to look for. You memorize the coordinates with the precision that fieldwork teaches.</p>
+    <p>You are the only living person who knows where it is. You intend to keep it that way until the world is different enough that the question of what to do with the Seal has a cleaner answer than it does today. You are not certain that day will come in your lifetime. You are certain it has not come yet.</p>
+    <p>You walk out of the wadi at dawn with nothing in your hands except the knowledge of a location that you will write down once, in a sealed envelope, addressed to Amira Khalil.</p>
+    <p><em>Just in case.</em></p>
+    <p>In a box canyon in the Sinai, something waits. It has been waiting for a long time. It is good at it.</p>`,
+    choices: []
+  },
+
+  53: {
+    title: "Nadia's Gambit",
+    isEnding: true,
+    endingLabel: "Ending Three — The Uncertain Shore",
+    endingTitle: "The Lesser Uncertainty",
+    epigraph: "\"Trust is not the same as certainty. Wisdom is knowing when to settle for trust.\"",
+    text: `<p>She is faster than you expected, or you are slower than you thought, or the cliff has simply decided which of you it prefers. When you open the cavity, the disc is already in Nadia Ozan's gloved hands &mdash; she has been climbing toward it from the west, on a route that took her behind the pillar and out of Drexler's sightlines, and she arrived two minutes before you did.</p>
+    <p>She looks at you. You look at her. Drexler's men are still below.</p>
+    <p>"I am not going to fight you for it," she says.</p>
+    <p>"I noticed."</p>
+    <p>"I want you to understand that I have a safe place for this. People I trust, who understand what it is."</p>
+    <p>"No one understands what it is," you say.</p>
+    <p>"Then people who understand that they don't understand, and who have the institutional restraint to leave things alone." She holds your gaze. "I know what you think. That I could be lying. That this is what every person says who wants something. You're right to think it." She tucks the wrapped disc into her satchel. "But the people who killed Yusuf and Hassan Khalil will not find what they're looking for. That is the outcome that matters, and I am the one holding it."</p>
+    <p>Below, Drexler. Above, the first stars of the evening.</p>
+    <p>You let her go. You tell yourself it's because you believe her, which is partially true. The other part of the truth is that you are tired, and Yusuf is dead, and sometimes the right answer is the one you can live with rather than the one you can defend.</p>
+    <p>Drexler's men search the cliff face for four hours and find nothing. Drexler himself leaves the valley before dawn with an expression that tells you he intends to keep looking.</p>
+    <p>You never see Nadia Ozan again. You look for her, sometimes. You don't try very hard.</p>`,
+    choices: []
+  },
+
+  54: {
+    title: "The Cost of Clarity",
+    isEnding: true,
+    endingLabel: "Ending Four — The Honest Mistake",
+    endingTitle: "Truth Is Not Enough",
+    epigraph: "\"I thought knowing would be sufficient. I was, in the relevant sense, naive.\" — H. Jones Jr., private notes, 1937",
+    text: `<p>The inscription is seventy-two characters. You have had three days to memorize the transliteration from Stern's grandfather's notebook, and the pronunciation system he devised from comparative analysis of related scripts is internally consistent enough to work, probably. Probably is not the word you want to be relying on.</p>
+    <p>Drexler's men are six meters below you and climbing. You have perhaps ninety seconds.</p>
+    <p>You hold the assembled disc with both hands and read.</p>
+    <p>What happens next is difficult to describe, and you will spend years not describing it to anyone, because the language for it doesn't quite exist in any tongue you speak. The valley doesn't change. The light doesn't change. The men below keep climbing. But for approximately three minutes you understand with absolute and total clarity why each of the six people within your sight is here &mdash; not the reason they would give you, but the actual one, the one that lives behind the reason they tell themselves.</p>
+    <p>The young one on the rope is afraid of disappointing a father who will never be satisfied regardless of what his son does.</p>
+    <p>The second man has convinced himself that history will vindicate him, and underneath that conviction is the knowledge that it won't, which is why he needs to keep convincing himself.</p>
+    <p>Drexler stops climbing. He looks up at you. And you understand, with a sudden and devastating clarity, that Drexler has already done this &mdash; has already looked at himself clearly, has already seen all of it &mdash; and has made his peace with it. There is no version of the truth that will stop him, because he has already looked at the truth and chosen anyway.</p>
+    <p>"Dr. Jones," he says, very quietly. "Put it down."</p>
+    <p>You do.</p>
+    <p>Three minutes of absolute clarity, and what you learn is that clarity alone solves nothing. The world is not confused about what it is doing. It is not deceiving itself in ways that a bronze disc can correct. It is, with full knowledge, choosing.</p>
+    <p>Brandt reaches your ledge and takes the disc from your hands without being asked. He looks at you once, and whatever he sees there makes him say nothing, which is its own kind of answer.</p>
+    <p>"Take it," you say. "Go."</p>
+    <p>He does. Drexler watches him go.</p>
+    <p>The disc disappears into the Sinai that night, in a location that Brandt chooses and does not share with you, and that turns out to be the right call. You reach Cairo two days later. Amira meets you at the museum with tea and the particular expression of someone who has been worrying and is relieved to have been given permission to stop.</p>
+    <p>You tell her what happened.</p>
+    <p>She listens. Then: "Was it worth it?"</p>
+    <p>"I had to know," you say.</p>
+    <p>"I know," she says. "That's what I was afraid of."</p>
+    <p>The Seal remains hidden. So does the answer to her question.</p>`,
+    choices: []
+  }
+
+};
+
+// ── NAVIGATION ────────────────────────────────────────────────────────────────
+
+let currentSection = null;
+
+function startGame() {
+  document.getElementById('cover').style.display = 'none';
+  document.getElementById('section-page').style.display = 'block';
+  renderSection(1);
+}
+
+function returnToCover() {
+  document.getElementById('section-page').style.display = 'none';
+  document.getElementById('cover').style.display = 'flex';
+  currentSection = null;
+}
+
+function goToSection(num) {
+  const content = document.getElementById('section-content');
+  content.classList.add('fade-out');
+  setTimeout(() => {
+    content.classList.remove('fade-out');
+    renderSection(num);
+    content.classList.add('fade-in');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(() => content.classList.remove('fade-in'), 350);
+  }, 250);
+}
+
+function renderSection(num) {
+  currentSection = num;
+  const s = sections[num];
+  if (!s) {
+    document.getElementById('sec-text').innerHTML = `<p><em>Section ${num} not found.</em></p>`;
+    return;
+  }
+
+  // Section number + title
+  document.getElementById('sec-num').textContent = num;
+  document.getElementById('sec-title').textContent = s.title || '';
+
+  // Body class
+  const body = document.getElementById('sec-body');
+  body.className = 'section-body';
+  if (s.isEnding) body.classList.add(s.isBad ? 'is-bad-ending' : 'is-ending');
+
+  // Text area
+  const textEl = document.getElementById('sec-text');
+  let html = '';
+
+  if (s.isEnding) {
+    html += `<div class="ending-tag">${s.endingLabel || 'Ending'}</div>`;
+    html += `<div class="ending-title">${s.endingTitle || ''}</div>`;
+    if (s.epigraph) html += `<div class="ending-epigraph">${s.epigraph}</div>`;
+  }
+
+  html += s.text;
+  textEl.innerHTML = html;
+
+  // Choices
+  const choicesEl = document.getElementById('sec-choices');
+  if (s.choices && s.choices.length > 0) {
+    let choicesHtml = `<div class="choices-divider"></div><div class="choices-label">Your decision</div><ul class="choices-list">`;
+    s.choices.forEach(c => {
+      if (c.next) {
+        choicesHtml += `<li><button class="choice-btn" onclick="goToSection(${c.next})">${c.label}</button></li>`;
+      }
+    });
+    choicesHtml += `</ul>`;
+    choicesEl.innerHTML = choicesHtml;
+  } else {
+    // Ending
+    choicesEl.innerHTML = `<div class="choices-divider"></div><button class="restart-btn" onclick="returnToCover()">↩ Return to the Beginning</button>`;
+  }
+}
+</script>
+</body>
+</html>
